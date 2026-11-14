@@ -74,6 +74,53 @@
       "confidence": "Niveau de complétude des données",
       "partial": "Calcul partiel (données manquantes)",
       "complete": "Complet"
+    },
+    "zoneDetails": {
+      "heart": {
+        "whatIsIt": "Surveille la régulation de la pression artérielle et la fréquence cardiaque au repos.",
+        "spaceEffect": "En micropesanteur, les fluides migrent vers la partie supérieure du corps, réduisant le volume plasmatique et augmentant le risque d'intolérance orthostatique.",
+        "whatToDo": [
+          "Maintenir 2h d'exercice cardiorespiratoire et sous charge chaque jour.",
+          "Consommer la ration hydrique et électrolytique prescrite.",
+          "Changer de posture en douceur pour éviter les vertiges."
+        ]
+      },
+      "bone": {
+        "whatIsIt": "Évalue la densité minérale osseuse et la masse musculaire des membres porteurs (rachis, col fémoral, hanche).",
+        "spaceEffect": "L'absence de contrainte mécanique accélère la résorption osseuse par rapport à la formation osseuse (perte de 0,5 à 1% par mois sans protection).",
+        "whatToDo": [
+          "Ne sauter aucune séance d'exercice de musculation sur l'appareil ARED.",
+          "Prendre quotidiennement la dose prescrite de vitamine D3 et respecter l'apport en calcium.",
+          "Consigner tout symptôme ostéo-articulaire ressenti."
+        ]
+      },
+      "belly": {
+        "whatIsIt": "Contrôle la régulation glucidique et la stabilité du métabolisme énergétique en mission.",
+        "spaceEffect": "L'environnement confiné et le stress neuroendocrinien peuvent induire une résistance transitoire à l'insuline et modifier la flore intestinale.",
+        "whatToDo": [
+          "Privilégier les rations à index glycémique modéré.",
+          "Maintenir une hydratation régulière tout au long de la journée.",
+          "Effectuer un contrôle 2 heures après le repas principal en cas de doute."
+        ]
+      },
+      "skin": {
+        "whatIsIt": "Surveille la température corporelle centrale et les réponses immunitaires ou fébriles.",
+        "spaceEffect": "L'absence de convection naturelle en microgravité réduit l'efficacité de la transpiration, entraînant un risque de « fièvre spatiale » pendant et après l'exercice.",
+        "whatToDo": [
+          "Veiller au fonctionnement des ventilateurs de cabine et de la zone d'entraînement.",
+          "Bien s'éponger après chaque séance sportive.",
+          "Signaler sans délai toute température ≥ 38 °C au chirurgien de vol."
+        ]
+      },
+      "radiation": {
+        "whatIsIt": "Mesure la dose cumulée de rayonnements ionisants (rayons cosmiques galactiques et vent solaire).",
+        "spaceEffect": "Au-delà du bouclier magnétique terrestre, les rayonnements traversent le blindage et augmentent les risques cellulaires à long terme.",
+        "whatToDo": [
+          "Relever quotidiennement la dose affichée sur le dosimètre actif.",
+          "En cas d'alerte éruption solaire (SPE), rejoindre immédiatement l'abri anti-radiations.",
+          "Vérifier le voyant d'absence de saturation sur le capteur."
+        ]
+      }
     }
   },
   "mental": {
