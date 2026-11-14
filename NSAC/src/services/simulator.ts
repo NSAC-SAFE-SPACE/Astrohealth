@@ -8,6 +8,9 @@ import type {
   ActivityEvent,
   MissionEnvironment
 } from '../types';
+import { DEFAULT_AVATAR_SILHOUETTE, ENVIRONMENT_COMM_DELAYS } from './profile';
+
+export type DemoScenario = 'healthy' | 'fatigue' | 'isolation' | 'bone_loss' | 'radiation_spike';
 
 export const DEFAULT_ASTRONAUT: Astronaut = {
   id: 'astro-01',
@@ -16,9 +19,10 @@ export const DEFAULT_ASTRONAUT: Astronaut = {
   sex: 'male',
   weightKg: 78,
   mission: 'station',
+  photo: DEFAULT_AVATAR_SILHOUETTE,
   careerRadiationDose: 145, // mSv from prior shuttle / ISS flights
   bloodGlucoseUnit: 'mg/dL',
-  commDelayMinutes: 5,
+  commDelayMinutes: 0,
   baselineBoneDensity: {
     total_hip: 1.05,
     lumbar_spine: 1.18,
@@ -27,7 +31,13 @@ export const DEFAULT_ASTRONAUT: Astronaut = {
   }
 };
 
-export async function seedDemoData(scenario: 'healthy' | 'fatigue' | 'isolation' | 'bone_loss' | 'radiation_spike' = 'healthy') {
+/**
+ * Generates realistic longitudinal telemetry across 140 days for demonstration.
+ * NOTE: The simulator strictly adheres to the physiological coupling hypotheses of the engine:
+ * its purpose is to evaluate internal consistency and user interface responsiveness,
+ * not to claim clinical ground-truth.
+ */
+export async function seedDemoData(scenario: DemoScenario = 'healthy') {
   await db.measurements.clear();
   await db.sleepLogs.clear();
   await db.boneDensityRecords.clear();
@@ -35,7 +45,10 @@ export async function seedDemoData(scenario: 'healthy' | 'fatigue' | 'isolation'
   await db.activityEvents.clear();
   await db.astronauts.clear();
 
-  const astro = { ...DEFAULT_ASTRONAUT };
+  const astro: Astronaut = {
+    ...DEFAULT_ASTRONAUT,
+    commDelayMinutes: ENVIRONMENT_COMM_DELAYS[DEFAULT_ASTRONAUT.mission].nominalMin
+  };
   await db.astronauts.put(astro);
 
   const now = new Date();
@@ -44,7 +57,7 @@ export async function seedDemoData(scenario: 'healthy' | 'fatigue' | 'isolation'
   const activityEvents: ActivityEvent[] = [];
   const psychAssessments: PsychAssessment[] = [];
 
-  // Generate 140 days of history
+  // Generate 140 days of history (20 weeks x 7 days)
   for (let d = 139; d >= 0; d--) {
     const dateObj = new Date(now.getTime() - d * 24 * 60 * 60 * 1000);
     const dateStr = dateObj.toISOString().split('T')[0];
@@ -68,36 +81,41 @@ export async function seedDemoData(scenario: 'healthy' | 'fatigue' | 'isolation'
       });
     }
 
-    // Baseline vitals with subtle noise
-    let hr = 68 + Math.sin(d / 10) * 4 + (Math.random() - 0.5) * 5;
-    let sys = 118 + Math.cos(d / 12) * 4 + (Math.random() - 0.5) * 4;
+    // Baseline physiological signals with subtle noise and oscillatory trends
+    let hr = 68 + Math.sin(d / 10) * 3 + (Math.random() - 0.5) * 4;
+    let sys = 118 + Math.cos(d / 12) * 3 + (Math.random() - 0.5) * 4;
     let dia = 76 + (Math.random() - 0.5) * 3;
-    let temp = 36.6 + (Math.random() - 0.5) * 0.3;
-    let glucoseFasting = 84 + (Math.random() - 0.5) * 8;
-    let sleepHours = 7.5 + (Math.random() - 0.5) * 1.2;
-    let sleepAwakenings = Math.random() > 0.7 ? 1 : 0;
+    let temp = 36.65 + (Math.random() - 0.5) * 0.25;
+    let glucoseFasting = 84 + (Math.random() - 0.5) * 6;
+    let sleepHours = 7.4 + (Math.random() - 0.5) * 1.0;
+    let sleepAwakenings = Math.random() > 0.75 ? 1 : 0;
     let restfulness = 4;
     let doseCumulated = 25 + (140 - d) * 0.62;
 
-    // Apply specific scenario modulations on recent days (d < 14)
+    // Apply scenario-specific drifts in recent window (last 14 days, d < 14)
     if (d < 14) {
       if (scenario === 'fatigue') {
-        sleepHours = d < 4 ? 3.8 : 4.8;
+        // Chronic sleep deprivation: 4h sleep, night awakenings, elevated morning sympathetic tone
+        sleepHours = d < 4 ? 3.8 : 4.6;
         sleepAwakenings = 3;
         restfulness = 2;
-        hr += 10;
-        sys += 8;
+        hr += 11;
+        sys += 9;
+        dia += 5;
+        temp += 0.3; // mild inflammatory elevation
+        glucoseFasting += 14; // sleep-deprived insulin resistance
       } else if (scenario === 'isolation') {
+        // Confinement & psychological strain: drops sleep quality, elevates stress markers
         restfulness = 2;
-      } else if (scenario === 'bone_loss') {
-        // Handled in bone records below
+        hr += 8;
+        sys += 7;
       } else if (scenario === 'radiation_spike' && d < 2) {
-        // Solar flare simulation
-        doseCumulated += 15;
+        // Solar energetic particle event
+        doseCumulated += 18;
       }
     }
 
-    // Measurements every day or two
+    // Heart rate measurement
     measurements.push({
       id: `m-hr-${d}`,
       astronautId: astro.id,
@@ -108,6 +126,7 @@ export async function seedDemoData(scenario: 'healthy' | 'fatigue' | 'isolation'
       source: 'simulated'
     });
 
+    // Systolic blood pressure
     measurements.push({
       id: `m-sys-${d}`,
       astronautId: astro.id,
@@ -118,6 +137,7 @@ export async function seedDemoData(scenario: 'healthy' | 'fatigue' | 'isolation'
       source: 'simulated'
     });
 
+    // Diastolic blood pressure
     measurements.push({
       id: `m-dia-${d}`,
       astronautId: astro.id,
@@ -128,6 +148,7 @@ export async function seedDemoData(scenario: 'healthy' | 'fatigue' | 'isolation'
       source: 'simulated'
     });
 
+    // Body temperature
     measurements.push({
       id: `m-temp-${d}`,
       astronautId: astro.id,
@@ -138,6 +159,7 @@ export async function seedDemoData(scenario: 'healthy' | 'fatigue' | 'isolation'
       source: 'simulated'
     });
 
+    // Fasting glucose
     measurements.push({
       id: `m-glu-${d}`,
       astronautId: astro.id,
@@ -149,6 +171,7 @@ export async function seedDemoData(scenario: 'healthy' | 'fatigue' | 'isolation'
       context: 'fasting'
     });
 
+    // Cumulative radiation dose
     measurements.push({
       id: `m-rad-${d}`,
       astronautId: astro.id,
@@ -159,7 +182,7 @@ export async function seedDemoData(scenario: 'healthy' | 'fatigue' | 'isolation'
       source: 'simulated'
     });
 
-    // Sleep log
+    // Nightly sleep log
     sleepLogs.push({
       id: `sleep-${d}`,
       astronautId: astro.id,
@@ -171,13 +194,13 @@ export async function seedDemoData(scenario: 'healthy' | 'fatigue' | 'isolation'
       restfulness
     });
 
-    // Weekly psychological WHO-5 assessment
+    // Weekly psychological WHO-5 assessment (every 7 days)
     if (d % 7 === 0) {
       let answers = [4, 4, 4, 4, 4];
       if (scenario === 'isolation' && d < 21) {
-        answers = [1, 1, 2, 1, 1]; // low score < 28
+        answers = [1, 1, 2, 1, 1]; // Low score 24 (contact_flight_surgeon)
       } else if (scenario === 'fatigue' && d < 14) {
-        answers = [2, 3, 2, 1, 3];
+        answers = [2, 3, 2, 1, 3]; // Action level
       }
       const score = answers.reduce((s, a) => s + a, 0) * 4;
       psychAssessments.push({
@@ -191,7 +214,7 @@ export async function seedDemoData(scenario: 'healthy' | 'fatigue' | 'isolation'
     }
   }
 
-  // Bone density baseline (pre-mission day 0) + current measurement at day 120
+  // Bone density baseline (pre-mission day 0) + current measurement at day 130
   const boneRecords: BoneDensityRecord[] = [
     {
       id: 'bone-base-hip',
@@ -214,18 +237,18 @@ export async function seedDemoData(scenario: 'healthy' | 'fatigue' | 'isolation'
     {
       id: 'bone-curr-hip',
       astronautId: astro.id,
-      date: new Date(now.getTime() - 10 * 86400000).toISOString().split('T')[0],
+      date: new Date(now.getTime() - 5 * 86400000).toISOString().split('T')[0],
       site: 'total_hip',
-      valueGcm2: scenario === 'bone_loss' ? 0.94 : 1.02, // severe loss vs mild loss
+      valueGcm2: scenario === 'bone_loss' ? 0.96 : 1.03, // Accelerated loss vs mitigated
       method: 'dxa',
       isBaseline: false
     },
     {
       id: 'bone-curr-spine',
       astronautId: astro.id,
-      date: new Date(now.getTime() - 10 * 86400000).toISOString().split('T')[0],
+      date: new Date(now.getTime() - 5 * 86400000).toISOString().split('T')[0],
       site: 'lumbar_spine',
-      valueGcm2: scenario === 'bone_loss' ? 1.06 : 1.15,
+      valueGcm2: scenario === 'bone_loss' ? 1.08 : 1.16,
       method: 'dxa',
       isBaseline: false
     }
@@ -236,4 +259,111 @@ export async function seedDemoData(scenario: 'healthy' | 'fatigue' | 'isolation'
   await db.activityEvents.bulkPut(activityEvents);
   await db.psychAssessments.bulkPut(psychAssessments);
   await db.boneDensityRecords.bulkPut(boneRecords);
+}
+
+/**
+ * Simulates advancing time by 24 hours (1 mission day).
+ * Appends new measurements, registers today's activity, and maintains trajectory continuity.
+ */
+export async function advanceTime24h(
+  currentMissionDay: number,
+  scenario: DemoScenario = 'healthy'
+): Promise<{ nextMissionDay: number; newDateStr: string }> {
+  const nextMissionDay = currentMissionDay + 1;
+  const now = new Date();
+  const dateStr = now.toISOString().split('T')[0];
+  const timestamp = now.getTime();
+
+  // 1. Record measurement activity for the new day
+  const actId = `act-adv-${nextMissionDay}-${Date.now()}`;
+  await db.activityEvents.put({
+    id: actId,
+    astronautId: 'astro-01',
+    date: dateStr,
+    type: 'measurement'
+  });
+
+  // 2. Generate new day's readings according to the scenario
+  let hr = 70 + (Math.random() - 0.5) * 4;
+  let sys = 118 + (Math.random() - 0.5) * 4;
+  let dia = 76 + (Math.random() - 0.5) * 3;
+  let temp = 36.7 + (Math.random() - 0.5) * 0.2;
+  let glucose = 85 + (Math.random() - 0.5) * 6;
+  let sleepHours = 7.5;
+
+  if (scenario === 'fatigue') {
+    sleepHours = 4.2;
+    hr += 10;
+    sys += 8;
+    dia += 4;
+    temp += 0.3;
+    glucose += 12;
+  } else if (scenario === 'isolation') {
+    hr += 7;
+    sys += 6;
+  }
+
+  const newMeasurements: Measurement[] = [
+    {
+      id: `adv-hr-${nextMissionDay}`,
+      astronautId: 'astro-01',
+      metric: 'heartRate',
+      value: Math.round(hr),
+      unit: 'bpm',
+      timestamp: timestamp + 8 * 3600000,
+      source: 'simulated'
+    },
+    {
+      id: `adv-sys-${nextMissionDay}`,
+      astronautId: 'astro-01',
+      metric: 'bpSys',
+      value: Math.round(sys),
+      unit: 'mmHg',
+      timestamp: timestamp + 8 * 3600000,
+      source: 'simulated'
+    },
+    {
+      id: `adv-dia-${nextMissionDay}`,
+      astronautId: 'astro-01',
+      metric: 'bpDia',
+      value: Math.round(dia),
+      unit: 'mmHg',
+      timestamp: timestamp + 8 * 3600000,
+      source: 'simulated'
+    },
+    {
+      id: `adv-temp-${nextMissionDay}`,
+      astronautId: 'astro-01',
+      metric: 'temperature',
+      value: Math.round(temp * 10) / 10,
+      unit: '°C',
+      timestamp: timestamp + 9 * 3600000,
+      source: 'simulated'
+    },
+    {
+      id: `adv-glu-${nextMissionDay}`,
+      astronautId: 'astro-01',
+      metric: 'glucose',
+      value: Math.round(glucose),
+      unit: 'mg/dL',
+      timestamp: timestamp + 7 * 3600000,
+      source: 'simulated',
+      context: 'fasting'
+    }
+  ];
+
+  await db.measurements.bulkPut(newMeasurements);
+
+  await db.sleepLogs.put({
+    id: `adv-sleep-${nextMissionDay}`,
+    astronautId: 'astro-01',
+    date: dateStr,
+    hours: Math.round(sleepHours * 10) / 10,
+    bedtime: '23:30',
+    latencyBucket: sleepHours < 5 ? '30-60' : '<15',
+    awakenings: sleepHours < 5 ? 2 : 0,
+    restfulness: sleepHours < 5 ? 2 : 4
+  });
+
+  return { nextMissionDay, newDateStr: dateStr };
 }

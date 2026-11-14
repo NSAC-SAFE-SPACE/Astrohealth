@@ -10,20 +10,25 @@ import type {
   Status,
   ScoreResult,
   Assessment,
-  Metric
+  Metric,
+  Pattern
 } from '../types';
 import {
   DEFAULT_ASTRONAUT,
-  seedDemoData
+  seedDemoData,
+  advanceTime24h as simulateAdvanceTime24h,
+  DemoScenario
 } from '../services/simulator';
+import { resizeImageToSquare } from '../services/profile';
 
-// Import pure scoring functions
+// Pure scoring functions
 import { calculateCardioScore as calcCardio } from '../engine/scores/cardio';
 import { calculateSleepScore as calcSleep } from '../engine/scores/sleep';
 import { calculateMultiSiteBoneLoss as calcBone } from '../engine/scores/bone';
 import { projectRadiation as calcRad } from '../engine/scores/radiation';
 import { assessGlucose as calcGlucose } from '../engine/scores/glucose';
 import { assessMeasurement as calcGeneric } from '../engine/status';
+import { detectPatterns, fuseHealthStatus } from '../engine/fusion';
 
 export interface AstroState {
   astronaut: Astronaut;
@@ -33,27 +38,32 @@ export interface AstroState {
   psychAssessments: PsychAssessment[];
   activityEvents: ActivityEvent[];
   isLoading: boolean;
-  activeScenario: 'healthy' | 'fatigue' | 'isolation' | 'bone_loss' | 'radiation_spike';
+  activeScenario: DemoScenario;
   missionDay: number;
 
-  // Real-time computed states & scores
+  // Real-time computed states, scores & fusion patterns
   cardioScore: ReturnType<typeof calcCardio> | null;
   sleepScore: ScoreResult | null;
   boneLossScore: ReturnType<typeof calcBone> | null;
   radiationProjection: ReturnType<typeof calcRad> | null;
   latestAssessments: Map<Metric, Assessment>;
+  patterns: Pattern[];
+  dominantPattern?: Pattern;
+  summaryFr: string;
+  summaryEn: string;
   globalStatus: Status;
   globalScore: number;
   activeAlertsCount: number;
 
   // Actions
   init: () => Promise<void>;
-  loadScenario: (scenario: 'healthy' | 'fatigue' | 'isolation' | 'bone_loss' | 'radiation_spike') => Promise<void>;
+  loadScenario: (scenario: DemoScenario) => Promise<void>;
   advanceTime24h: () => Promise<void>;
   addMeasurement: (metric: Metric, value: number, unit: string, context?: string) => Promise<void>;
   addSleepLog: (log: Omit<SleepLog, 'id' | 'astronautId'>) => Promise<void>;
   addPsychAssessment: (answers: number[]) => Promise<void>;
   updateAstronautProfile: (updates: Partial<Astronaut>) => Promise<void>;
+  updateAstronautPhoto: (fileOrDataUrl: File | string) => Promise<string>;
   recalculateAll: () => void;
 }
 
@@ -73,6 +83,10 @@ export const useAstroStore = create<AstroState>((set, get) => ({
   boneLossScore: null,
   radiationProjection: null,
   latestAssessments: new Map(),
+  patterns: [],
+  dominantPattern: undefined,
+  summaryFr: 'Tous les paramètres sont dans les normes orbitales.',
+  summaryEn: 'All parameters are within nominal orbital limits.',
   globalStatus: 'normal',
   globalScore: 92,
   activeAlertsCount: 0,
@@ -127,15 +141,8 @@ export const useAstroStore = create<AstroState>((set, get) => ({
   },
 
   advanceTime24h: async () => {
-    const { missionDay, astronaut } = get();
-    const todayStr = new Date().toISOString().split('T')[0];
-    // Add activity event for the new day
-    await db.activityEvents.put({
-      id: `act-adv-${Date.now()}`,
-      astronautId: astronaut.id,
-      date: todayStr,
-      type: 'login'
-    });
+    const { missionDay, activeScenario } = get();
+    await simulateAdvanceTime24h(missionDay, activeScenario);
     set({ missionDay: missionDay + 1 });
     await get().init();
   },
@@ -213,14 +220,20 @@ export const useAstroStore = create<AstroState>((set, get) => ({
 
   updateAstronautProfile: async (updates) => {
     const { astronaut } = get();
-    const updated = { ...astronaut, ...updates };
+    const updated: Astronaut = { ...astronaut, ...updates };
     await db.astronauts.put(updated);
     set({ astronaut: updated });
     get().recalculateAll();
   },
 
+  updateAstronautPhoto: async (fileOrDataUrl) => {
+    const resizedDataUrl = await resizeImageToSquare(fileOrDataUrl, 256);
+    await get().updateAstronautProfile({ photo: resizedDataUrl });
+    return resizedDataUrl;
+  },
+
   recalculateAll: () => {
-    const { measurements, sleepLogs, boneRecords, astronaut } = get();
+    const { measurements, sleepLogs, boneRecords, psychAssessments, astronaut } = get();
 
     // 1. Cardio score
     const sysList = measurements
@@ -266,7 +279,7 @@ export const useAstroStore = create<AstroState>((set, get) => ({
 
     // 5. Biometric assessments map
     const latestAssessments = new Map<Metric, Assessment>();
-    const metricsToAssess: Metric[] = ['heartRate', 'bpSys', 'temperature', 'spo2', 'glucose'];
+    const metricsToAssess: Metric[] = ['heartRate', 'bpSys', 'bpDia', 'temperature', 'spo2', 'glucose'];
 
     metricsToAssess.forEach((metric) => {
       const records = measurements
@@ -289,31 +302,51 @@ export const useAstroStore = create<AstroState>((set, get) => ({
             calcGlucose(latest.value, (latest.context as any) || 'fasting', baseline, astronaut.bloodGlucoseUnit)
           );
         } else {
-          latestAssessments.set('heartRate', calcGeneric(latest.metric, latest.value, baseline));
+          latestAssessments.set(metric, calcGeneric(latest.metric, latest.value, baseline));
         }
       }
     });
 
-    // 6. Global score & status
-    const allStatuses: Status[] = [];
-    if (cardioScore?.status) allStatuses.push(cardioScore.status);
-    if (sleepScore?.status) allStatuses.push(sleepScore.status);
-    if (boneLossScore?.status) allStatuses.push(boneLossScore.status);
-    if (radiationProjection?.status) allStatuses.push(radiationProjection.status);
+    // 6. Fusion & multi-metric patterns
+    const latestHr = hrList[0]?.value;
+    const latestSys = sysList[0]?.value;
+    const latestDia = measurements.find((m) => m.metric === 'bpDia')?.value;
+    const latestTemp = measurements.find((m) => m.metric === 'temperature')?.value;
+    const latestSleepHours = sortedSleep[0]?.hours;
+    const latestGlucose = measurements.find((m) => m.metric === 'glucose')?.value;
+    const latestMood = psychAssessments[psychAssessments.length - 1]?.score;
 
-    const hierarchy: Status[] = ['normal', 'watch', 'action', 'contact_flight_surgeon'];
-    const worstStatus = allStatuses.reduce<Status>((acc, s) => {
-      return hierarchy.indexOf(s) > hierarchy.indexOf(acc) ? s : acc;
-    }, 'normal');
+    const detectedPatterns = detectPatterns({
+      heartRate: latestHr,
+      bpSys: latestSys,
+      bpDia: latestDia,
+      temperature: latestTemp,
+      sleepHours: latestSleepHours,
+      glucose: latestGlucose,
+      mood: latestMood,
+      exerciseMin: 50,
+      boneLossPercent: boneLossScore?.value,
+      missionDays: get().missionDay
+    });
+
+    const allIndividualStatuses: Status[] = [];
+    if (cardioScore?.status) allIndividualStatuses.push(cardioScore.status);
+    if (sleepScore?.status) allIndividualStatuses.push(sleepScore.status);
+    if (boneLossScore?.status) allIndividualStatuses.push(boneLossScore.status);
+    if (radiationProjection?.status) allIndividualStatuses.push(radiationProjection.status);
+    latestAssessments.forEach((ass) => allIndividualStatuses.push(ass.status));
+
+    const fusion = fuseHealthStatus(allIndividualStatuses, detectedPatterns);
 
     let rawScore = 100;
     if (cardioScore) rawScore -= (100 - cardioScore.value) * 0.35;
     if (sleepScore) rawScore -= (100 - sleepScore.value) * 0.35;
     if (boneLossScore && boneLossScore.value > 2) rawScore -= Math.min(30, boneLossScore.value * 3);
     if (radiationProjection && radiationProjection.status !== 'normal') rawScore -= 15;
+    if (fusion.patterns.length > 0) rawScore -= fusion.patterns.length * 8;
 
     const globalScore = Math.max(20, Math.min(100, Math.round(rawScore)));
-    const alertsCount = allStatuses.filter((s) => s === 'action' || s === 'contact_flight_surgeon').length;
+    const alertsCount = allIndividualStatuses.filter((s) => s === 'action' || s === 'contact_flight_surgeon').length;
 
     set({
       cardioScore,
@@ -321,7 +354,11 @@ export const useAstroStore = create<AstroState>((set, get) => ({
       boneLossScore,
       radiationProjection,
       latestAssessments,
-      globalStatus: worstStatus,
+      patterns: fusion.patterns,
+      dominantPattern: fusion.dominantPattern,
+      summaryFr: fusion.summaryFr,
+      summaryEn: fusion.summaryEn,
+      globalStatus: fusion.overallStatus,
       globalScore,
       activeAlertsCount: alertsCount
     });
