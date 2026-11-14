@@ -125,19 +125,94 @@
   },
   "mental": {
     "title": "Bien-être psychologique & Sommeil",
+    "subtitle": "Évaluation autonome du moral, de la vitalité psychologique et de la récupération du sommeil.",
     "startAssessment": "Commencer le bilan OMS-5",
+    "retakeAssessment": "Refaire le bilan OMS-5",
     "lastAssessment": "Dernier bilan psychologique",
     "scoreLabel": "Indice OMS-5 adapté",
     "historyTitle": "8 derniers bilans",
+    "historySubtitle": "Évolution hebdomadaire et seuils",
     "questionPrompt": "Ces derniers jours…",
     "questionProgress": "Question {{current}} sur {{total}}",
     "prevQuestion": "Précédent",
     "nextQuestion": "Suivant",
     "finishAssessment": "Valider le bilan",
-    "sleepSection": "Score de qualité du sommeil",
+    "saveAndReturn": "Enregistrer et revenir à la vue d'ensemble",
+    "cancelAssessment": "Interrompre le bilan",
+    "newAssessmentTitle": "Bilan de votre auto-évaluation OMS-5",
+    "doctorAlertNotice": "⚠️ Résultat critique : une alerte médicale prioritaire a été automatiquement ajoutée au rapport confidentiel pour le chirurgien de vol.",
+    "questions": [
+      "Je me suis senti(e) bien et de bonne humeur.",
+      "Je me suis senti(e) calme et tranquille.",
+      "Je me suis senti(e) plein(e) d'énergie.",
+      "Je me suis réveillé(e) en me sentant frais et dispos.",
+      "Ma vie quotidienne a été remplie de choses intéressantes."
+    ],
+    "choices": [
+      { "label": "Tout le temps", "points": 5 },
+      { "label": "La plupart du temps", "points": 4 },
+      { "label": "Plus de la moitié du temps", "points": 3 },
+      { "label": "Moins de la moitié du temps", "points": 2 },
+      { "label": "De temps en temps", "points": 1 },
+      { "label": "Jamais", "points": 0 }
+    ],
+    "evaluations": {
+      "normal": {
+        "title": "Bien-être psychologique optimal",
+        "phrase": "Votre niveau de vitalité, de sérénité et d'intérêt pour vos activités quotidiennes est excellent et soutient l'endurance en mission.",
+        "actions": [
+          "Conserver vos routines de détente et d'exercice quotidien.",
+          "Maintenir des moments d'échange et de convivialité avec l'équipage.",
+          "Poursuivre les contacts vidéo réguliers avec vos proches."
+        ]
+      },
+      "watch": {
+        "title": "Vigilance : baisse modérée d'énergie",
+        "phrase": "Une légère diminution de la vitalité ou du calme émotionnel est observée ces derniers jours.",
+        "actions": [
+          "Sanctuariser vos 8 heures de repos dans votre couchette.",
+          "Partager vos ressentis avec un coéquipier de confiance.",
+          "Refaire une évaluation dans 3 à 4 jours."
+        ]
+      },
+      "action": {
+        "title": "Action conseillée : fatigue ou stress marqué",
+        "phrase": "Vos réponses indiquent une charge mentale élevée ou une baisse notable de moral et de motivation.",
+        "actions": [
+          "Aménager des plages d'intimité, de lecture ou de musique relaxante.",
+          "Échanger avec le commandant de bord pour moduler la charge de travail.",
+          "Pratiquer les séances guidées de cohérence cardiaque et de respiration."
+        ]
+      },
+      "contact_flight_surgeon": {
+        "title": "Alerte : contact du médecin de vol requis",
+        "phrase": "Votre niveau d'épuisement ou de détresse psychologique nécessite un échange confidentiel prioritaire avec l'équipe médicale de Terre.",
+        "actions": [
+          "Planifier un point médical avec le chirurgien de vol ou le psychologue de mission.",
+          "Prendre un repos immédiat dans votre cabine.",
+          "Informer le médecin de toute altération du sommeil ou de l'appétit."
+        ]
+      }
+    },
+    "sleepSection": "Qualité du sommeil & Récupération",
     "sleepLogButton": "Saisir la nuit au réveil",
+    "sleepComponents": "Composantes du score de sommeil (durée, continuité, régularité, ressenti)",
+    "sleepTrend": "Tendance sur 7 nuits",
     "influencesTitle": "Ce qui influence votre humeur",
-    "sleepTrend": "Tendance sur 7 nuits"
+    "influences": [
+      {
+        "title": "Sommeil récupérateur",
+        "text": "Une nuit de plus de 7h avec peu d'éveils stabilise directement l'humeur du lendemain (+12%)."
+      },
+      {
+        "title": "Exercice physique régulier",
+        "text": "Les 2h quotidiennes d'entraînement aérobie et de musculation ARED stimulent les endorphines et protègent contre l'anxiété."
+      },
+      {
+        "title": "Confinement et monotonie",
+        "text": "La privation sensorielle et l'environnement clos accroissent la fatigue mentale : préservez vos rituels d'équipage."
+      }
+    ]
   },
   "history": {
     "title": "Historique & Trajectoires prédictives",
