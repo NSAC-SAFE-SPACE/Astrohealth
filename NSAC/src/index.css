@@ -32,3 +32,28 @@ button, a, input, select {
   outline: 2px solid #0B4F8A;
   outline-offset: 2px;
 }
+
+/* Print Styles for Flight Surgeon Report */
+@media print {
+  aside, nav, header, footer, .no-print {
+    display: none !important;
+  }
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+  body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .shadow-xs, .shadow-md, .shadow-lg, .shadow-xl {
+    box-shadow: none !important;
+  }
+  .border {
+    border-color: #CBD5E1 !important;
+  }
+}
