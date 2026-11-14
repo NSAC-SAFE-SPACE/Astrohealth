@@ -216,22 +216,78 @@
   },
   "history": {
     "title": "Historique & Trajectoires prédictives",
+    "subtitle": "Un seul indicateur à la fois : suivi temporel, baseline glissante sur 14 jours et prévisions avec fourchette d'incertitude.",
     "selectMetric": "Sélectionner un indicateur",
     "range7d": "7 jours",
     "range30d": "30 jours",
     "range90d": "90 jours",
     "baselineLegend": "Ligne de base personnelle (14j)",
     "forecastLegend": "Prévision (intervalle de confiance)",
-    "thresholdNormal": "Zone optimale"
+    "thresholdNormal": "Zone optimale",
+    "forecastNotice": "Ligne pleine : mesures réelles · Pointillés turquoise : prévision à 7 jours avec fourchette estimée",
+    "metrics": {
+      "heartRate": "Fréquence cardiaque",
+      "bpSys": "Pression artérielle systolique",
+      "temperature": "Température corporelle",
+      "glucose": "Glycémie capillaire",
+      "boneLoss": "Perte osseuse estimée",
+      "sleep": "Durée du sommeil",
+      "mood": "Indice OMS-5 adapté",
+      "radiation": "Radiations cumulées"
+    }
   },
   "missions": {
     "title": "Missions quotidiennes & Régularité",
-    "subtitle": "Récompenses attribuées uniquement à la régularité, jamais à la valeur mesurée.",
+    "subtitle": "Récompenses attribuées uniquement à la régularité des mesures, jamais à la valeur mesurée.",
     "currentStreak": "Série active",
     "days": "jours consécutifs",
     "todayMissions": "Missions du jour (3 max)",
     "badgesTitle": "Badges d'assiduité orbitale",
-    "exerciseReminder": "Rappel d'exercice quotidien (microgravité : 2h obligatoires)"
+    "environmentReminderTitle": "Consigne opérationnelle selon votre environnement",
+    "environmentReminders": {
+      "spacecraft": {
+        "title": "Protocole de transit en vaisseau spatial",
+        "text": "2 heures d'exercice cardiorespiratoire et sous charge obligatoire par jour pour préserver la fonction orthostatique et limiter l'atrophie musculaire."
+      },
+      "station": {
+        "title": "Protocole de microgravité en station orbitale",
+        "text": "Séance quotidienne sur machine de résistance ARED et tapis roulant T2 indispensable pour contrer la déminéralisation osseuse."
+      },
+      "lunar_base": {
+        "title": "Protocole de base lunaire (gravité 1/6 g)",
+        "text": "Surveillance de la charge mécanique partielle, relevé quotidien du dosimètre de surface et protocole de décontamination anti-poussière de régolithe."
+      },
+      "mars_rover": {
+        "title": "Protocole d'exploration en rover martien (gravité 1/3 g)",
+        "text": "Délai de communication Terre de 15 à 20 minutes : auto-évaluation stricte quotidienne des constantes vitales, inspection dosimétrique et autonomie médicale complète."
+      }
+    },
+    "badges": {
+      "firstContact": {
+        "name": "Premier contact",
+        "desc": "Au moins une première auto-évaluation enregistrée à bord."
+      },
+      "lowOrbit": {
+        "name": "Orbite basse",
+        "desc": "Série active de 7 jours consécutifs de suivi santé."
+      },
+      "orbitalDiscipline": {
+        "name": "Discipline orbitale",
+        "desc": "Série active de 14 jours consécutifs sans interruption."
+      },
+      "lunarTrajectory": {
+        "name": "Cap lunaire",
+        "desc": "Série active de 30 jours consécutifs de régularité exemplaire."
+      },
+      "martianEndurance": {
+        "name": "Endurance martienne",
+        "desc": "Série active de 60 jours consécutifs de protocole complet."
+      },
+      "guardian": {
+        "name": "Sentinelle de bord",
+        "desc": "100 mesures et auto-évaluations enregistrées au total."
+      }
+    }
   },
   "settings": {
     "title": "Réglages & Rapport chirurgien",

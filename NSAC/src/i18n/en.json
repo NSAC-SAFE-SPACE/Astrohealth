@@ -149,12 +149,30 @@
       "My daily life has been filled with things that interest me."
     ],
     "choices": [
-      { "label": "All of the time", "points": 5 },
-      { "label": "Most of the time", "points": 4 },
-      { "label": "More than half of the time", "points": 3 },
-      { "label": "Less than half of the time", "points": 2 },
-      { "label": "Some of the time", "points": 1 },
-      { "label": "At no time", "points": 0 }
+      {
+        "label": "All of the time",
+        "points": 5
+      },
+      {
+        "label": "Most of the time",
+        "points": 4
+      },
+      {
+        "label": "More than half of the time",
+        "points": 3
+      },
+      {
+        "label": "Less than half of the time",
+        "points": 2
+      },
+      {
+        "label": "Some of the time",
+        "points": 1
+      },
+      {
+        "label": "At no time",
+        "points": 0
+      }
     ],
     "evaluations": {
       "normal": {
@@ -216,22 +234,78 @@
   },
   "history": {
     "title": "History & Predictive Trajectories",
+    "subtitle": "Single biometric indicator at a time: temporal trend, 14-day rolling baseline, and forecasts with confidence bounds.",
     "selectMetric": "Select biometric indicator",
     "range7d": "7 days",
     "range30d": "30 days",
     "range90d": "90 days",
     "baselineLegend": "Personal baseline (14d)",
     "forecastLegend": "Forecast (confidence bounds)",
-    "thresholdNormal": "Optimal range"
+    "thresholdNormal": "Optimal range",
+    "forecastNotice": "Solid blue line: actual recorded measurements · Dashed teal line: 7-day projected trajectory with estimated bounds",
+    "metrics": {
+      "heartRate": "Heart Rate",
+      "bpSys": "Systolic Blood Pressure",
+      "temperature": "Body Temperature",
+      "glucose": "Blood Glucose",
+      "boneLoss": "Estimated Bone Loss",
+      "sleep": "Sleep Duration",
+      "mood": "Adapted WHO-5 Index",
+      "radiation": "Cumulative Radiation"
+    }
   },
   "missions": {
     "title": "Daily Missions & Regularity",
-    "subtitle": "Rewards strictly awarded for measurement regularity, never for numeric values.",
+    "subtitle": "Rewards are strictly based on self-assessment regularity, never on measured values.",
     "currentStreak": "Active Streak",
     "days": "consecutive days",
     "todayMissions": "Today's Missions (3 max)",
     "badgesTitle": "Orbital Discipline Badges",
-    "exerciseReminder": "Daily resistance exercise reminder (microgravity: 2h mandatory)"
+    "environmentReminderTitle": "Operational Guidance for Your Mission Environment",
+    "environmentReminders": {
+      "spacecraft": {
+        "title": "Deep Space Transit Protocol",
+        "text": "Mandatory 2 hours of daily cardiovascular and resistive training to preserve orthostatic tolerance and mitigate muscular atrophy."
+      },
+      "station": {
+        "title": "Orbital Microgravity Protocol",
+        "text": "Daily workout sessions on ARED resistance device and T2 treadmill are essential to counter progressive bone demineralization."
+      },
+      "lunar_base": {
+        "title": "Lunar Surface Protocol (1/6 g)",
+        "text": "Monitor partial mechanical loading, record daily surface dosimeter reading, and follow regolith dust decontamination procedures."
+      },
+      "mars_rover": {
+        "title": "Martian Exploration Protocol (1/3 g)",
+        "text": "Earth communications delay of 15 to 20 minutes: strict daily self-assessment of vitals, active dosimeter monitoring, and complete medical autonomy."
+      }
+    },
+    "badges": {
+      "firstContact": {
+        "name": "First Contact",
+        "desc": "At least one self-assessment successfully logged on board."
+      },
+      "lowOrbit": {
+        "name": "Low Orbit",
+        "desc": "7-day consecutive streak of health monitoring."
+      },
+      "orbitalDiscipline": {
+        "name": "Orbital Routine",
+        "desc": "14-day consecutive streak without interruption."
+      },
+      "lunarTrajectory": {
+        "name": "Lunar Trajectory",
+        "desc": "30-day consecutive streak of exemplary regularity."
+      },
+      "martianEndurance": {
+        "name": "Martian Endurance",
+        "desc": "60-day consecutive streak of complete telemetry protocol."
+      },
+      "guardian": {
+        "name": "Telemetry Guardian",
+        "desc": "100 total measurements and self-assessments recorded."
+      }
+    }
   },
   "settings": {
     "title": "Settings & Flight Surgeon Report",
