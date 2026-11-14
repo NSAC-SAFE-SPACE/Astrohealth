@@ -1,0 +1,146 @@
+[
+  {
+    "from": "sleep",
+    "to": "mood",
+    "sign": "+",
+    "strength": 0.6,
+    "lagDays": 1,
+    "rationale": "Un bon sommeil soutient l'humeur et la stabilité émotionnelle.",
+    "rationaleEn": "Good sleep supports mood stability and emotional well-being."
+  },
+  {
+    "from": "sleep",
+    "to": "heartRate",
+    "sign": "-",
+    "strength": 0.5,
+    "lagDays": 1,
+    "rationale": "Le déficit de sommeil élève le tonus sympathique et la fréquence cardiaque de repos.",
+    "rationaleEn": "Sleep deficit increases sympathetic tone and elevates resting heart rate."
+  },
+  {
+    "from": "sleep",
+    "to": "bloodPressure",
+    "sign": "-",
+    "strength": 0.4,
+    "lagDays": 1,
+    "rationale": "Le manque chronique de sommeil augmente la tension artérielle.",
+    "rationaleEn": "Chronic sleep restriction increases blood pressure."
+  },
+  {
+    "from": "sleep",
+    "to": "glucose",
+    "sign": "-",
+    "strength": 0.4,
+    "lagDays": 2,
+    "rationale": "La privation de sommeil induit une résistance transitoire à l'insuline et élève la glycémie.",
+    "rationaleEn": "Sleep deprivation induces transient insulin resistance and raises blood glucose."
+  },
+  {
+    "from": "exercise",
+    "to": "heartRate",
+    "sign": "-",
+    "strength": 0.4,
+    "lagDays": 2,
+    "rationale": "L'entraînement cardiorespiratoire régulier abaisse la fréquence cardiaque de repos.",
+    "rationaleEn": "Regular cardiovascular training lowers resting heart rate."
+  },
+  {
+    "from": "exercise",
+    "to": "bloodPressure",
+    "sign": "-",
+    "strength": 0.4,
+    "lagDays": 2,
+    "rationale": "L'exercice aérobie favorise la vasodilatation et normalise la tension artérielle.",
+    "rationaleEn": "Aerobic exercise promotes vasodilation and normalizes blood pressure."
+  },
+  {
+    "from": "exercise",
+    "to": "glucose",
+    "sign": "-",
+    "strength": 0.5,
+    "lagDays": 1,
+    "rationale": "L'activité musculaire consomme le glucose et améliore la sensibilité à l'insuline.",
+    "rationaleEn": "Muscular activity utilizes glucose and enhances insulin sensitivity."
+  },
+  {
+    "from": "exercise",
+    "to": "boneMass",
+    "sign": "+",
+    "strength": 0.8,
+    "lagDays": 7,
+    "rationale": "L'exercice de résistance en microgravité (ARED) stimule le remodelage osseux et freine la déminéralisation.",
+    "rationaleEn": "Resistance exercise in microgravity (ARED) stimulates bone remodeling and counters demineralization."
+  },
+  {
+    "from": "mood",
+    "to": "heartRate",
+    "sign": "-",
+    "strength": 0.3,
+    "lagDays": 1,
+    "rationale": "L'anxiété et le stress émotionnel élèvent la fréquence cardiaque.",
+    "rationaleEn": "Anxiety and emotional stress increase resting heart rate."
+  },
+  {
+    "from": "mood",
+    "to": "bloodPressure",
+    "sign": "-",
+    "strength": 0.3,
+    "lagDays": 1,
+    "rationale": "L'altération de l'humeur ou le stress aigu accroissent la réactivité vasculaire.",
+    "rationaleEn": "Low mood or acute stress elevates vascular resistance and blood pressure."
+  },
+  {
+    "from": "mood",
+    "to": "sleep",
+    "sign": "+",
+    "strength": 0.5,
+    "lagDays": 1,
+    "rationale": "Un bien-être psychologique optimal facilite l'endormissement et préserve la qualité du sommeil.",
+    "rationaleEn": "Optimal psychological well-being aids sleep onset and restores sleep continuity."
+  },
+  {
+    "from": "temperature",
+    "to": "heartRate",
+    "sign": "+",
+    "strength": 0.7,
+    "lagDays": 1,
+    "rationale": "L'élévation de température corporelle stimule le rythme cardiaque d'environ 8 à 10 bpm par degré.",
+    "rationaleEn": "Core temperature elevation accelerates heart rate by roughly 8 to 10 bpm per degree Celsius."
+  },
+  {
+    "from": "heartRate",
+    "to": "bloodPressure",
+    "sign": "+",
+    "strength": 0.4,
+    "lagDays": 1,
+    "rationale": "L'augmentation du rythme cardiaque accroît le débit systolique et la pression artérielle.",
+    "rationaleEn": "Elevated heart rate increases cardiac output and arterial pressure."
+  },
+  {
+    "from": "bloodPressure",
+    "to": "heartRate",
+    "sign": "+",
+    "strength": 0.3,
+    "lagDays": 1,
+    "rationale": "Interdépendance hémodynamique et rétroaction baroréflexe.",
+    "rationaleEn": "Hemodynamic interdependence and baroreflex feedback."
+  },
+  {
+    "from": "inflammation",
+    "to": "temperature",
+    "sign": "+",
+    "strength": 0.6,
+    "lagDays": 1,
+    "rationale": "La réponse cytokinique pro-inflammatoire élève le point de consigne thermique hypothalamique.",
+    "rationaleEn": "Pro-inflammatory cytokines shift the hypothalamic thermoregulatory set point."
+  },
+  {
+    "from": "inflammation",
+    "to": "heartRate",
+    "sign": "+",
+    "strength": 0.5,
+    "lagDays": 1,
+    "rationale": "L'inflammation systémique induit une vasodilatation périphérique et une tachycardie réflexe.",
+    "rationaleEn": "Systemic inflammation prompts compensatory sinus tachycardia."
+  }
+]

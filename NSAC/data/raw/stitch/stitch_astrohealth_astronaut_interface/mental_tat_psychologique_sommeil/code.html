@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+
+<html lang="fr"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,600;0,8..60,700;1,8..60,600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"on-secondary":"#ffffff","surface-container":"#e4efff","secondary-fixed-dim":"#6fd8c8","on-primary":"#ffffff","on-surface-variant":"#424750","surface-variant":"#d8e3f5","surface-container-lowest":"#ffffff","on-secondary-fixed-variant":"#005048","status-action":"#E07B00","inverse-surface":"#26313f","on-tertiary":"#ffffff","on-background":"#111c29","on-tertiary-fixed-variant":"#713700","error-container":"#ffdad6","primary-container":"#0b4f8a","error":"#ba1a1a","text-muted":"#5B6B7B","inverse-primary":"#a2c9ff","secondary":"#006a60","on-secondary-container":"#007166","status-surveillance":"#D9A400","outline-variant":"#c2c7d1","surface-container-high":"#dee9fb","surface":"#f8f9ff","surface-subtle":"#F5F8FB","surface-container-low":"#eef4ff","on-error-container":"#93000a","outline":"#727781","status-contact-chirurgien":"#C93C3C","secondary-container":"#8cf5e4","tertiary-container":"#7b3c00","primary-fixed":"#d3e4ff","secondary-fixed":"#8cf5e4","on-error":"#ffffff","surface-dim":"#cfdbec","tertiary-fixed":"#ffdcc6","on-surface":"#111c29","surface-container-highest":"#d8e3f5","surface-bright":"#f8f9ff","surface-tint":"#27609c","primary":"#003866","on-tertiary-fixed":"#301400","status-normal":"#2E9E6B","border-subtle":"#E3E9EF","on-secondary-fixed":"#00201c","tertiary-fixed-dim":"#ffb785","on-primary-fixed":"#001c38","primary-fixed-dim":"#a2c9ff","background":"#f8f9ff","on-primary-container":"#94c2ff","on-tertiary-container":"#ffab6f","inverse-on-surface":"#e9f1ff","tertiary":"#592a00","surface-base":"#FFFFFF","on-primary-fixed-variant":"#004881"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"space-lg":"1.5rem","margin":"2rem","gutter-mobile":"1rem","gutter":"1.5rem","space-sm":"0.5rem","margin-mobile":"1.25rem","space-xl":"2.5rem","space-xs":"0.25rem","space-md":"1rem"},"fontFamily":{"headline-md":["\"Source Serif 4\""],"headline-xl-mobile":["\"Source Serif 4\""],"headline-lg":["\"Source Serif 4\""],"headline-xl":["\"Source Serif 4\""],"caption":["\"Source Sans 3\""],"body-lg":["\"Source Sans 3\""],"body-lg-bold":["\"Source Sans 3\""],"label-md":["\"Source Sans 3\""],"body-base":["\"Source Sans 3\""],"body-base-semibold":["\"Source Sans 3\""]},"fontSize":{"headline-md":["20px",{"lineHeight":"30px","fontWeight":"600"}],"headline-xl-mobile":["32px",{"lineHeight":"40px","fontWeight":"700"}],"headline-lg":["28px",{"lineHeight":"36px","fontWeight":"600"}],"headline-xl":["40px",{"lineHeight":"48px","fontWeight":"700"}],"caption":["14px",{"lineHeight":"20px","fontWeight":"400"}],"body-lg":["18px",{"lineHeight":"28.8px","fontWeight":"400"}],"body-lg-bold":["18px",{"lineHeight":"28.8px","fontWeight":"600"}],"label-md":["14px",{"lineHeight":"20px","letterSpacing":"0.02em","fontWeight":"600"}],"body-base":["16px",{"lineHeight":"25.6px","fontWeight":"400"}],"body-base-semibold":["16px",{"lineHeight":"25.6px","fontWeight":"600"}]}}}};</script></head><body class="bg-surface font-body-base text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-subtle shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-50 flex flex-col justify-between select-none"><div class="flex flex-col"><div class="h-20 px-gutter flex items-center gap-space-sm"><div class="w-8 h-8 rounded-lg bg-primary-container flex items-center justify-center text-on-primary font-headline-md text-headline-md">A</div><div class="flex flex-col"><div class="flex items-center gap-1.5"><span class="font-headline-md text-headline-md tracking-tight text-on-surface">Astrohealth</span><span class="w-2 h-2 rounded-full bg-status-normal inline-block"></span></div><span class="font-caption text-caption text-text-muted tracking-wider uppercase font-semibold text-[11px]">Astronaute // Expédition 72</span></div></div><nav class="flex flex-col gap-1 px-space-md mt-space-md" data-active-classes="bg-primary-container text-on-primary font-body-base-semibold shadow-[0_1px_3px_0_rgba(11,79,138,0.04)]"><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors min-h-[48px]" data-path="accueil" href="#"><span class="material-symbols-outlined text-[22px]">home</span><span class="font-body-base-semibold text-body-base">Accueil</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors min-h-[48px]" data-path="mon-corps" href="#"><span class="material-symbols-outlined text-[22px]">accessibility_new</span><span class="font-body-base-semibold text-body-base">Mon corps</span></a><a aria-current="page" class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg transition-colors min-h-[48px] bg-primary-container text-on-primary font-body-base-semibold shadow-[0_1px_3px_0_rgba(11,79,138,0.04)]" data-path="mental" href="#"><span class="material-symbols-outlined text-[22px]">psychology</span><span class="font-body-base-semibold text-body-base">Mental</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors min-h-[48px]" data-path="historique" href="#"><span class="material-symbols-outlined text-[22px]">trending_up</span><span class="font-body-base-semibold text-body-base">Historique</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors min-h-[48px]" data-path="missions" href="#"><span class="material-symbols-outlined text-[22px]">flag</span><span class="font-body-base-semibold text-body-base">Missions</span></a></nav></div><div class="p-space-md"><div class="bg-surface-base rounded-lg p-space-sm shadow-[0_1px_3px_0_rgba(11,79,138,0.04)] flex items-center gap-space-sm"><div class="relative"><div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[20px]">person</span></div><span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-status-normal ring-2 ring-surface-base"></span></div><div class="flex flex-col min-w-0"><span class="font-body-base-semibold text-body-base text-on-surface truncate">Dr. Sarah Jenkins</span><span class="font-caption text-caption text-text-muted truncate">En ligne // Station</span></div></div></div></aside><div class="pl-72 flex flex-col min-h-screen"><header class="fixed top-0 left-72 right-0 h-20 bg-surface-base/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 px-margin flex items-center justify-end gap-space-lg select-none"><div class="flex items-center gap-space-xs px-space-sm py-1 rounded-full bg-status-normal/10"><span class="w-1.5 h-1.5 rounded-full bg-status-normal inline-block"></span><span class="font-label-md text-label-md text-on-surface">Télémétrie Nominale</span></div><div class="font-caption text-caption text-text-muted font-medium">UTC 14:32:08 • Jour de mission 41</div><button class="min-h-[48px] px-space-lg bg-primary-container text-on-primary font-body-base-semibold text-body-base rounded-lg hover:bg-primary transition-colors flex items-center gap-space-xs" type="button"><span class="material-symbols-outlined text-[20px]">bolt</span><span>Protocole Rapide</span></button><button aria-label="Notifications" class="w-10 h-10 flex items-center justify-center rounded-lg text-text-muted hover:bg-surface-subtle hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[22px]">notifications</span></button><div class="flex items-center gap-space-xs pl-space-xs"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><span class="font-body-base-semibold text-body-base text-on-surface hidden xl:inline">Dr. Sarah Jenkins</span></div></header><main class="flex-1 pt-20 bg-surface px-margin py-space-lg w-full"><div class="flex flex-col w-full">
+<!-- Fil d'Ariane & En-tête éditoriale clinique -->
+<div class="flex flex-col gap-space-xs pb-space-lg">
+<div class="flex items-center gap-2 font-caption text-caption text-text-muted">
+<span class="hover:text-primary transition-colors cursor-pointer">Accueil</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-primary font-body-base-semibold">Mental</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-text-muted">Évaluation Psychologique &amp; Chronobiologie</span>
+</div>
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md pt-space-xs">
+<div class="max-w-3xl">
+<h1 class="font-headline-xl text-headline-xl text-on-surface tracking-tight">Mental — État Psychologique &amp; Sommeil</h1>
+<p class="font-body-base text-body-base text-text-muted mt-1">
+          Évaluation continue de votre dynamique cognitive, humeur, adaptation et architecture du sommeil en confinement orbital.
+        </p>
+</div>
+<!-- Pastille de télémétrie mentale temps réel -->
+<div class="inline-flex items-center gap-space-xs px-3 py-1.5 rounded-full bg-status-normal/10 self-start md:self-auto shrink-0">
+<span class="w-2 h-2 rounded-full bg-status-normal animate-pulse"></span>
+<span class="font-label-md text-label-md text-on-surface">Psychométrie active • Sol 41</span>
+</div>
+</div>
+</div>
+<!-- SECTION 1 : Bilan Global & Auto-évaluation (Accentuer la proéminence clinique) -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg mb-space-xl">
+<!-- Carte Score Global -->
+<div class="lg:col-span-8 bg-surface-subtle rounded-xl p-space-lg shadow-sm flex flex-col justify-between">
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-space-md">
+<div>
+<div class="flex items-center gap-space-xs mb-1">
+<span class="material-symbols-outlined text-primary text-[20px]">psychology_alt</span>
+<span class="font-caption text-caption text-text-muted uppercase tracking-wider font-semibold">Bilan Synthétique Global</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Votre état psychologique</h2>
+<p class="font-caption text-caption text-text-muted mt-0.5">Dernier bilan validé : <span class="font-semibold text-on-surface">il y a 2 jours</span> (Sol 39 • 21:15 UTC)</p>
+</div>
+<div class="flex items-center gap-space-xs px-3 py-1.5 rounded-full bg-status-normal/10 text-on-surface self-start">
+<span class="w-2 h-2 rounded-full bg-status-normal"></span>
+<span class="font-label-md text-label-md">Homéostasie Nominale</span>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-12 gap-space-lg my-space-lg items-center">
+<!-- Chiffre de score dominant -->
+<div class="sm:col-span-5 flex flex-col">
+<div class="flex items-baseline gap-2">
+<span class="font-headline-xl text-[54px] leading-none font-bold text-primary">78</span>
+<span class="font-body-lg text-body-lg text-text-muted">/ 100</span>
+</div>
+<span class="font-body-base-semibold text-body-base text-status-normal mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+            Statut : Normal &amp; Équilibré
+          </span>
+<p class="font-caption text-caption text-text-muted mt-2">
+            Cohérence psycho-émotionnelle alignée sur les seuils d’équipage longue durée ESA/NASA.
+          </p>
+</div>
+<!-- Sparkline 8 derniers bilans -->
+<div class="sm:col-span-7 bg-surface-base rounded-lg p-space-md shadow-sm">
+<div class="flex justify-between items-center mb-2">
+<span class="font-caption text-caption text-text-muted font-semibold uppercase tracking-wider text-[11px]">8 Derniers Bilans (Tendance 16 jours)</span>
+<span class="font-caption text-caption text-status-normal font-semibold">+4% vs J-14</span>
+</div>
+<!-- Histogramme SVGs discret et élégant -->
+<div class="h-20 w-full flex items-end justify-between gap-1 pt-2">
+<div class="flex-1 flex flex-col items-center gap-1 group cursor-pointer">
+<div class="w-full bg-primary/20 rounded-t h-[52px] group-hover:bg-primary transition-all"></div>
+<span class="font-caption text-[10px] text-text-muted">J-16</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-1 group cursor-pointer">
+<div class="w-full bg-primary/25 rounded-t h-[56px] group-hover:bg-primary transition-all"></div>
+<span class="font-caption text-[10px] text-text-muted">J-14</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-1 group cursor-pointer">
+<div class="w-full bg-primary/20 rounded-t h-[48px] group-hover:bg-primary transition-all"></div>
+<span class="font-caption text-[10px] text-text-muted">J-12</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-1 group cursor-pointer">
+<div class="w-full bg-primary/30 rounded-t h-[60px] group-hover:bg-primary transition-all"></div>
+<span class="font-caption text-[10px] text-text-muted">J-10</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-1 group cursor-pointer">
+<div class="w-full bg-primary/35 rounded-t h-[58px] group-hover:bg-primary transition-all"></div>
+<span class="font-caption text-[10px] text-text-muted">J-8</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-1 group cursor-pointer">
+<div class="w-full bg-primary/30 rounded-t h-[64px] group-hover:bg-primary transition-all"></div>
+<span class="font-caption text-[10px] text-text-muted">J-6</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-1 group cursor-pointer">
+<div class="w-full bg-primary/40 rounded-t h-[62px] group-hover:bg-primary transition-all"></div>
+<span class="font-caption text-[10px] text-text-muted">J-4</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-1 group cursor-pointer">
+<div class="w-full bg-primary rounded-t h-[70px] shadow-sm"></div>
+<span class="font-caption text-[10px] text-primary font-bold">J-2</span>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row items-center justify-between gap-space-md pt-space-sm">
+<div class="flex items-center gap-space-sm text-text-muted font-caption text-caption">
+<span class="material-symbols-outlined text-[18px] text-primary">schedule</span>
+<span>Prochain check-in programmé : <strong class="text-on-surface font-semibold">Aujourd’hui avant le coucher</strong></span>
+</div>
+<button class="w-full sm:w-auto min-h-[48px] px-space-lg bg-primary text-on-primary font-body-base-semibold text-body-base rounded-lg hover:bg-primary-container transition-all flex items-center justify-center gap-space-xs shadow-sm cursor-pointer" type="button">
+<span class="material-symbols-outlined text-[20px]">assignment_turned_in</span>
+<span>Commencer l'auto-évaluation rapide</span>
+<span class="font-caption text-[12px] opacity-75">(~60 sec • 5 items)</span>
+</button>
+</div>
+</div>
+<!-- Capsule de profil et réassurance en orbite -->
+<div class="lg:col-span-4 bg-surface-subtle rounded-xl p-space-lg shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-caption text-caption text-text-muted uppercase tracking-wider font-semibold">Chambre d'Équipage</span>
+<span class="font-caption text-caption text-text-muted">Module Harmony</span>
+</div>
+<div class="relative w-full h-36 rounded-lg overflow-hidden mb-space-md shadow-inner bg-surface-container">
+<div class="bg-cover bg-center w-full h-full" data-alt="A tranquil medical interior shot of an astronaut private crew sleep quarter onboard the International Space Station with soft warm circadian night lighting at 480nm, personal mementos, and clean white ergonomic padded panels in clean clinical style" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuByTshgBuOKmkcytkt8jjWsrr8sd1IrxmACmYoCk_7ySuR7zjXfBctXRTpig4LbetO6p9c-xw-ci0Iz3aYs8JgtF-oBCUksdlJOxEWy9NqaoNvXB0e-ukvm795e9U0jgwS5b9n1sPFrBrIzgckCeeZXdr0S92_JrC6-6s59oHOliRNmCPX0c07UhhOEQNxdzWv_F0_flmfeAeiwmPVNI85TGLGztqlv0zevYETdZd0')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-inverse-surface/80 via-transparent to-transparent flex items-end p-space-sm">
+<span class="font-body-base-semibold text-[14px] text-surface-base">Espace de repos personnel • CQ-4</span>
+</div>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Environnement sensoriel</h3>
+<p class="font-caption text-caption text-text-muted mt-1 leading-relaxed">
+          Ambiance acoustique maintenue à 47 dB(A). Cycle de lumière circadienne en phase crépusculaire programmée pour 21:00 UTC.
+        </p>
+</div>
+<div class="bg-surface-base rounded-lg p-space-sm flex items-center justify-between mt-space-md">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[22px]">air</span>
+<span class="font-caption text-caption text-on-surface font-medium">Ventilation &amp; O₂ Module</span>
+</div>
+<span class="font-body-base-semibold text-body-base text-status-normal">Optimal</span>
+</div>
+</div>
+</section>
+<!-- SECTION 2 : Évolution de l'Humeur & Dimensions Psychométriques -->
+<section class="mb-space-xl">
+<div class="flex items-center justify-between mb-space-md">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Évolution de l'Humeur &amp; Dimensions Psychométriques</h2>
+<p class="font-caption text-caption text-text-muted">Suivi vectoriel des 4 piliers de stabilité cognitive en microgravité</p>
+</div>
+<div class="hidden sm:flex items-center gap-2 font-caption text-caption text-text-muted">
+<span>Cycle : 14 derniers jours</span>
+<span class="w-1.5 h-1.5 rounded-full bg-outline-variant"></span>
+<span class="text-primary font-semibold">Moyenne Sol : 81.4</span>
+</div>
+</div>
+<!-- Carte Humeur Globale 14 jours -->
+<div class="bg-surface-subtle rounded-xl p-space-lg shadow-sm mb-space-lg">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-sm mb-space-md">
+<div>
+<div class="flex items-center gap-2">
+<h3 class="font-headline-md text-headline-md text-on-surface">Courbe de Valence Émotionnelle &amp; Sérénité</h3>
+<span class="px-2.5 py-0.5 rounded-full bg-status-normal/15 text-on-surface font-label-md text-label-md">Très positif</span>
+</div>
+<p class="font-caption text-caption text-text-muted mt-0.5">Stabilité sereine observée malgré la charge de travail EVA planifiée au Sol 44.</p>
+</div>
+<div class="text-left md:text-right">
+<span class="font-headline-lg text-headline-lg text-primary font-bold">82<span class="text-body-base text-text-muted font-normal"> / 100</span></span>
+<span class="block font-caption text-[12px] text-text-muted">Score valence actuelle</span>
+</div>
+</div>
+<!-- Graphique SVG continu sur 14 jours -->
+<div class="w-full bg-surface-base rounded-lg p-space-md shadow-sm">
+<svg class="w-full h-24 overflow-visible" preserveaspectratio="none" viewbox="0 0 800 120">
+<defs>
+<lineargradient id="moodGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#0B4F8A" stop-opacity="0.18"></stop>
+<stop offset="100%" stop-color="#0B4F8A" stop-opacity="0.0"></stop>
+</lineargradient>
+</defs>
+<!-- Grille subtile -->
+<line stroke="#E3E9EF" stroke-dasharray="4 4" stroke-width="1" x1="0" x2="800" y1="20" y2="20"></line>
+<line stroke="#E3E9EF" stroke-dasharray="4 4" stroke-width="1" x1="0" x2="800" y1="60" y2="60"></line>
+<line stroke="#E3E9EF" stroke-dasharray="4 4" stroke-width="1" x1="0" x2="800" y1="100" y2="100"></line>
+<!-- Surface sous courbe -->
+<polygon fill="url(#moodGradient)" points="0,75 60,70 120,65 180,68 240,55 300,50 360,58 420,52 480,45 540,48 600,40 660,35 720,38 800,30 800,120 0,120"></polygon>
+<!-- Ligne de tendance -->
+<polyline fill="none" points="0,75 60,70 120,65 180,68 240,55 300,50 360,58 420,52 480,45 540,48 600,40 660,35 720,38 800,30" stroke="#0B4F8A" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></polyline>
+<!-- Points clés -->
+<circle cx="240" cy="55" fill="#FFFFFF" r="3.5" stroke="#0B4F8A" stroke-width="2"></circle>
+<circle cx="480" cy="45" fill="#FFFFFF" r="3.5" stroke="#0B4F8A" stroke-width="2"></circle>
+<circle cx="800" cy="30" fill="#2E9E6B" r="5" stroke="#FFFFFF" stroke-width="2"></circle>
+</svg>
+<div class="flex justify-between items-center text-text-muted font-caption text-[11px] pt-2 border-t border-border-subtle mt-1">
+<span>Sol 28 (Arrivée sas)</span>
+<span>Sol 32</span>
+<span>Sol 35 (Test CEVIS)</span>
+<span>Sol 38</span>
+<span class="text-primary font-bold">Sol 41 (Aujourd'hui : 82 pts)</span>
+</div>
+</div>
+</div>
+<!-- 4 Cartes épurées des dimensions clés -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
+<!-- 1. Niveau de stress -->
+<div class="bg-surface-subtle rounded-xl p-space-md shadow-sm flex flex-col justify-between hover:bg-surface-container-low transition-colors">
+<div>
+<div class="flex items-center justify-between mb-2">
+<span class="font-caption text-caption text-text-muted uppercase tracking-wider font-semibold">Stress / SNA</span>
+<span class="w-2 h-2 rounded-full bg-status-normal"></span>
+</div>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">24</span>
+<span class="font-caption text-caption text-text-muted">/ 100</span>
+</div>
+<span class="font-body-base-semibold text-[13px] text-status-normal block mt-0.5">Faible • Zone optimale</span>
+<p class="font-caption text-caption text-text-muted mt-2">
+            Tonus vagal remarquable. Variabilité cardiaque (HRV) moyenne à <strong class="text-on-surface font-semibold">84 ms</strong>.
+          </p>
+</div>
+<div class="mt-space-md pt-space-xs border-t border-border-subtle flex items-center justify-between text-text-muted font-caption text-[12px]">
+<span>HRV nominale</span>
+<span class="text-status-normal font-semibold">Stable (Sol 41)</span>
+</div>
+</div>
+<!-- 2. Capacité d'adaptation -->
+<div class="bg-surface-subtle rounded-xl p-space-md shadow-sm flex flex-col justify-between hover:bg-surface-container-low transition-colors">
+<div>
+<div class="flex items-center justify-between mb-2">
+<span class="font-caption text-caption text-text-muted uppercase tracking-wider font-semibold">Adaptation</span>
+<span class="w-2 h-2 rounded-full bg-status-normal"></span>
+</div>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">88</span>
+<span class="font-caption text-caption text-text-muted">/ 100</span>
+</div>
+<span class="font-body-base-semibold text-[13px] text-status-normal block mt-0.5">Excellente flexibilité</span>
+<p class="font-caption text-caption text-text-muted mt-2">
+            Indice de charge mentale NASA-TLX parfaitement maîtrisé suite aux manœuvres de bras SSRMS.
+          </p>
+</div>
+<div class="mt-space-md pt-space-xs border-t border-border-subtle flex items-center justify-between text-text-muted font-caption text-[12px]">
+<span>Index NASA-TLX</span>
+<span class="text-on-surface font-semibold">32 / 100 (Faible)</span>
+</div>
+</div>
+<!-- 3. Screening dépressif -->
+<div class="bg-surface-subtle rounded-xl p-space-md shadow-sm flex flex-col justify-between hover:bg-surface-container-low transition-colors">
+<div>
+<div class="flex items-center justify-between mb-2">
+<span class="font-caption text-caption text-text-muted uppercase tracking-wider font-semibold">Screening PHQ-4</span>
+<span class="w-2 h-2 rounded-full bg-status-normal"></span>
+</div>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">2</span>
+<span class="font-caption text-caption text-text-muted">/ 12</span>
+</div>
+<span class="font-body-base-semibold text-[13px] text-status-normal block mt-0.5">Risque minime / Nul</span>
+<p class="font-caption text-caption text-text-muted mt-2">
+            Absence de signes d’anhédonie ou de repli psychique. Échelle orbitale validée au sol.
+          </p>
+</div>
+<div class="mt-space-md pt-space-xs border-t border-border-subtle flex items-center justify-between text-text-muted font-caption text-[12px]">
+<span>Seuil d'alerte</span>
+<span class="text-text-muted">&gt; 6 requiert contact</span>
+</div>
+</div>
+<!-- 4. Vigilance & Prosodie vocale -->
+<div class="bg-surface-subtle rounded-xl p-space-md shadow-sm flex flex-col justify-between hover:bg-surface-container-low transition-colors">
+<div>
+<div class="flex items-center justify-between mb-2">
+<span class="font-caption text-caption text-text-muted uppercase tracking-wider font-semibold">Prosodie &amp; Vigilance</span>
+<span class="w-2 h-2 rounded-full bg-status-normal"></span>
+</div>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">Nominal</span>
+</div>
+<span class="font-body-base-semibold text-[13px] text-status-normal block mt-0.5">Latence vocale 210 ms</span>
+<p class="font-caption text-caption text-text-muted mt-2">
+            Analyse spectrale des communications sol : aucune trace de fatigue dysphonique ni ralentissement psychomoteur.
+          </p>
+</div>
+<div class="mt-space-md pt-space-xs border-t border-border-subtle flex items-center justify-between text-text-muted font-caption text-[12px]">
+<span>PVT réactionnel</span>
+<span class="text-status-normal font-semibold">218 ms (Rapide)</span>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 3 : Le Sommeil (Élément central influençant corps & esprit) -->
+<section class="bg-surface-subtle rounded-xl p-space-lg shadow-sm mb-space-xl">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between pb-space-md gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-primary-container text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[24px]">bedtime</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Architecture du Sommeil Orbital</h2>
+<span class="px-2.5 py-0.5 rounded-full bg-status-normal/15 text-on-surface font-label-md text-label-md">Sommeil réparateur stable</span>
+</div>
+<p class="font-caption text-caption text-text-muted">Enregistrement polysomnographique par bandeau frontal &amp; accélérométrie cabine</p>
+</div>
+</div>
+<span class="font-caption text-caption text-text-muted">Dernier cycle : Nuit du Sol 40 au Sol 41</span>
+</div>
+<!-- Métriques primaires du sommeil -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md my-space-md">
+<div class="bg-surface-base rounded-lg p-space-md shadow-sm flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-[26px]">timelapse</span>
+</div>
+<div>
+<span class="font-caption text-caption text-text-muted uppercase tracking-wider font-semibold text-[11px] block">Repos Circadien Total</span>
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">7h 12m</span>
+<span class="font-caption text-[12px] text-status-normal block">Objectif 7h00 atteint (+12 min)</span>
+</div>
+</div>
+<div class="bg-surface-base rounded-lg p-space-md shadow-sm flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center text-secondary shrink-0">
+<span class="material-symbols-outlined text-[26px]">vital_signs</span>
+</div>
+<div>
+<span class="font-caption text-caption text-text-muted uppercase tracking-wider font-semibold text-[11px] block">Sommeil Profond (N3)</span>
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">22 %</span>
+<span class="font-caption text-[12px] text-status-normal block">1h 35m • Restauration musculaire</span>
+</div>
+</div>
+<div class="bg-surface-base rounded-lg p-space-md shadow-sm flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-[26px]">nightlight</span>
+</div>
+<div>
+<span class="font-caption text-caption text-text-muted uppercase tracking-wider font-semibold text-[11px] block">Latence d'endormissement</span>
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">14 min</span>
+<span class="font-caption text-[12px] text-status-normal block">Seuil clinique excellent (&lt; 20 min)</span>
+</div>
+</div>
+</div>
+<!-- BLOC DE COUPLAGE PHYSIOLOGIQUE CROISÉ (Pont vers 'Mon corps') -->
+<div class="bg-surface-base rounded-xl p-space-lg shadow-sm mt-space-md">
+<div class="flex flex-col md:flex-row md:items-start justify-between gap-space-md">
+<div class="max-w-2xl">
+<div class="flex items-center gap-2 text-primary font-body-base-semibold mb-1">
+<span class="material-symbols-outlined text-[20px]">sync_alt</span>
+<span>Couplage somato-psychique : L'impact de votre sommeil sur vos modèles physiques</span>
+</div>
+<p class="font-body-base text-body-base text-on-surface-variant leading-relaxed">
+            Votre temps de sommeil réparateur régule directement les systèmes végétatifs et métaboliques actuellement suivis dans le module physique :
+          </p>
+<ul class="mt-space-sm space-y-2.5 font-body-base text-[15px] text-on-surface">
+<li class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-status-normal text-[20px] shrink-0 mt-0.5">favorite</span>
+<span><strong>Cœur &amp; Hémodynamique :</strong> Une nuit complète maintient votre FC de repos à <strong>68 BPM</strong> (vs <strong>74 BPM</strong> constatés lors des nuits écourtées à moins de 6h).</span>
+</li>
+<li class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-secondary text-[20px] shrink-0 mt-0.5">metabolism</span>
+<span><strong>Ventre &amp; Glycémie :</strong> Amélioration de 18% de la sensibilité à l'insuline et réduction nette des fringales glucidiques compensatoires en apesanteur.</span>
+</li>
+</ul>
+</div>
+<div class="shrink-0 self-start md:self-center">
+<a class="min-h-[48px] px-space-lg bg-surface-subtle text-primary border border-primary hover:bg-surface-container-low transition-colors rounded-lg font-body-base-semibold text-body-base flex items-center gap-space-xs inline-flex cursor-pointer" href="#">
+<span>Observer les répercussions dans « Mon corps »</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 4 : "Ce qui influence votre humeur" (Couche de couplage Mental) -->
+<section class="mb-space-xl">
+<div class="mb-space-md">
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Ce qui influence votre humeur</h2>
+<p class="font-caption text-caption text-text-muted">Corrélations algorithmiques calculées à partir de vos biomarqueurs et journaux de bord</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<!-- Facteur 1 : Sommeil -->
+<div class="bg-surface-subtle rounded-xl p-space-lg shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-space-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[22px]">hotel</span>
+<span class="font-body-base-semibold text-body-base text-on-surface">1. Sommeil profond</span>
+</div>
+<span class="font-body-base-semibold text-primary text-[15px] bg-primary/10 px-2 py-0.5 rounded-full">+35% Corrélation</span>
+</div>
+<!-- Jauge de corrélation -->
+<div class="w-full bg-surface-container rounded-full h-2 mb-space-md">
+<div class="bg-primary h-2 rounded-full" style="width: 85%;"></div>
+</div>
+<p class="font-body-base text-[15px] text-text-muted leading-relaxed">
+            « Chaque heure de sommeil profond supplémentaire améliore votre score de valence psychologique de <strong>+8 points</strong> dès le lever. »
+          </p>
+</div>
+<div class="pt-space-md mt-space-md border-t border-border-subtle flex items-center justify-between text-caption text-text-muted">
+<span>Impact constaté</span>
+<span class="text-status-normal font-semibold">Fortement protecteur</span>
+</div>
+</div>
+<!-- Facteur 2 : Exercice physique -->
+<div class="bg-surface-subtle rounded-xl p-space-lg shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-space-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[22px]">fitness_center</span>
+<span class="font-body-base-semibold text-body-base text-on-surface">2. Protocole ARED/CEVIS</span>
+</div>
+<span class="font-body-base-semibold text-secondary text-[15px] bg-secondary/15 px-2 py-0.5 rounded-full">+28% Corrélation</span>
+</div>
+<!-- Jauge de corrélation -->
+<div class="w-full bg-surface-container rounded-full h-2 mb-space-md">
+<div class="bg-secondary h-2 rounded-full" style="width: 70%;"></div>
+</div>
+<p class="font-body-base text-[15px] text-text-muted leading-relaxed">
+            « La libération d'endorphines post-séance de musculation resistive stabilise la charge émotionnelle pendant les 6 heures suivantes. »
+          </p>
+</div>
+<div class="pt-space-md mt-space-md border-t border-border-subtle flex items-center justify-between text-caption text-text-muted">
+<span>Régularité Sol 41</span>
+<span class="text-status-normal font-semibold">Séance complétée</span>
+</div>
+</div>
+<!-- Facteur 3 : Isolement & Cohésion sociale -->
+<div class="bg-surface-subtle rounded-xl p-space-lg shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-space-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-status-action text-[22px]">groups</span>
+<span class="font-body-base-semibold text-body-base text-on-surface">3. Cohésion &amp; Famille</span>
+</div>
+<span class="font-body-base-semibold text-status-action text-[15px] bg-status-action/15 px-2 py-0.5 rounded-full">+22% Corrélation</span>
+</div>
+<!-- Jauge de corrélation -->
+<div class="w-full bg-surface-container rounded-full h-2 mb-space-md">
+<div class="bg-status-action h-2 rounded-full" style="width: 58%;"></div>
+</div>
+<p class="font-body-base text-[15px] text-text-muted leading-relaxed">
+            « Les repas partagés en module Node 2 et les communications privées vidéo vers la Terre réduisent significativement le sentiment d'isolement orbital. »
+          </p>
+</div>
+<div class="pt-space-md mt-space-md border-t border-border-subtle flex items-center justify-between text-caption text-text-muted">
+<span>Prochain créneau privé</span>
+<span class="text-on-surface font-semibold">Ce soir 20:00 UTC</span>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 5 : Protocoles de soutien & Ligne Médicale Directe -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg mb-space-lg">
+<!-- Prochaines échéances médicales & protocoles passifs -->
+<div class="lg:col-span-7 bg-surface-subtle rounded-xl p-space-lg shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[22px]">event_upcoming</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">Prochaines échéances &amp; Protocoles</h3>
+</div>
+<span class="font-caption text-caption text-text-muted">Horaires synchronisés UTC</span>
+</div>
+<div class="space-y-space-sm">
+<!-- Item 1 : Téléconsultation -->
+<div class="p-space-md rounded-lg bg-surface-base shadow-sm flex items-start justify-between gap-space-md">
+<div class="flex items-start gap-space-md">
+<div class="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">videocam</span>
+</div>
+<div>
+<span class="font-body-base-semibold text-body-base text-on-surface block">Téléconsultation Privée • Flight Surgeon (BME)</span>
+<span class="font-caption text-caption text-text-muted">Entretien bimensuel confidentiel avec le Dr. L. Moreau (EAC Cologne).</span>
+</div>
+</div>
+<div class="text-right shrink-0">
+<span class="font-body-base-semibold text-primary block">Demain 17:30 UTC</span>
+<span class="font-caption text-[12px] text-status-normal font-semibold">Confirmé canal ch. 4</span>
+</div>
+</div>
+<!-- Item 2 : Luminothérapie -->
+<div class="p-space-md rounded-lg bg-surface-base shadow-sm flex items-start justify-between gap-space-md">
+<div class="flex items-start gap-space-md">
+<div class="w-10 h-10 rounded-lg bg-status-normal/10 text-status-normal flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">lightbulb</span>
+</div>
+<div>
+<span class="font-body-base-semibold text-body-base text-on-surface block">Luminothérapie Circadienne LED 480 nm</span>
+<span class="font-caption text-caption text-text-muted">Cycle matinal de 45 minutes d'ancrage mélatonique.</span>
+</div>
+</div>
+<div class="text-right shrink-0">
+<span class="font-body-base-semibold text-status-normal block">Effectuée</span>
+<span class="font-caption text-[12px] text-text-muted">Sol 41 • 07:15 UTC</span>
+</div>
+</div>
+</div>
+</div>
+<div class="pt-space-md mt-space-md border-t border-border-subtle flex flex-col sm:flex-row items-center justify-between gap-space-md">
+<span class="font-caption text-caption text-text-muted">Besoin de noter un ressenti intime ?</span>
+<button class="w-full sm:w-auto min-h-[48px] px-space-md bg-surface-base hover:bg-surface-container-low text-primary border border-border-subtle font-body-base-semibold text-body-base rounded-lg transition-colors flex items-center justify-center gap-space-xs cursor-pointer shadow-sm" type="button">
+<span class="material-symbols-outlined text-[20px]">edit_note</span>
+<span>Consigner une note dans le journal de bord</span>
+</button>
+</div>
+</div>
+<!-- Carte d'urgence : Ligne Médicale Directe -->
+<div class="lg:col-span-5 bg-surface-subtle rounded-xl p-space-lg shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-caption text-caption text-status-contact-chirurgien uppercase tracking-wider font-semibold flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-status-contact-chirurgien animate-ping"></span>
+            Canal Prioritaire Sol
+          </span>
+<span class="font-caption text-caption text-text-muted">Priorité TDRSS Alpha</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Ligne Médicale Directe</h3>
+<p class="font-body-base text-[15px] text-text-muted mt-1 leading-relaxed">
+          En cas de détresse psychologique aiguë, d'insomnie invalidante ou de tension au sein de l'équipage, vous disposez d'un canal direct, crypté et immédiat avec le médecin de vol de garde au TsUP (Moscou) ou JSC (Houston).
+        </p>
+<div class="bg-surface-base rounded-lg p-space-md mt-space-md shadow-sm">
+<div class="flex items-center justify-between text-caption text-text-muted mb-1">
+<span>Délai moyen d'établissement</span>
+<span class="font-semibold text-on-surface">&lt; 30 secondes</span>
+</div>
+<div class="flex items-center justify-between text-caption text-text-muted">
+<span>Confidentialité</span>
+<span class="font-semibold text-status-normal">Cryptage médical niveau 4</span>
+</div>
+</div>
+</div>
+<div class="mt-space-lg pt-space-sm">
+<button class="w-full min-h-[48px] px-space-lg bg-status-contact-chirurgien text-on-primary font-body-base-semibold text-body-base rounded-lg hover:opacity-95 transition-all flex items-center justify-center gap-space-xs shadow-md cursor-pointer" type="button">
+<span class="material-symbols-outlined text-[22px]">phone_in_talk</span>
+<span>Établir la liaison sol urgente (TsUP / JSC)</span>
+</button>
+<span class="block text-center font-caption text-[11px] text-text-muted mt-2">Accès sans préavis réservé aux urgences médicales et psychologiques</span>
+</div>
+</div>
+</section>
+</div></main><footer class="w-full bg-surface-subtle py-space-md px-margin text-center shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><p class="font-caption text-caption text-text-muted">Outil éducatif, pas un diagnostic médical. Plateforme de suivi clinique orbital Astrohealth • Conforme aux spécifications de mission ISS-Exp72</p></footer></div></body></html>

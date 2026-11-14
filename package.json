@@ -1,0 +1,11 @@
+{
+  "name": "astrohealth-workspace",
+  "private": true,
+  "scripts": {
+    "test": "npm --prefix NSAC test",
+    "test:watch": "npm --prefix NSAC run test:watch",
+    "dev": "npm --prefix NSAC run dev",
+    "build": "npm --prefix NSAC run build",
+    "preview": "npm --prefix NSAC run preview"
+  }
+}

@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+
+<html lang="fr"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,600;0,8..60,700;1,8..60,600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"on-secondary":"#ffffff","surface-container":"#e4efff","secondary-fixed-dim":"#6fd8c8","on-primary":"#ffffff","on-surface-variant":"#424750","surface-variant":"#d8e3f5","surface-container-lowest":"#ffffff","on-secondary-fixed-variant":"#005048","status-action":"#E07B00","inverse-surface":"#26313f","on-tertiary":"#ffffff","on-background":"#111c29","on-tertiary-fixed-variant":"#713700","error-container":"#ffdad6","primary-container":"#0b4f8a","error":"#ba1a1a","text-muted":"#5B6B7B","inverse-primary":"#a2c9ff","secondary":"#006a60","on-secondary-container":"#007166","status-surveillance":"#D9A400","outline-variant":"#c2c7d1","surface-container-high":"#dee9fb","surface":"#f8f9ff","surface-subtle":"#F5F8FB","surface-container-low":"#eef4ff","on-error-container":"#93000a","outline":"#727781","status-contact-chirurgien":"#C93C3C","secondary-container":"#8cf5e4","tertiary-container":"#7b3c00","primary-fixed":"#d3e4ff","secondary-fixed":"#8cf5e4","on-error":"#ffffff","surface-dim":"#cfdbec","tertiary-fixed":"#ffdcc6","on-surface":"#111c29","surface-container-highest":"#d8e3f5","surface-bright":"#f8f9ff","surface-tint":"#27609c","primary":"#003866","on-tertiary-fixed":"#301400","status-normal":"#2E9E6B","border-subtle":"#E3E9EF","on-secondary-fixed":"#00201c","tertiary-fixed-dim":"#ffb785","on-primary-fixed":"#001c38","primary-fixed-dim":"#a2c9ff","background":"#f8f9ff","on-primary-container":"#94c2ff","on-tertiary-container":"#ffab6f","inverse-on-surface":"#e9f1ff","tertiary":"#592a00","surface-base":"#FFFFFF","on-primary-fixed-variant":"#004881"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"space-lg":"1.5rem","margin":"2rem","gutter-mobile":"1rem","gutter":"1.5rem","space-sm":"0.5rem","margin-mobile":"1.25rem","space-xl":"2.5rem","space-xs":"0.25rem","space-md":"1rem"},"fontFamily":{"headline-md":["\"Source Serif 4\""],"headline-xl-mobile":["\"Source Serif 4\""],"headline-lg":["\"Source Serif 4\""],"headline-xl":["\"Source Serif 4\""],"caption":["\"Source Sans 3\""],"body-lg":["\"Source Sans 3\""],"body-lg-bold":["\"Source Sans 3\""],"label-md":["\"Source Sans 3\""],"body-base":["\"Source Sans 3\""],"body-base-semibold":["\"Source Sans 3\""]},"fontSize":{"headline-md":["20px",{"lineHeight":"30px","fontWeight":"600"}],"headline-xl-mobile":["32px",{"lineHeight":"40px","fontWeight":"700"}],"headline-lg":["28px",{"lineHeight":"36px","fontWeight":"600"}],"headline-xl":["40px",{"lineHeight":"48px","fontWeight":"700"}],"caption":["14px",{"lineHeight":"20px","fontWeight":"400"}],"body-lg":["18px",{"lineHeight":"28.8px","fontWeight":"400"}],"body-lg-bold":["18px",{"lineHeight":"28.8px","fontWeight":"600"}],"label-md":["14px",{"lineHeight":"20px","letterSpacing":"0.02em","fontWeight":"600"}],"body-base":["16px",{"lineHeight":"25.6px","fontWeight":"400"}],"body-base-semibold":["16px",{"lineHeight":"25.6px","fontWeight":"600"}]}}}};</script></head><body class="bg-surface font-body-base text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-subtle shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-50 flex flex-col justify-between select-none"><div class="flex flex-col"><div class="h-20 px-gutter flex items-center gap-space-sm"><div class="w-8 h-8 rounded-lg bg-primary-container flex items-center justify-center text-on-primary font-headline-md text-headline-md">A</div><div class="flex flex-col"><div class="flex items-center gap-1.5"><span class="font-headline-md text-headline-md tracking-tight text-on-surface">Astrohealth</span><span class="w-2 h-2 rounded-full bg-status-normal inline-block"></span></div><span class="font-caption text-caption text-text-muted tracking-wider uppercase font-semibold text-[11px]">Astronaute // Expédition 72</span></div></div><nav class="flex flex-col gap-1 px-space-md mt-space-md" data-active-classes="bg-primary-container text-on-primary font-body-base-semibold shadow-[0_1px_3px_0_rgba(11,79,138,0.04)]"><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors min-h-[48px]" data-path="accueil" href="#"><span class="material-symbols-outlined text-[22px]">home</span><span class="font-body-base-semibold text-body-base">Accueil</span></a><a aria-current="page" class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg transition-colors min-h-[48px] bg-primary-container text-on-primary font-body-base-semibold shadow-[0_1px_3px_0_rgba(11,79,138,0.04)]" data-path="mon-corps" href="#"><span class="material-symbols-outlined text-[22px]">accessibility_new</span><span class="font-body-base-semibold text-body-base">Mon corps</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors min-h-[48px]" data-path="mental" href="#"><span class="material-symbols-outlined text-[22px]">psychology</span><span class="font-body-base-semibold text-body-base">Mental</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors min-h-[48px]" data-path="historique" href="#"><span class="material-symbols-outlined text-[22px]">trending_up</span><span class="font-body-base-semibold text-body-base">Historique</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors min-h-[48px]" data-path="missions" href="#"><span class="material-symbols-outlined text-[22px]">flag</span><span class="font-body-base-semibold text-body-base">Missions</span></a></nav></div><div class="p-space-md"><div class="bg-surface-base rounded-lg p-space-sm shadow-[0_1px_3px_0_rgba(11,79,138,0.04)] flex items-center gap-space-sm"><div class="relative"><div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[20px]">person</span></div><span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-status-normal ring-2 ring-surface-base"></span></div><div class="flex flex-col min-w-0"><span class="font-body-base-semibold text-body-base text-on-surface truncate">Dr. Sarah Jenkins</span><span class="font-caption text-caption text-text-muted truncate">En ligne // Station</span></div></div></div></aside><div class="pl-72 flex flex-col min-h-screen"><header class="fixed top-0 left-72 right-0 h-20 bg-surface-base/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 px-margin flex items-center justify-end gap-space-lg select-none"><div class="flex items-center gap-space-xs px-space-sm py-1 rounded-full bg-status-normal/10"><span class="w-1.5 h-1.5 rounded-full bg-status-normal inline-block"></span><span class="font-label-md text-label-md text-on-surface">Télémétrie Nominale</span></div><div class="font-caption text-caption text-text-muted font-medium">UTC 14:32:08 • Jour de mission 41</div><button class="min-h-[48px] px-space-lg bg-primary-container text-on-primary font-body-base-semibold text-body-base rounded-lg hover:bg-primary transition-colors flex items-center gap-space-xs" type="button"><span class="material-symbols-outlined text-[20px]">bolt</span><span>Protocole Rapide</span></button><button aria-label="Notifications" class="w-10 h-10 flex items-center justify-center rounded-lg text-text-muted hover:bg-surface-subtle hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[22px]">notifications</span></button><div class="flex items-center gap-space-xs pl-space-xs"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><span class="font-body-base-semibold text-body-base text-on-surface hidden xl:inline">Dr. Sarah Jenkins</span></div></header><main class="flex-1 pt-20 bg-surface px-margin py-space-lg w-full"><div class="flex flex-col w-full gap-space-lg">
+<!-- PAGE HEADER & BREADCRUMB -->
+<div class="flex flex-col gap-space-xs">
+<nav aria-label="Fil d'Ariane" class="flex items-center gap-space-xs font-caption text-caption text-text-muted">
+<a class="hover:text-primary-container transition-colors" href="#">Mon corps</a>
+<span>/</span>
+<span class="text-on-surface font-body-base-semibold">Modèles physiques orbitaux</span>
+</nav>
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md pt-space-xs">
+<div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface tracking-tight">Mon corps — Modèles physiques &amp; Biomécanique</h1>
+<p class="font-body-base text-body-base text-text-muted mt-1">Surveillance de vos 4 modèles d'adaptation physiologique en microgravité et couplages systémiques.</p>
+</div>
+<!-- View mode switch -->
+<div class="flex items-center bg-surface-subtle p-1 rounded-xl shadow-sm self-start md:self-auto">
+<button class="min-h-[40px] px-space-md py-1.5 rounded-lg font-body-base-semibold text-body-base bg-surface-base text-primary-container shadow-sm flex items-center gap-space-xs transition-all" id="btn-view-silhouette" type="button">
+<span class="material-symbols-outlined text-[18px]">accessibility_new</span>
+<span>Vue silhouette</span>
+</button>
+<button class="min-h-[40px] px-space-md py-1.5 rounded-lg font-body-base text-body-base text-text-muted hover:text-on-surface flex items-center gap-space-xs transition-all" id="btn-view-list" type="button">
+<span class="material-symbols-outlined text-[18px]">format_list_bulleted</span>
+<span>Vue liste des modèles</span>
+</button>
+</div>
+</div>
+</div>
+<!-- 4 FAST MODEL SELECTOR CARDS -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
+<!-- Model 1: Coeur (Active) -->
+<div class="cursor-pointer bg-surface-subtle p-space-md rounded-xl transition-all duration-200 flex flex-col justify-between min-h-[110px] shadow-sm ring-2 ring-primary-container" id="card-coeur" onclick="switchModel('coeur')">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary-container text-[20px]" style="font-variation-settings: 'FILL' 1;">favorite</span>
+<span class="font-body-base-semibold text-body-base text-on-surface">1. Cœur</span>
+</div>
+<div class="h-6 px-2 rounded-full bg-status-normal/10 flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-status-normal"></span>
+<span class="font-caption text-caption text-on-surface font-semibold text-[11px]">Normal</span>
+</div>
+</div>
+<div class="flex flex-col mt-2">
+<span class="font-headline-md text-headline-md text-on-surface font-semibold">68 <span class="text-caption font-normal text-text-muted">BPM</span></span>
+<span class="font-caption text-caption text-text-muted">Pression 118/76 mmHg</span>
+</div>
+</div>
+<!-- Model 2: Os et muscles -->
+<div class="cursor-pointer bg-surface-subtle hover:bg-surface-container-high p-space-md rounded-xl transition-all duration-200 flex flex-col justify-between min-h-[110px] shadow-sm ring-1 ring-border-subtle" id="card-os" onclick="switchModel('os')">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-status-surveillance text-[20px]">fitness_center</span>
+<span class="font-body-base-semibold text-body-base text-on-surface">2. Os &amp; Muscles</span>
+</div>
+<div class="h-6 px-2 rounded-full bg-status-surveillance/10 flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-status-surveillance"></span>
+<span class="font-caption text-caption text-on-surface font-semibold text-[11px]">À surveiller</span>
+</div>
+</div>
+<div class="flex flex-col mt-2">
+<span class="font-headline-md text-headline-md text-on-surface font-semibold">-0.4% <span class="text-caption font-normal text-text-muted">T-Score</span></span>
+<span class="font-caption text-caption text-text-muted">Perte calcanéum &amp; L2-L4</span>
+</div>
+</div>
+<!-- Model 3: Ventre -->
+<div class="cursor-pointer bg-surface-subtle hover:bg-surface-container-high p-space-md rounded-xl transition-all duration-200 flex flex-col justify-between min-h-[110px] shadow-sm ring-1 ring-border-subtle" id="card-ventre" onclick="switchModel('ventre')">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[20px]">restaurant</span>
+<span class="font-body-base-semibold text-body-base text-on-surface">3. Ventre</span>
+</div>
+<div class="h-6 px-2 rounded-full bg-status-normal/10 flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-status-normal"></span>
+<span class="font-caption text-caption text-on-surface font-semibold text-[11px]">Normal</span>
+</div>
+</div>
+<div class="flex flex-col mt-2">
+<span class="font-headline-md text-headline-md text-on-surface font-semibold">94 <span class="text-caption font-normal text-text-muted">mg/dL</span></span>
+<span class="font-caption text-caption text-text-muted">Glycémie à jeun nominale</span>
+</div>
+</div>
+<!-- Model 4: Peau -->
+<div class="cursor-pointer bg-surface-subtle hover:bg-surface-container-high p-space-md rounded-xl transition-all duration-200 flex flex-col justify-between min-h-[110px] shadow-sm ring-1 ring-border-subtle" id="card-peau" onclick="switchModel('peau')">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-status-normal text-[20px]">device_thermostat</span>
+<span class="font-body-base-semibold text-body-base text-on-surface">4. Peau</span>
+</div>
+<div class="h-6 px-2 rounded-full bg-status-normal/10 flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-status-normal"></span>
+<span class="font-caption text-caption text-on-surface font-semibold text-[11px]">Normal</span>
+</div>
+</div>
+<div class="flex flex-col mt-2">
+<span class="font-headline-md text-headline-md text-on-surface font-semibold">36.6 <span class="text-caption font-normal text-text-muted">°C</span></span>
+<span class="font-caption text-caption text-text-muted">Gradient thermique stable</span>
+</div>
+</div>
+</div>
+<!-- MAIN 2-COLUMN VIEW -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<!-- LEFT COLUMN: INTERACTIVE SILHOUETTE MAPPING -->
+<div class="lg:col-span-5 flex flex-col gap-space-md">
+<div class="bg-surface-subtle rounded-xl p-space-lg shadow-sm flex flex-col items-center relative overflow-hidden">
+<!-- Header of the silhouette panel -->
+<div class="w-full flex items-center justify-between mb-space-sm select-none">
+<span class="font-label-md text-label-md uppercase tracking-wider text-text-muted">Modèle d'Adsorption &amp; Biométrie 3D</span>
+<span class="font-caption text-caption text-primary-container bg-surface-base px-space-sm py-1 rounded-full shadow-sm flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-status-normal animate-pulse"></span>
+            Scan Columbus actif
+          </span>
+</div>
+<!-- SVG Silhouette Container -->
+<div class="relative w-full max-w-[340px] h-[520px] flex items-center justify-center my-space-xs select-none">
+<!-- Subtle anatomical grid lines in background -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none opacity-25" viewbox="0 0 340 520">
+<line stroke="#0B4F8A" stroke-dasharray="2 4" stroke-width="0.75" x1="170" x2="170" y1="20" y2="500"></line>
+<line stroke="#0B4F8A" stroke-dasharray="2 4" stroke-width="0.5" x1="40" x2="300" y1="180" y2="180"></line>
+<line stroke="#0B4F8A" stroke-dasharray="2 4" stroke-width="0.5" x1="40" x2="300" y1="280" y2="280"></line>
+<circle cx="170" cy="175" fill="none" r="45" stroke="#0B4F8A" stroke-dasharray="2 4" stroke-width="0.5"></circle>
+</svg>
+<!-- Medical Aesthetic Stylized Silhouette -->
+<svg class="w-full h-full" fill="none" viewbox="0 0 340 520" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<lineargradient gradientunits="userSpaceOnUse" id="bodyGrad" x1="170" x2="170" y1="20" y2="500">
+<stop offset="0%" stop-color="#D8E3F5" stop-opacity="0.8"></stop>
+<stop offset="50%" stop-color="#E4EFFF" stop-opacity="0.6"></stop>
+<stop offset="100%" stop-color="#C2C7D1" stop-opacity="0.4"></stop>
+</lineargradient>
+<filter height="200%" id="glow-coeur" width="200%" x="0" y="0">
+<fedropshadow dx="0" dy="1" flood-color="#0B4F8A" flood-opacity="0.3" stddeviation="3"></fedropshadow>
+</filter>
+</defs>
+<!-- Anatomical Head -->
+<path d="M170 30 C154 30 144 42 144 60 C144 76 152 90 162 94 L162 108 L178 108 L178 94 C188 90 196 76 196 60 C196 42 186 30 170 30 Z" fill="url(#bodyGrad)" stroke="#A2C9FF" stroke-width="1.2"></path>
+<!-- Torso & Arms -->
+<path d="M162 108 C135 112 108 126 96 142 C85 158 76 195 72 235 C69 265 67 305 65 330 C64 340 73 344 78 335 C86 320 95 275 100 240 C106 200 115 178 128 174 L132 270 C132 295 135 320 142 345 L152 355 L164 355 L170 260 L176 355 L188 355 L198 345 C205 320 208 295 208 270 L212 174 C225 178 234 200 240 240 C245 275 254 320 262 335 C267 344 276 340 275 330 C273 305 271 265 268 235 C264 195 255 158 244 142 C232 126 205 112 178 108 Z" fill="url(#bodyGrad)" stroke="#A2C9FF" stroke-width="1.2"></path>
+<!-- Pelvis & Legs -->
+<path d="M142 345 L136 415 C132 445 130 475 127 500 C125 507 135 510 141 506 C147 502 153 480 156 450 L164 370 L170 370 L176 370 L184 450 C187 480 193 502 199 506 C205 510 215 507 213 500 C210 475 208 445 204 415 L198 345 Z" fill="url(#bodyGrad)" stroke="#A2C9FF" stroke-width="1.2"></path>
+<!-- Vascular / Spinal accents -->
+<path d="M170 110 L170 280" opacity="0.4" stroke="#0B4F8A" stroke-dasharray="3 3" stroke-width="1"></path>
+<path d="M170 140 C160 148 156 160 156 172" opacity="0.35" stroke="#BA1A1A" stroke-width="1.2"></path>
+<path d="M170 140 C180 148 184 160 184 172" opacity="0.35" stroke="#0B4F8A" stroke-width="1.2"></path>
+<!-- ZONE 1: COEUR (Active, Selected by default) -->
+<g class="cursor-pointer group" id="svg-zone-coeur" onclick="switchModel('coeur')">
+<!-- Pulsing aura ring -->
+<circle class="animate-ping" cx="160" cy="172" fill="#0B4F8A" fill-opacity="0.12" r="22" style="transform-origin: 160px 172px; animation-duration: 2.5s;"></circle>
+<!-- Highlight circle -->
+<circle cx="160" cy="172" fill="#0B4F8A" fill-opacity="0.25" r="16" stroke="#0B4F8A" stroke-width="2"></circle>
+<!-- Heart icon inside -->
+<circle cx="160" cy="172" fill="#0B4F8A" r="7"></circle>
+</g>
+<!-- ZONE 2: OS ET MUSCLES (Spine & Femur) -->
+<g class="cursor-pointer group" id="svg-zone-os" onclick="switchModel('os')">
+<!-- Spine highlight -->
+<rect fill="#D9A400" fill-opacity="0.35" height="42" rx="3" stroke="#D9A400" stroke-width="1.5" width="6" x="167" y="195"></rect>
+<!-- Femurs highlights -->
+<line stroke="#D9A400" stroke-linecap="round" stroke-opacity="0.6" stroke-width="4" x1="146" x2="139" y1="380" y2="435"></line>
+<line stroke="#D9A400" stroke-linecap="round" stroke-opacity="0.6" stroke-width="4" x1="194" x2="201" y1="380" y2="435"></line>
+<circle cx="143" cy="405" fill="#D9A400" r="5"></circle>
+</g>
+<!-- ZONE 3: VENTRE (Abdomen / Metabolism) -->
+<g class="cursor-pointer group" id="svg-zone-ventre" onclick="switchModel('ventre')">
+<ellipse cx="170" cy="245" fill="#2E9E6B" fill-opacity="0.2" rx="14" ry="10" stroke="#2E9E6B" stroke-width="1.5"></ellipse>
+<circle cx="170" cy="245" fill="#2E9E6B" r="5"></circle>
+</g>
+<!-- ZONE 4: PEAU (Epidermis / Forearm) -->
+<g class="cursor-pointer group" id="svg-zone-peau" onclick="switchModel('peau')">
+<circle cx="258" cy="275" fill="#2E9E6B" fill-opacity="0.2" r="10" stroke="#2E9E6B" stroke-width="1.5"></circle>
+<circle cx="258" cy="275" fill="#2E9E6B" r="4"></circle>
+</g>
+</svg>
+<!-- OVERLAY BADGES ON TOP OF SILHOUETTE -->
+<!-- Badge Coeur (Active) -->
+<div class="cursor-pointer absolute left-[6%] top-[28%] bg-surface-base px-2.5 py-1 rounded-full shadow-md border-subtle flex items-center gap-1.5 transition-transform hover:scale-105" onclick="switchModel('coeur')">
+<span class="w-2 h-2 rounded-full bg-status-normal"></span>
+<span class="font-caption text-caption font-semibold text-primary-container">Cœur · 68 BPM</span>
+</div>
+<!-- Badge Os et muscles (Surveillance) -->
+<div class="cursor-pointer absolute right-[4%] top-[70%] bg-surface-base px-2.5 py-1 rounded-full shadow-md border-subtle flex items-center gap-1.5 transition-transform hover:scale-105" onclick="switchModel('os')">
+<span class="w-2 h-2 rounded-full bg-status-surveillance"></span>
+<span class="font-caption text-caption font-semibold text-on-surface">Os · -0.4%</span>
+</div>
+<!-- Badge Ventre (Normal) -->
+<div class="cursor-pointer absolute right-[6%] top-[45%] bg-surface-base px-2.5 py-1 rounded-full shadow-md border-subtle flex items-center gap-1.5 transition-transform hover:scale-105" onclick="switchModel('ventre')">
+<span class="w-2 h-2 rounded-full bg-status-normal"></span>
+<span class="font-caption text-caption font-semibold text-on-surface">Glycémie · 94</span>
+</div>
+<!-- Badge Peau (Normal) -->
+<div class="cursor-pointer absolute left-[4%] top-[54%] bg-surface-base px-2.5 py-1 rounded-full shadow-md border-subtle flex items-center gap-1.5 transition-transform hover:scale-105" onclick="switchModel('peau')">
+<span class="w-2 h-2 rounded-full bg-status-normal"></span>
+<span class="font-caption text-caption font-semibold text-on-surface">Peau · 36.6 °C</span>
+</div>
+</div>
+<!-- Discrete Threshold Legend -->
+<div class="w-full flex items-center justify-around pt-space-sm border-t border-border-subtle/50 text-caption font-caption text-text-muted">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-status-normal"></span>
+<span>Normal</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-status-surveillance"></span>
+<span>À surveiller</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-status-action"></span>
+<span>Action requise</span>
+</div>
+</div>
+</div>
+<!-- Informative Sync Banner -->
+<div class="bg-surface-base p-space-md rounded-xl shadow-sm flex items-start gap-space-sm">
+<span class="material-symbols-outlined text-primary-container text-[22px] flex-shrink-0 mt-0.5">sync_alt</span>
+<div class="flex flex-col">
+<span class="font-body-base-semibold text-body-base text-on-surface">Couche de couplage active</span>
+<p class="font-caption text-caption text-text-muted mt-0.5">Les modèles physiques sont synchronisés avec vos données de sommeil et de stress de la section Mental.</p>
+</div>
+</div>
+</div>
+<!-- RIGHT COLUMN: DETAILED ORGAN PANEL (COEUR & HÉMODYNAMIQUE) -->
+<div class="lg:col-span-7 flex flex-col gap-space-md">
+<!-- 1. En-tête du panneau -->
+<div class="bg-surface-base p-space-lg rounded-xl shadow-sm flex flex-col gap-space-sm">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs">
+<div>
+<span class="font-caption text-caption uppercase text-text-muted tracking-wider">Modèle 01 // Hémodynamique orbitale</span>
+<h2 class="font-headline-lg text-headline-lg text-on-surface mt-0.5" id="detail-organ-title">Cœur &amp; Pression Artérielle</h2>
+</div>
+<!-- StatusBadge: Normal • Stable -->
+<div class="h-7 px-3 rounded-full bg-status-normal/10 flex items-center gap-2 self-start sm:self-auto">
+<span class="w-2 h-2 rounded-full bg-status-normal"></span>
+<span class="font-label-md text-label-md text-on-surface">Normal • Stable</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs text-text-muted font-caption text-caption pt-1 border-t border-border-subtle">
+<span class="material-symbols-outlined text-[16px]">history</span>
+<span>Dernière mesure : <strong class="text-on-surface font-body-base-semibold">68 BPM • 118/76 mmHg</strong> (il y a 2h — au repos dans Columbus)</span>
+</div>
+</div>
+<!-- 2. Prévision à 7 jours (Modèle prédictif orbital) -->
+<div class="bg-surface-subtle p-space-lg rounded-xl shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary-container text-[20px]">query_stats</span>
+<span class="font-body-base-semibold text-body-base text-on-surface">Prévision à 7 jours</span>
+<span class="text-caption font-caption text-text-muted">(Projection télémétrique)</span>
+</div>
+<div class="bg-surface-base px-2.5 py-1 rounded-full text-caption font-caption font-body-base-semibold text-primary-container shadow-sm">
+            Confiance : 94% (41j)
+          </div>
+</div>
+<!-- Clean Sparkline Graph for 7-day trajectory -->
+<div class="bg-surface-base p-space-md rounded-lg flex flex-col gap-space-xs shadow-sm">
+<div class="flex items-center justify-between font-caption text-caption text-text-muted">
+<span>Projection FC (J41 - J48)</span>
+<span>Cible d'entraînement : 65-72 BPM</span>
+</div>
+<div class="w-full h-20 pt-2">
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 400 60">
+<!-- Grid background lines -->
+<line stroke="#E3E9EF" stroke-dasharray="2 4" stroke-width="1" x1="0" x2="400" y1="10" y2="10"></line>
+<line stroke="#E3E9EF" stroke-dasharray="2 4" stroke-width="1" x1="0" x2="400" y1="30" y2="30"></line>
+<line stroke="#E3E9EF" stroke-dasharray="2 4" stroke-width="1" x1="0" x2="400" y1="50" y2="50"></line>
+<!-- Shaded confidence corridor -->
+<polygon fill="#0B4F8A" fill-opacity="0.08" points="0,32 60,30 130,28 200,31 270,27 340,29 400,28 400,42 340,43 270,41 200,45 130,42 60,44 0,46"></polygon>
+<!-- Actual past trend + projection line -->
+<path d="M0,40 Q30,36 60,38 T130,35 T200,38 T270,33 T340,36 T400,34" fill="none" stroke="#0B4F8A" stroke-linecap="round" stroke-width="2.5"></path>
+<!-- Data points -->
+<circle cx="0" cy="40" fill="#0B4F8A" r="3"></circle>
+<circle cx="60" cy="38" fill="#0B4F8A" r="3"></circle>
+<circle cx="130" cy="35" fill="#0B4F8A" r="3"></circle>
+<circle cx="200" cy="38" fill="#0B4F8A" r="4" stroke="#FFFFFF" stroke-width="1.5"></circle>
+<circle cx="270" cy="33" fill="#0B4F8A" r="3" stroke-dasharray="1 1"></circle>
+<circle cx="340" cy="36" fill="#0B4F8A" r="3" stroke-dasharray="1 1"></circle>
+<circle cx="400" cy="34" fill="#0B4F8A" r="3" stroke-dasharray="1 1"></circle>
+</svg>
+</div>
+<div class="flex justify-between font-caption text-caption text-text-muted text-[12px] pt-1">
+<span>Auj (J41)</span>
+<span>J42</span>
+<span>J43</span>
+<span>J44</span>
+<span>J45</span>
+<span>J46</span>
+<span>J47 (+7j)</span>
+</div>
+</div>
+<p class="font-body-base text-body-base text-on-surface">
+<strong class="font-body-base-semibold">Trajectoire nominale :</strong> FC moyenne projetée à 69-71 BPM. Pression stable à 120/78 mmHg sous réserve du maintien strict de l'entraînement ARED/CEVIS.
+        </p>
+</div>
+<!-- 3. Les 3 blocs essentiels d'explication -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<!-- Bloc 1: A quoi sert cet organe -->
+<div class="bg-surface-base p-space-md rounded-xl shadow-sm flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs text-primary-container">
+<span class="material-symbols-outlined text-[20px]">vital_signs</span>
+<span class="font-body-base-semibold text-body-base text-on-surface">À quoi sert cet organe</span>
+</div>
+<p class="font-caption text-caption text-text-muted mt-1 leading-relaxed">
+            Pompe vitale assurant l'irrigation cérébrale continue et l'oxygénation des tissus vitaux face à la redistribution liquidienne constante en impesanteur.
+          </p>
+</div>
+<!-- Bloc 2: Ce que l'espace lui fait -->
+<div class="bg-surface-base p-space-md rounded-xl shadow-sm flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs text-status-action">
+<span class="material-symbols-outlined text-[20px]">change_circle</span>
+<span class="font-body-base-semibold text-body-base text-on-surface">Ce que l'espace lui fait</span>
+</div>
+<p class="font-caption text-caption text-text-muted mt-1 leading-relaxed">
+            Phénomène de <em>Fluid Shift</em> (migration de 1,5 à 2L vers le haut du corps), perte de volume plasmatique (-12%) et adaptation du volume d'éjection systolique.
+          </p>
+</div>
+<!-- Bloc 3: Ce que vous pouvez faire -->
+<div class="bg-surface-base p-space-md rounded-xl shadow-sm flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs text-secondary">
+<span class="material-symbols-outlined text-[20px]">check_circle</span>
+<span class="font-body-base-semibold text-body-base text-on-surface">Ce que vous pouvez faire</span>
+</div>
+<p class="font-caption text-caption text-text-muted mt-1 leading-relaxed">
+            Maintenir impérativement les 2h quotidiennes d'ergocycle (CEVIS) et le protocole d'hydratation saline enrichie avant chaque cycle de sommeil.
+          </p>
+</div>
+</div>
+<!-- 4. Ce qui l'influence (Couche de couplage physiologique) -->
+<div class="bg-surface-subtle p-space-lg rounded-xl shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs text-primary-container">
+<span class="material-symbols-outlined text-[22px]">hub</span>
+<span class="font-body-base-semibold text-body-base text-on-surface">Ce qui l'influence (Couplage physiologique)</span>
+</div>
+<span class="font-caption text-caption text-text-muted">Interdépendance mentale &amp; métabolique</span>
+</div>
+<div class="flex flex-col gap-space-sm">
+<!-- Lien 1: Sommeil court -->
+<div class="bg-surface-base p-space-md rounded-lg flex items-start gap-space-sm shadow-sm">
+<div class="w-8 h-8 rounded-full bg-status-surveillance/10 text-status-surveillance flex items-center justify-center flex-shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">bedtime</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-base-semibold text-body-base text-on-surface">Lien avec le sommeil</span>
+<p class="font-caption text-caption text-text-muted mt-0.5">
+<strong class="text-status-action">⚠️ Sommeil court (&lt; 6h) :</strong> fait monter votre fréquence cardiaque de repos (+4 à 6 BPM) et augmente la variabilité tensionnelle durant le quart de travail.
+              </p>
+</div>
+</div>
+<!-- Lien 2: Hydratation -->
+<div class="bg-surface-base p-space-md rounded-lg flex items-start gap-space-sm shadow-sm">
+<div class="w-8 h-8 rounded-full bg-primary-container/10 text-primary-container flex items-center justify-center flex-shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">water_drop</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-base-semibold text-body-base text-on-surface">Lien avec l'hydratation</span>
+<p class="font-caption text-caption text-text-muted mt-0.5">
+<strong>Apport hydrique optimal :</strong> stabilise le volume plasmatique circulant et limite l'hypotension orthostatique post-exercice ARED.
+              </p>
+</div>
+</div>
+</div>
+<!-- Bouton de bascule contextuelle vers Mental -->
+<div class="pt-space-xs flex justify-end">
+<a class="inline-flex items-center gap-space-xs font-body-base-semibold text-body-base text-primary-container hover:text-primary transition-colors py-1" href="#">
+<span>Voir l'impact du sommeil dans Mental</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- BOUTONS D'ACTION EN BAS -->
+<div class="flex flex-col sm:flex-row items-center justify-end gap-space-md pt-space-xs">
+<button class="w-full sm:w-auto min-h-[48px] px-space-lg bg-surface-base text-primary-container font-body-base-semibold text-body-base rounded-lg hover:bg-surface-container-high transition-colors shadow-sm flex items-center justify-center gap-space-xs" type="button">
+<span class="material-symbols-outlined text-[20px]">insights</span>
+<span>Voir les tendances complètes</span>
+</button>
+<button class="w-full sm:w-auto min-h-[48px] px-space-lg bg-primary-container text-on-primary font-body-base-semibold text-body-base rounded-lg hover:bg-primary transition-colors shadow-sm flex items-center justify-center gap-space-xs" type="button">
+<span class="material-symbols-outlined text-[20px]">add_circle</span>
+<span>Consigner une mesure cardiaque</span>
+</button>
+</div>
+</div>
+</div>
+<!-- MENTION LÉGALE AU BAS DE PAGE -->
+<div class="w-full py-space-sm text-center">
+<p class="font-caption text-caption text-text-muted">
+      Outil éducatif, pas un diagnostic médical. Conforme aux protocoles d'entraînement des équipages orbitaux ISS.
+    </p>
+</div>
+</div>
+<!-- INTERACTION SCRIPT -->
+<script>
+  function switchModel(model) {
+    const cards = {
+      coeur: document.getElementById('card-coeur'),
+      os: document.getElementById('card-os'),
+      ventre: document.getElementById('card-ventre'),
+      peau: document.getElementById('card-peau')
+    };
+
+    // Reset all ring classes
+    Object.keys(cards).forEach(key => {
+      if(cards[key]) {
+        cards[key].classList.remove('ring-2', 'ring-primary-container');
+        cards[key].classList.add('ring-1', 'ring-border-subtle');
+      }
+    });
+
+    // Highlight selected card
+    if(cards[model]) {
+      cards[model].classList.remove('ring-1', 'ring-border-subtle');
+      cards[model].classList.add('ring-2', 'ring-primary-container');
+    }
+
+    const titleEl = document.getElementById('detail-organ-title');
+    if(!titleEl) return;
+
+    if(model === 'coeur') {
+      titleEl.textContent = 'Cœur & Pression Artérielle';
+    } else if(model === 'os') {
+      titleEl.textContent = 'Os & Structure Musculaire';
+    } else if(model === 'ventre') {
+      titleEl.textContent = 'Ventre, Glycémie & Métabolisme';
+    } else if(model === 'peau') {
+      titleEl.textContent = 'Peau & Thermorégulation';
+    }
+  }
+
+  // Toggle silhouette / list buttons style
+  const btnSilhouette = document.getElementById('btn-view-silhouette');
+  const btnList = document.getElementById('btn-view-list');
+
+  if(btnSilhouette && btnList) {
+    btnSilhouette.addEventListener('click', () => {
+      btnSilhouette.className = 'min-h-[40px] px-space-md py-1.5 rounded-lg font-body-base-semibold text-body-base bg-surface-base text-primary-container shadow-sm flex items-center gap-space-xs transition-all';
+      btnList.className = 'min-h-[40px] px-space-md py-1.5 rounded-lg font-body-base text-body-base text-text-muted hover:text-on-surface flex items-center gap-space-xs transition-all';
+    });
+
+    btnList.addEventListener('click', () => {
+      btnList.className = 'min-h-[40px] px-space-md py-1.5 rounded-lg font-body-base-semibold text-body-base bg-surface-base text-primary-container shadow-sm flex items-center gap-space-xs transition-all';
+      btnSilhouette.className = 'min-h-[40px] px-space-md py-1.5 rounded-lg font-body-base text-body-base text-text-muted hover:text-on-surface flex items-center gap-space-xs transition-all';
+    });
+  }
+</script></main><footer class="w-full bg-surface-subtle py-space-md px-margin text-center shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><p class="font-caption text-caption text-text-muted">Outil éducatif, pas un diagnostic médical. Plateforme de suivi clinique orbital Astrohealth • Conforme aux spécifications de mission ISS-Exp72</p></footer></div></body></html>

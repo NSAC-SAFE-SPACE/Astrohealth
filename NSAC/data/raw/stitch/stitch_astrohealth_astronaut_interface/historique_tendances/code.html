@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+
+<html lang="fr"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,600;0,8..60,700;1,8..60,600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"on-error-container":"#93000a","status-contact-chirurgien":"#C93C3C","inverse-on-surface":"#e9f1ff","on-primary-container":"#94c2ff","border-subtle":"#E3E9EF","status-action":"#E07B00","on-tertiary":"#ffffff","tertiary":"#592a00","outline":"#727781","secondary-container":"#8cf5e4","secondary-fixed":"#8cf5e4","outline-variant":"#c2c7d1","surface-container":"#e4efff","primary-container":"#0b4f8a","primary-fixed":"#d3e4ff","surface-subtle":"#F5F8FB","inverse-primary":"#a2c9ff","surface-container-lowest":"#ffffff","on-primary-fixed":"#001c38","on-secondary-fixed-variant":"#005048","background":"#f8f9ff","surface-container-high":"#dee9fb","text-muted":"#5B6B7B","on-surface":"#111c29","surface-variant":"#d8e3f5","primary-fixed-dim":"#a2c9ff","surface-dim":"#cfdbec","surface-tint":"#27609c","surface-bright":"#f8f9ff","on-primary":"#ffffff","tertiary-fixed-dim":"#ffb785","status-surveillance":"#D9A400","surface":"#f8f9ff","error":"#ba1a1a","on-surface-variant":"#424750","on-primary-fixed-variant":"#004881","on-background":"#111c29","primary":"#003866","status-normal":"#2E9E6B","on-secondary-fixed":"#00201c","tertiary-container":"#7b3c00","inverse-surface":"#26313f","secondary":"#006a60","tertiary-fixed":"#ffdcc6","secondary-fixed-dim":"#6fd8c8","on-tertiary-fixed-variant":"#713700","error-container":"#ffdad6","on-error":"#ffffff","on-secondary-container":"#007166","on-tertiary-container":"#ffab6f","surface-container-highest":"#d8e3f5","surface-base":"#FFFFFF","surface-container-low":"#eef4ff","on-secondary":"#ffffff","on-tertiary-fixed":"#301400"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"margin":"2rem","gutter-mobile":"1rem","space-lg":"1.5rem","margin-mobile":"1.25rem","space-xs":"0.25rem","space-sm":"0.5rem","space-md":"1rem","gutter":"1.5rem","space-xl":"2.5rem"},"fontFamily":{"body-base-semibold":["\"Source Sans 3\""],"caption":["\"Source Sans 3\""],"headline-lg":["\"Source Serif 4\""],"headline-xl-mobile":["\"Source Serif 4\""],"body-lg":["\"Source Sans 3\""],"headline-xl":["\"Source Serif 4\""],"headline-md":["\"Source Serif 4\""],"label-md":["\"Source Sans 3\""],"body-lg-bold":["\"Source Sans 3\""],"body-base":["\"Source Sans 3\""]},"fontSize":{"body-base-semibold":["16px",{"lineHeight":"25.6px","fontWeight":"600"}],"caption":["14px",{"lineHeight":"20px","fontWeight":"400"}],"headline-lg":["28px",{"lineHeight":"36px","fontWeight":"600"}],"headline-xl-mobile":["32px",{"lineHeight":"40px","fontWeight":"700"}],"body-lg":["18px",{"lineHeight":"28.8px","fontWeight":"400"}],"headline-xl":["40px",{"lineHeight":"48px","fontWeight":"700"}],"headline-md":["20px",{"lineHeight":"30px","fontWeight":"600"}],"label-md":["14px",{"lineHeight":"20px","letterSpacing":"0.02em","fontWeight":"600"}],"body-lg-bold":["18px",{"lineHeight":"28.8px","fontWeight":"600"}],"body-base":["16px",{"lineHeight":"25.6px","fontWeight":"400"}]}}}};</script></head><body class="bg-surface font-body-base text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-subtle shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-50 flex flex-col justify-between select-none"><div class="flex flex-col"><div class="h-20 px-gutter flex items-center gap-space-sm"><div class="w-8 h-8 rounded-lg bg-primary-container flex items-center justify-center text-on-primary font-headline-md text-headline-md">A</div><div class="flex flex-col"><div class="flex items-center gap-1.5"><span class="font-headline-md text-headline-md tracking-tight text-on-surface">Astrohealth</span><span class="w-2 h-2 rounded-full bg-status-normal inline-block"></span></div><span class="font-caption text-caption text-text-muted tracking-wider uppercase font-semibold text-[11px]">Astronaute // Expédition 72</span></div></div><nav class="flex flex-col gap-1 px-space-md mt-space-md" data-active-classes="bg-primary-container text-on-primary font-body-base-semibold shadow-[0_1px_3px_0_rgba(11,79,138,0.04)]"><a class="flex items-center px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors min-h-[48px]" data-path="accueil" href="#"><span class="font-body-base-semibold text-body-base">Accueil</span></a><a class="flex items-center px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors min-h-[48px]" data-path="mon-corps" href="#"><span class="font-body-base-semibold text-body-base">Mon corps</span></a><a class="flex items-center px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors min-h-[48px]" data-path="mental" href="#"><span class="font-body-base-semibold text-body-base">Mental</span></a><a aria-current="page" class="flex items-center px-space-md py-space-sm rounded-lg transition-colors min-h-[48px] bg-primary-container text-on-primary font-body-base-semibold shadow-[0_1px_3px_0_rgba(11,79,138,0.04)]" data-path="historique" href="#"><span class="font-body-base-semibold text-body-base">Historique</span></a><a class="flex items-center px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors min-h-[48px]" data-path="missions" href="#"><span class="font-body-base-semibold text-body-base">Missions</span></a></nav></div><div class="p-space-md"><div class="bg-surface-base rounded-lg p-space-sm shadow-[0_1px_3px_0_rgba(11,79,138,0.04)] flex items-center gap-space-sm"><div class="relative"><div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[20px]">person</span></div><span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-status-normal ring-2 ring-surface-base"></span></div><div class="flex flex-col min-w-0"><span class="font-body-base-semibold text-body-base text-on-surface truncate">Dr. Sarah Jenkins</span><span class="font-caption text-caption text-text-muted truncate">Astronaute // Expédition 72</span></div></div></div></aside><div class="pl-72 flex flex-col min-h-screen"><header class="fixed top-0 left-72 right-0 h-20 bg-surface-base/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 px-margin flex items-center justify-end gap-space-lg select-none"><div class="flex items-center gap-space-xs px-space-sm py-1 rounded-full bg-status-normal/10"><span class="w-1.5 h-1.5 rounded-full bg-status-normal inline-block"></span><span class="font-label-md text-label-md text-on-surface">Télémétrie Nominale</span></div><div class="font-caption text-caption text-text-muted font-medium">UTC 14:32:08 • Jour de mission 41</div><button class="min-h-[48px] px-space-lg bg-primary-container text-on-primary font-body-base-semibold text-body-base rounded-lg hover:bg-primary transition-colors flex items-center gap-space-xs" type="button"><span class="material-symbols-outlined text-[20px]">bolt</span><span>Protocole Rapide</span></button><button aria-label="Notifications" class="w-10 h-10 flex items-center justify-center rounded-lg text-text-muted hover:bg-surface-subtle hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[22px]">notifications</span></button><div class="flex items-center gap-space-xs pl-space-xs"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><span class="font-body-base-semibold text-body-base text-on-surface hidden xl:inline">Dr. Sarah Jenkins</span></div></header><main class="flex-1 pt-20 bg-surface px-margin py-space-lg w-full"><div class="flex flex-col w-full gap-space-lg">
+<!-- En-tête de page & Fil d'Ariane -->
+<div class="flex flex-col lg:flex-row lg:items-end justify-between gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs text-text-muted font-caption text-caption">
+<span class="hover:text-primary transition-colors cursor-pointer">Accueil</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="hover:text-primary transition-colors cursor-pointer">Historique</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-on-surface font-body-base-semibold">Tendances biomécaniques &amp; physiologiques</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface tracking-tight">Historique &amp; Tendances</h1>
+<p class="font-body-lg text-body-lg text-text-muted max-w-3xl">
+        Évolution longitudinale de vos biomarqueurs et modèles physiques au fil de l'expédition 72.
+      </p>
+</div>
+<!-- Contrôles de période & Export -->
+<div class="flex items-center gap-space-sm flex-wrap sm:flex-nowrap">
+<div class="bg-surface-subtle p-1 rounded-full flex items-center shadow-sm">
+<button class="px-space-md py-1.5 rounded-full font-body-base-semibold text-body-base bg-primary-container text-on-primary transition-all shadow-sm" id="period-7d" onclick="switchPeriod('7d')">
+          7 jours
+        </button>
+<button class="px-space-md py-1.5 rounded-full font-body-base-semibold text-body-base text-text-muted hover:text-on-surface transition-all" id="period-30d" onclick="switchPeriod('30d')">
+          30 jours
+        </button>
+<button class="px-space-md py-1.5 rounded-full font-body-base-semibold text-body-base text-text-muted hover:text-on-surface transition-all" id="period-90d" onclick="switchPeriod('90d')">
+          90 jours
+        </button>
+</div>
+<button class="min-h-[48px] px-space-md bg-surface-base text-primary-container font-body-base-semibold text-body-base rounded-lg hover:bg-surface-subtle shadow-sm flex items-center gap-space-xs transition-colors whitespace-nowrap">
+<span class="material-symbols-outlined text-[20px]">picture_as_pdf</span>
+<span>Rapport PDF mission</span>
+</button>
+</div>
+</div>
+<!-- Sélecteur horizontal d'indicateurs (Tabs ergonomiques) -->
+<div class="w-full overflow-x-auto pb-1">
+<div class="flex items-stretch gap-space-sm min-w-[840px]">
+<!-- Tab 1: Cœur (Actif) -->
+<button class="indicator-tab flex-1 bg-surface-base p-space-md rounded-lg shadow-sm text-left transition-all relative flex flex-col justify-between" onclick="setActiveIndicator(this, 'cardio')">
+<div class="w-full h-1 bg-primary-container absolute top-0 left-0 rounded-t-lg"></div>
+<div class="flex items-center justify-between mb-space-xs">
+<span class="font-caption text-caption text-text-muted uppercase tracking-wider">Cœur</span>
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-status-normal/10 text-on-surface font-caption text-caption font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-status-normal"></span>
+            Normal
+          </span>
+</div>
+<div class="font-headline-md text-headline-md text-on-surface mb-0.5">68 <span class="font-caption text-caption text-text-muted">BPM</span></div>
+<div class="font-body-base text-body-base text-primary-container truncate font-semibold">Fréquence cardiaque &amp; Pression</div>
+</button>
+<!-- Tab 2: Os & muscles -->
+<button class="indicator-tab flex-1 bg-surface-subtle p-space-md rounded-lg shadow-sm text-left hover:bg-surface-base transition-all relative flex flex-col justify-between" onclick="setActiveIndicator(this, 'bone')">
+<div class="w-full h-1 bg-transparent absolute top-0 left-0 rounded-t-lg"></div>
+<div class="flex items-center justify-between mb-space-xs">
+<span class="font-caption text-caption text-text-muted uppercase tracking-wider">Os &amp; muscles</span>
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-status-surveillance/10 text-on-surface font-caption text-caption font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-status-surveillance"></span>
+            Surveillance
+          </span>
+</div>
+<div class="font-headline-md text-headline-md text-on-surface mb-0.5">-0.4% <span class="font-caption text-caption text-text-muted">T-score</span></div>
+<div class="font-body-base text-body-base text-on-surface-variant truncate">Masse osseuse &amp; Force</div>
+</button>
+<!-- Tab 3: Ventre (Glycémie) -->
+<button class="indicator-tab flex-1 bg-surface-subtle p-space-md rounded-lg shadow-sm text-left hover:bg-surface-base transition-all relative flex flex-col justify-between" onclick="setActiveIndicator(this, 'glucose')">
+<div class="w-full h-1 bg-transparent absolute top-0 left-0 rounded-t-lg"></div>
+<div class="flex items-center justify-between mb-space-xs">
+<span class="font-caption text-caption text-text-muted uppercase tracking-wider">Ventre</span>
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-status-normal/10 text-on-surface font-caption text-caption font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-status-normal"></span>
+            Normal
+          </span>
+</div>
+<div class="font-headline-md text-headline-md text-on-surface mb-0.5">94 <span class="font-caption text-caption text-text-muted">mg/dL</span></div>
+<div class="font-body-base text-body-base text-on-surface-variant truncate">Glycémie à jeun</div>
+</button>
+<!-- Tab 4: Peau (Température) -->
+<button class="indicator-tab flex-1 bg-surface-subtle p-space-md rounded-lg shadow-sm text-left hover:bg-surface-base transition-all relative flex flex-col justify-between" onclick="setActiveIndicator(this, 'temp')">
+<div class="w-full h-1 bg-transparent absolute top-0 left-0 rounded-t-lg"></div>
+<div class="flex items-center justify-between mb-space-xs">
+<span class="font-caption text-caption text-text-muted uppercase tracking-wider">Peau</span>
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-status-normal/10 text-on-surface font-caption text-caption font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-status-normal"></span>
+            Normal
+          </span>
+</div>
+<div class="font-headline-md text-headline-md text-on-surface mb-0.5">36.6 <span class="font-caption text-caption text-text-muted">°C</span></div>
+<div class="font-body-base text-body-base text-on-surface-variant truncate">Température centrale</div>
+</button>
+<!-- Tab 5: Mental (Humeur) -->
+<button class="indicator-tab flex-1 bg-surface-subtle p-space-md rounded-lg shadow-sm text-left hover:bg-surface-base transition-all relative flex flex-col justify-between" onclick="setActiveIndicator(this, 'mental')">
+<div class="w-full h-1 bg-transparent absolute top-0 left-0 rounded-t-lg"></div>
+<div class="flex items-center justify-between mb-space-xs">
+<span class="font-caption text-caption text-text-muted uppercase tracking-wider">Mental</span>
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-status-normal/10 text-on-surface font-caption text-caption font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-status-normal"></span>
+            Positif
+          </span>
+</div>
+<div class="font-headline-md text-headline-md text-on-surface mb-0.5">82<span class="font-caption text-caption text-text-muted">/100</span></div>
+<div class="font-body-base text-body-base text-on-surface-variant truncate">Humeur &amp; Énergie orbitale</div>
+</button>
+<!-- Tab 6: Repos (Sommeil) -->
+<button class="indicator-tab flex-1 bg-surface-subtle p-space-md rounded-lg shadow-sm text-left hover:bg-surface-base transition-all relative flex flex-col justify-between" onclick="setActiveIndicator(this, 'sleep')">
+<div class="w-full h-1 bg-transparent absolute top-0 left-0 rounded-t-lg"></div>
+<div class="flex items-center justify-between mb-space-xs">
+<span class="font-caption text-caption text-text-muted uppercase tracking-wider">Repos</span>
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-status-normal/10 text-on-surface font-caption text-caption font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-status-normal"></span>
+            Normal
+          </span>
+</div>
+<div class="font-headline-md text-headline-md text-on-surface mb-0.5">7h12 <span class="font-caption text-caption text-text-muted">N3</span></div>
+<div class="font-body-base text-body-base text-on-surface-variant truncate">Sommeil orbital profond</div>
+</button>
+</div>
+</div>
+<!-- Grand Panneau Central Graphique (« TrendChart ») -->
+<div class="bg-surface-base p-space-lg rounded-xl shadow-sm flex flex-col gap-space-lg">
+<!-- En-tête du panneau graphique -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-space-sm">
+<h2 class="font-headline-md text-headline-md text-on-surface" id="chart-indicator-title">Fréquence cardiaque au repos (BPM)</h2>
+<span class="font-caption text-caption text-text-muted">Exp. 72 • Bras Columbus</span>
+</div>
+<div class="flex items-baseline gap-space-sm flex-wrap">
+<span class="font-headline-xl text-headline-xl text-primary-container leading-none font-bold" id="chart-current-val">68 <span class="text-headline-md font-normal">BPM</span></span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-status-normal/10 text-on-surface font-label-md text-label-md">
+<span class="w-2 h-2 rounded-full bg-status-normal"></span>
+            Dans la cible orbitale
+          </span>
+<span class="text-text-muted font-caption text-caption ml-2">Moyenne 7j : <strong class="text-on-surface font-semibold">67.4 BPM</strong></span>
+<span class="text-text-muted font-caption text-caption">Variabilité : <strong class="text-on-surface font-semibold">± 3 BPM</strong></span>
+</div>
+</div>
+<!-- Bascule secondaire -->
+<div class="flex items-center gap-space-sm">
+<button class="min-h-[48px] px-space-md py-2 bg-surface-subtle text-on-surface-variant hover:text-primary-container rounded-lg font-body-base-semibold text-body-base flex items-center gap-2 transition-all" id="toggle-bp" onclick="toggleSecondaryCurve()">
+<span class="material-symbols-outlined text-[18px]">show_chart</span>
+<span id="bp-btn-text">+ Ajouter courbe Pression systolique</span>
+</button>
+</div>
+</div>
+<!-- Zone Graphique SVG Haute Définition -->
+<div class="w-full relative overflow-hidden bg-surface-subtle/50 rounded-lg p-space-md">
+<div class="w-full overflow-x-auto">
+<svg class="w-full min-w-[720px] h-[340px]" fill="none" viewbox="0 0 900 320" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<lineargradient id="areaGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#0b4f8a" stop-opacity="0.15"></stop>
+<stop offset="100%" stop-color="#0b4f8a" stop-opacity="0.0"></stop>
+</lineargradient>
+<lineargradient id="targetZoneGrad" x1="0" x2="1" y1="0" y2="0">
+<stop offset="0%" stop-color="#2E9E6B" stop-opacity="0.08"></stop>
+<stop offset="100%" stop-color="#2E9E6B" stop-opacity="0.03"></stop>
+</lineargradient>
+</defs>
+<!-- Grille horizontale discrète -->
+<g class="text-border-subtle" stroke="currentColor" stroke-dasharray="3 4" stroke-width="1">
+<line x1="60" x2="860" y1="50" y2="50"></line>
+<line x1="60" x2="860" y1="110" y2="110"></line>
+<line x1="60" x2="860" y1="170" y2="170"></line>
+<line x1="60" x2="860" y1="230" y2="230"></line>
+<line stroke-dasharray="0" x1="60" x2="860" y1="280" y2="280"></line>
+</g>
+<!-- Graduation Axe Y -->
+<g class="font-caption text-[12px] fill-text-muted select-none" text-anchor="end">
+<text x="50" y="54">90</text>
+<text x="50" y="114">80</text>
+<text x="50" y="174">70</text>
+<text x="50" y="234">60</text>
+<text x="50" y="284">50</text>
+</g>
+<!-- Zone cible de tolérance nominale (60 - 75 BPM) -->
+<rect fill="url(#targetZoneGrad)" height="90" rx="4" width="800" x="60" y="140"></rect>
+<text class="fill-status-normal font-caption text-[11px] font-semibold tracking-wider uppercase select-none opacity-80" text-anchor="end" x="850" y="156">
+            Zone cible d'équipage (60 - 75 BPM)
+          </text>
+<!-- Courbe secondaire (Pression Systolique - masquée par défaut via transition d'opacité) -->
+<g class="transition-opacity duration-300" id="secondary-curve" opacity="0">
+<path d="M 100 110 L 210 115 L 320 108 L 430 120 L 540 128 L 650 112 L 760 110" fill="none" stroke="#2A9D8F" stroke-dasharray="4 4" stroke-width="2"></path>
+<circle cx="760" cy="110" fill="#2A9D8F" r="4"></circle>
+<text class="fill-secondary font-caption text-[11px] font-semibold" x="770" y="114">118 mmHg (SYS)</text>
+</g>
+<!-- Aire sous la courbe principale -->
+<path d="M 100 185 L 210 176 L 320 190 L 430 180 L 540 152 L 650 178 L 760 180 L 760 280 L 100 280 Z" fill="url(#areaGradient)"></path>
+<!-- Tendance prédictive 48h (pointillés) -->
+<path d="M 760 180 L 840 174" fill="none" opacity="0.6" stroke="#0b4f8a" stroke-dasharray="4 4" stroke-width="2"></path>
+<circle cx="840" cy="174" fill="#FFFFFF" r="4" stroke="#0b4f8a" stroke-width="2"></circle>
+<text class="fill-primary-container font-caption text-[11px] font-semibold" text-anchor="middle" x="840" y="162">Sol +2 (69)</text>
+<!-- Ligne de tendance principale -->
+<path d="M 100 185 L 210 176 L 320 190 L 430 180 L 540 152 L 650 178 L 760 180" fill="none" stroke="#0b4f8a" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path>
+<!-- Points interactifs -->
+<circle class="cursor-pointer hover:r-6 transition-all" cx="100" cy="185" fill="#FFFFFF" r="5" stroke="#0b4f8a" stroke-width="2.5"></circle>
+<circle class="cursor-pointer hover:r-6 transition-all" cx="210" cy="176" fill="#FFFFFF" r="5" stroke="#0b4f8a" stroke-width="2.5"></circle>
+<circle class="cursor-pointer hover:r-6 transition-all" cx="320" cy="190" fill="#FFFFFF" r="5" stroke="#0b4f8a" stroke-width="2.5"></circle>
+<circle class="cursor-pointer hover:r-6 transition-all" cx="430" cy="180" fill="#FFFFFF" r="5" stroke="#0b4f8a" stroke-width="2.5"></circle>
+<!-- Point annoté Sol 39 (Nuit courte) -->
+<g>
+<line stroke="#E07B00" stroke-dasharray="2 2" stroke-width="1.5" x1="540" x2="540" y1="152" y2="70"></line>
+<circle cx="540" cy="152" fill="#E07B00" r="6" stroke="#FFFFFF" stroke-width="2"></circle>
+<!-- Infobulle esthétique -->
+<rect fill="#FFFFFF" filter="drop-shadow(0 2px 6px rgba(11,79,138,0.1))" height="46" rx="6" width="190" x="445" y="24"></rect>
+<text class="fill-on-surface font-body-base-semibold text-[12px]" x="457" y="42">Sol 39 • 74 BPM (+6)</text>
+<text class="fill-text-muted font-caption text-[11px]" x="457" y="58">Nuit courte (5h40) • EVA J-1</text>
+</g>
+<circle class="cursor-pointer hover:r-6 transition-all" cx="650" cy="178" fill="#FFFFFF" r="5" stroke="#0b4f8a" stroke-width="2.5"></circle>
+<!-- Point Aujourd'hui Sol 41 -->
+<circle class="cursor-pointer" cx="760" cy="180" fill="#0b4f8a" r="7" stroke="#FFFFFF" stroke-width="2"></circle>
+<circle class="animate-ping" cx="760" cy="180" fill="none" opacity="0.3" r="11" stroke="#0b4f8a" stroke-width="1.5"></circle>
+<!-- Axe X : Dates & Sols -->
+<g class="font-caption text-[13px] fill-text-muted select-none" text-anchor="middle">
+<text x="100" y="304">Sol 35 (J-6)</text>
+<text x="210" y="304">Sol 36 (J-5)</text>
+<text x="320" y="304">Sol 37 (J-4)</text>
+<text x="430" y="304">Sol 38 (J-3)</text>
+<text class="fill-status-action font-semibold" x="540" y="304">Sol 39 (J-2)</text>
+<text x="650" y="304">Sol 40 (J-1)</text>
+<text class="fill-primary-container font-semibold" x="760" y="304">Sol 41 (Aujourd'hui)</text>
+</g>
+</svg>
+</div>
+</div>
+<!-- Légende & Bandes de seuils de référence -->
+<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-space-sm pt-space-xs text-text-muted font-caption text-caption">
+<div class="flex items-center gap-space-md flex-wrap">
+<span class="font-body-base-semibold text-on-surface">Seuils physiologiques de consigne :</span>
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-status-normal"></span>
+<span>Nominal (55 - 75 BPM)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-status-surveillance"></span>
+<span>Vigilance (&gt; 80 BPM au repos)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-status-contact-chirurgien"></span>
+<span>Critique Sol (&gt; 95 BPM)</span>
+</div>
+</div>
+<div class="flex items-center gap-1 text-primary-container font-label-md text-label-md cursor-pointer hover:underline">
+<span class="material-symbols-outlined text-[16px]">tune</span>
+<span>Ajuster les seuils d'alerte</span>
+</div>
+</div>
+</div>
+<!-- Bloc de Synthèse d'Analyse Clinique (Divulgation Progressive) -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-space-md">
+<!-- Colonne 1 : Analyse hémodynamique -->
+<div class="bg-surface-base p-space-lg rounded-xl shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-center gap-space-xs text-primary-container">
+<span class="material-symbols-outlined text-[22px]">cardiology</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">Analyse du modèle hémodynamique</h3>
+</div>
+<p class="font-body-base text-body-base text-on-surface-variant leading-relaxed">
+        Stabilité cardiaque remarquable documentée depuis l'arrimage orbital. L'adaptation cardiovasculaire à la microgravité se poursuit sans remodelage défavorable. Le tonus vagal diurne et nocturne demeure robuste grâce à la compliance stricte avec le protocole <strong class="text-on-surface font-semibold">CEVIS</strong> (ergomètre cyclo-orbital) quotidien de 45 minutes.
+      </p>
+<div class="mt-auto pt-space-xs flex items-center gap-space-xs text-status-normal font-label-md text-label-md">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+<span>Indice de récupération cardiaque post-effort : 1.42 (Optimal)</span>
+</div>
+</div>
+<!-- Colonne 2 : Corrélations croisées -->
+<div class="bg-surface-base p-space-lg rounded-xl shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-center gap-space-xs text-primary-container">
+<span class="material-symbols-outlined text-[22px]">insights</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">Corrélations croisées constatées</h3>
+</div>
+<div class="flex flex-col gap-space-sm font-body-base text-body-base text-on-surface-variant">
+<div class="flex items-start gap-space-sm">
+<span class="w-6 h-6 rounded-full bg-surface-subtle flex items-center justify-center shrink-0 mt-0.5 text-primary-container font-semibold text-caption">1</span>
+<p>
+<strong class="text-on-surface font-semibold">Architecture du sommeil :</strong> Les phases de sommeil profond N3 excédant 90 minutes sont systématiquement suivies d'une fréquence cardiaque matinale inférieure à 64 BPM.
+          </p>
+</div>
+<div class="flex items-start gap-space-sm">
+<span class="w-6 h-6 rounded-full bg-surface-subtle flex items-center justify-center shrink-0 mt-0.5 text-primary-container font-semibold text-caption">2</span>
+<p>
+<strong class="text-on-surface font-semibold">Équilibre hydro-électrolytique :</strong> La prise programmée du soluté salin à H-2 avant extinction des lumières évite les tachycardies posturales transitoires au réveil.
+          </p>
+</div>
+</div>
+<div class="mt-auto pt-space-xs">
+<span class="font-caption text-caption text-text-muted">Prochaine revue télémétrique croisée avec le Médecin de Vol : Sol 44.</span>
+</div>
+</div>
+</div>
+<!-- Accordéon des Données Brutes de Télémétrie -->
+<div class="bg-surface-base rounded-xl shadow-sm overflow-hidden">
+<button class="w-full min-h-[52px] p-space-md flex items-center justify-between text-left hover:bg-surface-subtle transition-colors" onclick="toggleTelemetryTable()">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-text-muted text-[20px]">table_rows</span>
+<span class="font-body-base-semibold text-body-base text-on-surface">Consulter les données brutes de télémétrie biométrique (7 derniers Sols)</span>
+</div>
+<span class="material-symbols-outlined text-text-muted transition-transform" id="accordion-icon">expand_more</span>
+</button>
+<div class="hidden p-space-md pt-0 overflow-x-auto" id="raw-data-container">
+<div class="rounded-lg overflow-hidden bg-surface-subtle">
+<table class="w-full text-left font-caption text-caption">
+<thead>
+<tr class="bg-surface-container-high/40 text-text-muted uppercase tracking-wider font-semibold">
+<th class="py-3 px-4">Date / Sol</th>
+<th class="py-3 px-4 text-right">FC Repos</th>
+<th class="py-3 px-4 text-right">FC Max (CEVIS)</th>
+<th class="py-3 px-4 text-right">Pression (SYS/DIA)</th>
+<th class="py-3 px-4 text-right">SpO2</th>
+<th class="py-3 px-4 text-right">VFC (rMSSD)</th>
+<th class="py-3 px-4">Statut Télémétrie</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border-subtle/50 text-on-surface font-body-base">
+<tr class="hover:bg-surface-base/60 transition-colors">
+<td class="py-3 px-4 font-body-base-semibold">Sol 41 (Aujourd'hui)</td>
+<td class="py-3 px-4 text-right font-semibold">68 BPM</td>
+<td class="py-3 px-4 text-right text-text-muted">142 BPM</td>
+<td class="py-3 px-4 text-right">118/74 mmHg</td>
+<td class="py-3 px-4 text-right">98.5%</td>
+<td class="py-3 px-4 text-right">58 ms</td>
+<td class="py-3 px-4"><span class="px-2 py-0.5 rounded-full bg-status-normal/10 text-on-surface text-[12px] font-semibold">Nominal</span></td>
+</tr>
+<tr class="hover:bg-surface-base/60 transition-colors">
+<td class="py-3 px-4">Sol 40 (J-1)</td>
+<td class="py-3 px-4 text-right font-semibold">67 BPM</td>
+<td class="py-3 px-4 text-right text-text-muted">139 BPM</td>
+<td class="py-3 px-4 text-right">116/72 mmHg</td>
+<td class="py-3 px-4 text-right">98.8%</td>
+<td class="py-3 px-4 text-right">61 ms</td>
+<td class="py-3 px-4"><span class="px-2 py-0.5 rounded-full bg-status-normal/10 text-on-surface text-[12px] font-semibold">Nominal</span></td>
+</tr>
+<tr class="hover:bg-surface-base/60 transition-colors bg-status-action/5">
+<td class="py-3 px-4 font-body-base-semibold text-status-action">Sol 39 (J-2)</td>
+<td class="py-3 px-4 text-right font-semibold text-status-action">74 BPM</td>
+<td class="py-3 px-4 text-right text-text-muted">156 BPM</td>
+<td class="py-3 px-4 text-right">124/80 mmHg</td>
+<td class="py-3 px-4 text-right">97.9%</td>
+<td class="py-3 px-4 text-right">42 ms</td>
+<td class="py-3 px-4"><span class="px-2 py-0.5 rounded-full bg-status-action/10 text-status-action text-[12px] font-semibold">Post-fatigue</span></td>
+</tr>
+<tr class="hover:bg-surface-base/60 transition-colors">
+<td class="py-3 px-4">Sol 38 (J-3)</td>
+<td class="py-3 px-4 text-right font-semibold">66 BPM</td>
+<td class="py-3 px-4 text-right text-text-muted">141 BPM</td>
+<td class="py-3 px-4 text-right">117/73 mmHg</td>
+<td class="py-3 px-4 text-right">98.4%</td>
+<td class="py-3 px-4 text-right">64 ms</td>
+<td class="py-3 px-4"><span class="px-2 py-0.5 rounded-full bg-status-normal/10 text-on-surface text-[12px] font-semibold">Nominal</span></td>
+</tr>
+<tr class="hover:bg-surface-base/60 transition-colors">
+<td class="py-3 px-4">Sol 37 (J-4)</td>
+<td class="py-3 px-4 text-right font-semibold">69 BPM</td>
+<td class="py-3 px-4 text-right text-text-muted">144 BPM</td>
+<td class="py-3 px-4 text-right">119/75 mmHg</td>
+<td class="py-3 px-4 text-right">98.2%</td>
+<td class="py-3 px-4 text-right">55 ms</td>
+<td class="py-3 px-4"><span class="px-2 py-0.5 rounded-full bg-status-normal/10 text-on-surface text-[12px] font-semibold">Nominal</span></td>
+</tr>
+<tr class="hover:bg-surface-base/60 transition-colors">
+<td class="py-3 px-4">Sol 36 (J-5)</td>
+<td class="py-3 px-4 text-right font-semibold">65 BPM</td>
+<td class="py-3 px-4 text-right text-text-muted">138 BPM</td>
+<td class="py-3 px-4 text-right">115/71 mmHg</td>
+<td class="py-3 px-4 text-right">99.0%</td>
+<td class="py-3 px-4 text-right">68 ms</td>
+<td class="py-3 px-4"><span class="px-2 py-0.5 rounded-full bg-status-normal/10 text-on-surface text-[12px] font-semibold">Nominal</span></td>
+</tr>
+<tr class="hover:bg-surface-base/60 transition-colors">
+<td class="py-3 px-4">Sol 35 (J-6)</td>
+<td class="py-3 px-4 text-right font-semibold">67 BPM</td>
+<td class="py-3 px-4 text-right text-text-muted">140 BPM</td>
+<td class="py-3 px-4 text-right">116/74 mmHg</td>
+<td class="py-3 px-4 text-right">98.6%</td>
+<td class="py-3 px-4 text-right">62 ms</td>
+<td class="py-3 px-4"><span class="px-2 py-0.5 rounded-full bg-status-normal/10 text-on-surface text-[12px] font-semibold">Nominal</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Pied de page discret réglementaire -->
+<div class="flex items-center justify-center gap-space-sm pt-space-xs pb-space-sm text-text-muted font-caption text-caption text-center">
+<span class="material-symbols-outlined text-[16px] text-text-muted">sync</span>
+<span>Outil éducatif &amp; d'auto-évaluation, pas un diagnostic médical direct. Données télémétriques synchronisées en liaison montante avec TsUP (Moscou) &amp; MCC (Houston).</span>
+</div>
+</div>
+<script>
+  let secondaryCurveVisible = false;
+
+  function switchPeriod(period) {
+    const buttons = ['period-7d', 'period-30d', 'period-90d'];
+    buttons.forEach(id => {
+      const btn = document.getElementById(id);
+      if (id === 'period-' + period) {
+        btn.className = "px-space-md py-1.5 rounded-full font-body-base-semibold text-body-base bg-primary-container text-on-primary transition-all shadow-sm";
+      } else {
+        btn.className = "px-space-md py-1.5 rounded-full font-body-base-semibold text-body-base text-text-muted hover:text-on-surface transition-all";
+      }
+    });
+  }
+
+  function setActiveIndicator(clickedBtn, key) {
+    document.querySelectorAll('.indicator-tab').forEach(tab => {
+      tab.classList.remove('bg-surface-base');
+      tab.classList.add('bg-surface-subtle');
+      const topBar = tab.querySelector('div:first-child');
+      if (topBar) {
+        topBar.classList.remove('bg-primary-container');
+        topBar.classList.add('bg-transparent');
+      }
+    });
+
+    clickedBtn.classList.remove('bg-surface-subtle');
+    clickedBtn.classList.add('bg-surface-base');
+    const activeTopBar = clickedBtn.querySelector('div:first-child');
+    if (activeTopBar) {
+      activeTopBar.classList.remove('bg-transparent');
+      activeTopBar.classList.add('bg-primary-container');
+    }
+
+    const titleEl = document.getElementById('chart-indicator-title');
+    const valEl = document.getElementById('chart-current-val');
+
+    switch (key) {
+      case 'cardio':
+        titleEl.textContent = "Fréquence cardiaque au repos (BPM)";
+        valEl.innerHTML = '68 <span class="text-headline-md font-normal">BPM</span>';
+        break;
+      case 'bone':
+        titleEl.textContent = "Densité minérale osseuse & T-Score";
+        valEl.innerHTML = '-0.4% <span class="text-headline-md font-normal">T-score calcéen</span>';
+        break;
+      case 'glucose':
+        titleEl.textContent = "Glycémie capillaire à jeun";
+        valEl.innerHTML = '94 <span class="text-headline-md font-normal">mg/dL</span>';
+        break;
+      case 'temp':
+        titleEl.textContent = "Température cutanée & centrale";
+        valEl.innerHTML = '36.6 <span class="text-headline-md font-normal">°C</span>';
+        break;
+      case 'mental':
+        titleEl.textContent = "Score d'état thymique & vigilance";
+        valEl.innerHTML = '82 <span class="text-headline-md font-normal">/ 100</span>';
+        break;
+      case 'sleep':
+        titleEl.textContent = "Chronobiologie & Sommeil profond N3";
+        valEl.innerHTML = '7h12 <span class="text-headline-md font-normal">moy. N3</span>';
+        break;
+    }
+  }
+
+  function toggleSecondaryCurve() {
+    secondaryCurveVisible = !secondaryCurveVisible;
+    const curve = document.getElementById('secondary-curve');
+    const btnText = document.getElementById('bp-btn-text');
+    const btn = document.getElementById('toggle-bp');
+
+    if (secondaryCurveVisible) {
+      curve.setAttribute('opacity', '1');
+      btnText.textContent = "- Masquer courbe Pression";
+      btn.classList.add('bg-secondary/10', 'text-secondary');
+      btn.classList.remove('bg-surface-subtle', 'text-on-surface-variant');
+    } else {
+      curve.setAttribute('opacity', '0');
+      btnText.textContent = "+ Ajouter courbe Pression systolique";
+      btn.classList.remove('bg-secondary/10', 'text-secondary');
+      btn.classList.add('bg-surface-subtle', 'text-on-surface-variant');
+    }
+  }
+
+  function toggleTelemetryTable() {
+    const container = document.getElementById('raw-data-container');
+    const icon = document.getElementById('accordion-icon');
+    if (container.classList.contains('hidden')) {
+      container.classList.remove('hidden');
+      icon.style.transform = 'rotate(180deg)';
+    } else {
+      container.classList.add('hidden');
+      icon.style.transform = 'rotate(0deg)';
+    }
+  }
+</script></main><footer class="w-full bg-surface-subtle py-space-md px-margin text-center shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><p class="font-caption text-caption text-text-muted">Outil éducatif, pas un diagnostic médical. Plateforme de suivi clinique orbital Astrohealth • Conforme aux spécifications de mission ISS-Exp72</p></footer></div></body></html>
