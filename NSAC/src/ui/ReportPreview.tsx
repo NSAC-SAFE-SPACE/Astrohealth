@@ -30,6 +30,13 @@ interface ReportPreviewProps {
   radiationProjection: any;
   latestPsychScore: number;
   latestPsychStatus: Status;
+  psychMetrics?: {
+    stressLevel?: number;
+    moodScore?: number;
+    workloadPerception?: number;
+    timePerception?: number;
+    communicationWithOthers?: number;
+  };
   patterns: Pattern[];
   meanSleepHours: number;
   latestTemp: number;
@@ -50,6 +57,7 @@ export const ReportPreview: React.FC<ReportPreviewProps> = ({
   radiationProjection,
   latestPsychScore,
   latestPsychStatus,
+  psychMetrics,
   patterns,
   meanSleepHours,
   latestTemp,
@@ -264,15 +272,15 @@ export const ReportPreview: React.FC<ReportPreviewProps> = ({
         </div>
       </section>
 
-      {/* Section 4: Mental Well-Being (WHO-5) */}
+      {/* Section 4: Mental Well-Being (WHO-5 & Behavioral Health Panel) */}
       <section className="space-y-3">
         <h2 className="text-xs font-bold uppercase tracking-wider text-slate-muted border-b border-slate-border pb-1">
-          4. Évaluation psychologique (Indice OMS-5 adapté)
+          4. Évaluation psychologique & Dimensions comportementales de bord
         </h2>
         <div className="p-4 rounded-xl bg-surface border border-slate-border flex items-center justify-between gap-4">
           <div>
             <div className="font-serif text-xl font-bold text-slate-text">
-              Indice OMS-5 : {latestPsychScore} / 100
+              Indice global OMS-5 : {latestPsychScore} / 100
             </div>
             <p className="text-xs text-slate-muted mt-1">
               {latestPsychScore >= 68
@@ -285,6 +293,59 @@ export const ReportPreview: React.FC<ReportPreviewProps> = ({
             </p>
           </div>
           <StatusBadge status={latestPsychStatus} size="sm" />
+        </div>
+
+        {/* 5 Key Behavioral Health Dimensions */}
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 pt-1 text-xs">
+          <div className="p-3 rounded-xl border border-slate-border bg-white space-y-1">
+            <span className="text-[11px] font-bold text-slate-muted uppercase block">Stress</span>
+            <div className="font-serif text-base font-bold text-slate-text">
+              {psychMetrics?.stressLevel ?? 24} / 100
+            </div>
+            <span className="text-[10px] text-status-normal font-semibold">
+              {(psychMetrics?.stressLevel ?? 24) < 35 ? 'Faible (nominal)' : (psychMetrics?.stressLevel ?? 24) < 65 ? 'Modéré' : 'Élevé'}
+            </span>
+          </div>
+
+          <div className="p-3 rounded-xl border border-slate-border bg-white space-y-1">
+            <span className="text-[11px] font-bold text-slate-muted uppercase block">Humeur</span>
+            <div className="font-serif text-base font-bold text-slate-text">
+              {psychMetrics?.moodScore ?? 84} / 100
+            </div>
+            <span className="text-[10px] text-status-normal font-semibold">
+              {(psychMetrics?.moodScore ?? 84) >= 70 ? 'Optimale' : (psychMetrics?.moodScore ?? 84) >= 50 ? 'Neutre' : 'Basse'}
+            </span>
+          </div>
+
+          <div className="p-3 rounded-xl border border-slate-border bg-white space-y-1">
+            <span className="text-[11px] font-bold text-slate-muted uppercase block">Charge mentale</span>
+            <div className="font-serif text-base font-bold text-slate-text">
+              {psychMetrics?.workloadPerception ?? 32} / 100
+            </div>
+            <span className="text-[10px] text-slate-muted font-semibold">
+              {(psychMetrics?.workloadPerception ?? 32) <= 40 ? 'NASA-TLX bas' : (psychMetrics?.workloadPerception ?? 32) <= 70 ? 'Soutenue' : 'Surcharge'}
+            </span>
+          </div>
+
+          <div className="p-3 rounded-xl border border-slate-border bg-white space-y-1">
+            <span className="text-[11px] font-bold text-slate-muted uppercase block">Temps perçu</span>
+            <div className="font-serif text-base font-bold text-slate-text">
+              {psychMetrics?.timePerception ?? 50} / 100
+            </div>
+            <span className="text-[10px] text-slate-muted font-semibold">
+              {(psychMetrics?.timePerception ?? 50) >= 40 && (psychMetrics?.timePerception ?? 50) <= 60 ? 'Rythme nominal' : 'Distorsion'}
+            </span>
+          </div>
+
+          <div className="p-3 rounded-xl border border-slate-border bg-white space-y-1">
+            <span className="text-[11px] font-bold text-slate-muted uppercase block">Communication</span>
+            <div className="font-serif text-base font-bold text-slate-text">
+              {psychMetrics?.communicationWithOthers ?? 88} / 100
+            </div>
+            <span className="text-[10px] text-status-normal font-semibold">
+              {(psychMetrics?.communicationWithOthers ?? 88) >= 75 ? 'Cohésion fluide' : (psychMetrics?.communicationWithOthers ?? 88) >= 50 ? 'Réservée' : 'Repli'}
+            </span>
+          </div>
         </div>
       </section>
 

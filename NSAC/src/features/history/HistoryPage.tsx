@@ -29,6 +29,7 @@ export type HistoryMetricKey =
   | 'boneLoss'
   | 'sleep'
   | 'mood'
+  | 'stress'
   | 'radiation';
 
 export const HistoryPage: React.FC = () => {
@@ -123,6 +124,14 @@ export const HistoryPage: React.FC = () => {
       maxNorm: 100,
       yDomain: [20, 100]
     },
+    stress: {
+      labelKey: 'history.metrics.stress',
+      unit: '/100',
+      fallbackBaseline: 24,
+      minNorm: 0,
+      maxNorm: 35,
+      yDomain: [0, 100]
+    },
     radiation: {
       labelKey: 'history.metrics.radiation',
       unit: 'mSv',
@@ -161,6 +170,13 @@ export const HistoryPage: React.FC = () => {
         const ts = new Date(p.date).getTime();
         if (ts >= startTs) {
           rawPoints.push({ timestamp: ts, value: p.score, dateStr: p.date.slice(5) });
+        }
+      });
+    } else if (selectedMetric === 'stress') {
+      psychAssessments.forEach((p) => {
+        const ts = new Date(p.date).getTime();
+        if (ts >= startTs) {
+          rawPoints.push({ timestamp: ts, value: p.stressLevel ?? 24, dateStr: p.date.slice(5) });
         }
       });
     } else if (selectedMetric === 'boneLoss') {
@@ -287,6 +303,10 @@ export const HistoryPage: React.FC = () => {
       predVal = res.value;
       predLow = res.low;
       predHigh = res.high;
+    } else if (selectedMetric === 'stress') {
+      predVal = Math.round(latestVal * 10) / 10;
+      predLow = Math.max(0, Math.round((latestVal - 5) * 10) / 10);
+      predHigh = Math.min(100, Math.round((latestVal + 6) * 10) / 10);
     } else if (selectedMetric === 'radiation') {
       predVal = Math.round((latestVal + 1.2) * 10) / 10;
       predLow = Math.round(latestVal * 10) / 10;

@@ -212,6 +212,47 @@
         ]
       }
     },
+    "dimensionsTitle": "Spaceflight Psychometric Dimensions",
+    "dimensionsSubtitle": "Vector monitoring of the 5 pillars of behavioral stability in orbital confinement",
+    "logDimensionsButton": "Adjust Dimensions",
+    "saveDimensions": "Save Dimensions",
+    "dimensions": {
+      "stressLevel": {
+        "title": "Stress Level",
+        "desc": "Autonomic nervous system activation and perceived emotional strain.",
+        "nominal": "Low • Optimal Zone",
+        "watch": "Moderate • Vigilance",
+        "action": "Elevated • Regulation Needed"
+      },
+      "moodScore": {
+        "title": "Mood Score",
+        "desc": "General affective valence, enthusiasm, and serenity.",
+        "nominal": "Positive & Balanced",
+        "watch": "Neutral / declining valence",
+        "action": "Marked energy drop"
+      },
+      "workloadPerception": {
+        "title": "Workload Perception",
+        "desc": "NASA-TLX index: mental demand, effort, and operational task pace.",
+        "nominal": "Manageable • Moderate effort",
+        "watch": "Heavy workload",
+        "action": "Cognitive overload"
+      },
+      "timePerception": {
+        "title": "Time Perception",
+        "desc": "Subjective time flow and alertness against orbital confinement monotony.",
+        "nominal": "Nominal balanced pace",
+        "watch": "Time feels slowed down",
+        "action": "Marked temporal distortion"
+      },
+      "communicationWithOthers": {
+        "title": "Communication with Others",
+        "desc": "Crew cohesion, interpersonal dynamics, and Earth liaison contact.",
+        "nominal": "Smooth & Constructive",
+        "watch": "Reserved interactions",
+        "action": "Tension or social withdrawal"
+      }
+    },
     "sleepSection": "Sleep Quality & Recovery",
     "sleepLogButton": "Log morning sleep",
     "sleepComponents": "Sleep score components (duration, continuity, regularity, feeling)",
@@ -251,6 +292,7 @@
       "boneLoss": "Estimated Bone Loss",
       "sleep": "Sleep Duration",
       "mood": "Adapted WHO-5 Index",
+      "stress": "Stress Level",
       "radiation": "Cumulative Radiation"
     }
   },

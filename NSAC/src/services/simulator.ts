@@ -203,13 +203,40 @@ export async function seedDemoData(scenario: DemoScenario = 'healthy') {
         answers = [2, 3, 2, 1, 3]; // Action level
       }
       const score = answers.reduce((s, a) => s + a, 0) * 4;
+      const status = score >= 68 ? 'normal' : score >= 50 ? 'watch' : score >= 29 ? 'action' : 'contact_flight_surgeon';
+
+      let stressLevel = 24;
+      let moodScore = 84;
+      let workloadPerception = 32;
+      let timePerception = 50;
+      let communicationWithOthers = 88;
+
+      if (scenario === 'isolation' && d < 21) {
+        stressLevel = 72;
+        moodScore = 36;
+        workloadPerception = 68;
+        timePerception = 24;
+        communicationWithOthers = 32;
+      } else if (scenario === 'fatigue' && d < 14) {
+        stressLevel = 58;
+        moodScore = 52;
+        workloadPerception = 76;
+        timePerception = 38;
+        communicationWithOthers = 62;
+      }
+
       psychAssessments.push({
         id: `psych-${d}`,
         astronautId: astro.id,
         date: dateStr,
         answers,
         score,
-        status: score >= 68 ? 'normal' : score >= 50 ? 'watch' : score >= 29 ? 'action' : 'contact_flight_surgeon'
+        status,
+        stressLevel,
+        moodScore,
+        workloadPerception,
+        timePerception,
+        communicationWithOthers
       });
     }
   }

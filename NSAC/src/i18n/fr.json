@@ -194,6 +194,47 @@
         ]
       }
     },
+    "dimensionsTitle": "Dimensions psychométriques de bord",
+    "dimensionsSubtitle": "Suivi vectoriel des 5 piliers de stabilité comportementale en confinement orbital",
+    "logDimensionsButton": "Ajuster les évaluations",
+    "saveDimensions": "Enregistrer les dimensions",
+    "dimensions": {
+      "stressLevel": {
+        "title": "Niveau de stress",
+        "desc": "Activation neurovégétative et tension émotionnelle perçue.",
+        "nominal": "Faible • Zone optimale",
+        "watch": "Modéré • Vigilance",
+        "action": "Élevé • Régulation requise"
+      },
+      "moodScore": {
+        "title": "Score d'humeur",
+        "desc": "Valence affective générale, enthousiasme et sérénité.",
+        "nominal": "Positif & Équilibré",
+        "watch": "Valence neutre / en baisse",
+        "action": "Baisse d'énergie marquée"
+      },
+      "workloadPerception": {
+        "title": "Charge de travail perçue",
+        "desc": "Index NASA-TLX : charge mentale, effort et cadence des tâches de bord.",
+        "nominal": "Maîtrisée • Effort modéré",
+        "watch": "Charge soutenue",
+        "action": "Surcharge cognitive"
+      },
+      "timePerception": {
+        "title": "Perception du temps",
+        "desc": "Défilement temporel subjectif et vigilance contre la monotonie orbitale.",
+        "nominal": "Rythme nominal équilibré",
+        "watch": "Sentiment de temps ralenti",
+        "action": "Distorsion temporelle marquée"
+      },
+      "communicationWithOthers": {
+        "title": "Communication avec autrui",
+        "desc": "Cohésion d'équipage, dynamiques interpersonnelles et contacts avec la Terre.",
+        "nominal": "Fluide & Constructive",
+        "watch": "Contacts réservés",
+        "action": "Tensions ou retrait social"
+      }
+    },
     "sleepSection": "Qualité du sommeil & Récupération",
     "sleepLogButton": "Saisir la nuit au réveil",
     "sleepComponents": "Composantes du score de sommeil (durée, continuité, régularité, ressenti)",
@@ -233,6 +274,7 @@
       "boneLoss": "Perte osseuse estimée",
       "sleep": "Durée du sommeil",
       "mood": "Indice OMS-5 adapté",
+      "stress": "Niveau de stress",
       "radiation": "Radiations cumulées"
     }
   },

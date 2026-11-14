@@ -83,4 +83,44 @@ describe('Étape 6: Mental (Questionnaire OMS-5, Bilan, Évolution, Sommeil, Cou
     expect(frInfluences[0].title.toLowerCase()).toContain('sommeil');
     expect(enInfluences[0].title.toLowerCase()).toContain('sleep');
   });
+
+  it('gère et restitue les 5 dimensions comportementales clés (stress, mood, workload, time, communication)', () => {
+    const frDimensions = frTranslations.mental.dimensions;
+    const enDimensions = enTranslations.mental.dimensions;
+
+    // Check all 5 dimensions exist in French
+    expect(frDimensions.stressLevel.title).toBe('Niveau de stress');
+    expect(frDimensions.moodScore.title).toBe("Score d'humeur");
+    expect(frDimensions.workloadPerception.title).toBe('Charge de travail perçue');
+    expect(frDimensions.timePerception.title).toBe('Perception du temps');
+    expect(frDimensions.communicationWithOthers.title).toBe('Communication avec autrui');
+
+    // Check all 5 dimensions exist in English
+    expect(enDimensions.stressLevel.title).toBe('Stress Level');
+    expect(enDimensions.moodScore.title).toBe('Mood Score');
+    expect(enDimensions.workloadPerception.title).toBe('Workload Perception');
+    expect(enDimensions.timePerception.title).toBe('Time Perception');
+    expect(enDimensions.communicationWithOthers.title).toBe('Communication with Others');
+
+    // Check simulation defaults and thresholds
+    const testAssessment = {
+      id: 'psych-dim-test',
+      astronautId: 'astro-01',
+      date: '2026-11-14',
+      answers: [4, 4, 4, 4, 4],
+      score: 80,
+      status: 'normal' as const,
+      stressLevel: 24,
+      moodScore: 84,
+      workloadPerception: 32,
+      timePerception: 50,
+      communicationWithOthers: 88
+    };
+
+    expect(testAssessment.stressLevel).toBeLessThan(35); // Normal
+    expect(testAssessment.moodScore).toBeGreaterThanOrEqual(70); // Normal
+    expect(testAssessment.workloadPerception).toBeLessThanOrEqual(40); // Normal
+    expect(testAssessment.timePerception).toBe(50); // Nominal pace
+    expect(testAssessment.communicationWithOthers).toBeGreaterThanOrEqual(75); // Normal
+  });
 });

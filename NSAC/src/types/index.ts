@@ -8,6 +8,10 @@ export type Metric =
   | 'sleepHours'
   | 'sleepQuality'
   | 'mood'
+  | 'stress'
+  | 'workload'
+  | 'timePerception'
+  | 'communication'
   | 'weight'
   | 'exerciseMin'
   | 'boneProxy'
@@ -92,6 +96,14 @@ export interface BoneDensityRecord {
   isBaseline: boolean;
 }
 
+export interface PsychMetrics {
+  stressLevel: number; // 0-100 (lower is better, <35 nominal)
+  moodScore: number; // 0-100 (higher is better, >=70 nominal)
+  workloadPerception: number; // 0-100 (NASA-TLX equivalent, <=40 nominal)
+  timePerception: number; // 0-100 (50 is nominal/equilibré, <35 slow/monotony, >65 rushed)
+  communicationWithOthers: number; // 0-100 (higher is better, >=75 nominal)
+}
+
 export interface PsychAssessment {
   id: string;
   astronautId: string;
@@ -99,6 +111,12 @@ export interface PsychAssessment {
   answers: number[]; // 5 answers from 0 to 5
   score: number; // 0-100 (sum * 4)
   status: Status;
+  // 5 Key Spaceflight Behavioral Dimensions
+  stressLevel?: number;
+  moodScore?: number;
+  workloadPerception?: number;
+  timePerception?: number;
+  communicationWithOthers?: number;
 }
 
 export interface ActivityEvent {

@@ -13,9 +13,16 @@ import {
   AlertTriangle,
   RotateCcw,
   Sparkles,
-  Check
+  Check,
+  Zap,
+  Smile,
+  Gauge,
+  Clock,
+  Users,
+  SlidersHorizontal,
+  X
 } from 'lucide-react';
-import type { Status } from '../../types';
+import type { Status, PsychMetrics } from '../../types';
 
 export const MentalPage: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -24,6 +31,7 @@ export const MentalPage: React.FC = () => {
     sleepLogs,
     sleepScore,
     addPsychAssessment,
+    updatePsychMetrics,
     logActivityEvent
   } = useAstroStore();
 
@@ -31,6 +39,36 @@ export const MentalPage: React.FC = () => {
   const [currentQIndex, setCurrentQIndex] = useState(0);
   const [answers, setAnswers] = useState<number[]>([4, 4, 4, 4, 4]);
   const [isSleepModalOpen, setIsSleepModalOpen] = useState(false);
+  const [isAdjustingDimensions, setIsAdjustingDimensions] = useState(false);
+
+  // Latest psych assessment
+  const sortedPsych = [...psychAssessments].sort((a, b) => b.date.localeCompare(a.date));
+  const latestPsych = sortedPsych[0] || {
+    score: 84,
+    status: 'normal' as Status,
+    date: new Date().toISOString().split('T')[0],
+    stressLevel: 24,
+    moodScore: 84,
+    workloadPerception: 32,
+    timePerception: 50,
+    communicationWithOthers: 88
+  };
+
+  // Temp state for editing dimensions
+  const [tempStress, setTempStress] = useState<number>(latestPsych.stressLevel ?? 24);
+  const [tempMood, setTempMood] = useState<number>(latestPsych.moodScore ?? 84);
+  const [tempWorkload, setTempWorkload] = useState<number>(latestPsych.workloadPerception ?? 32);
+  const [tempTime, setTempTime] = useState<number>(latestPsych.timePerception ?? 50);
+  const [tempComm, setTempComm] = useState<number>(latestPsych.communicationWithOthers ?? 88);
+
+  // Synchronize temp state when latestPsych updates
+  useEffect(() => {
+    setTempStress(latestPsych.stressLevel ?? 24);
+    setTempMood(latestPsych.moodScore ?? 84);
+    setTempWorkload(latestPsych.workloadPerception ?? 32);
+    setTempTime(latestPsych.timePerception ?? 50);
+    setTempComm(latestPsych.communicationWithOthers ?? 88);
+  }, [latestPsych]);
 
   // Register view activity event on mount
   useEffect(() => {
@@ -55,14 +93,6 @@ export const MentalPage: React.FC = () => {
     { label: 'Jamais', points: 0 }
   ];
 
-  // Latest psych assessment
-  const sortedPsych = [...psychAssessments].sort((a, b) => b.date.localeCompare(a.date));
-  const latestPsych = sortedPsych[0] || {
-    score: 84,
-    status: 'normal' as Status,
-    date: new Date().toISOString().split('T')[0]
-  };
-
   const last8Assessments = sortedPsych.slice(0, 8).reverse();
 
   // Handle single question answer selection and auto-advance
@@ -76,7 +106,6 @@ export const MentalPage: React.FC = () => {
         setCurrentQIndex((prev) => prev + 1);
       }, 180);
     } else {
-      // Completed all 5 questions -> go to result review screen
       setTimeout(() => {
         setMode('result');
       }, 200);
@@ -116,10 +145,40 @@ export const MentalPage: React.FC = () => {
 
   // Save assessment and return to overview
   const handleSaveAssessment = async () => {
-    await addPsychAssessment(answers);
+    await addPsychAssessment(answers, {
+      stressLevel: Math.max(15, Math.min(85, Math.round(100 - calculatedScore * 0.85))),
+      moodScore: calculatedScore,
+      workloadPerception: calculatedScore < 50 ? 72 : 35,
+      timePerception: calculatedScore < 40 ? 30 : 50,
+      communicationWithOthers: Math.max(25, Math.min(95, Math.round(calculatedScore * 0.95)))
+    });
     setMode('overview');
     setCurrentQIndex(0);
   };
+
+  const handleSaveDimensions = async () => {
+    await updatePsychMetrics({
+      stressLevel: tempStress,
+      moodScore: tempMood,
+      workloadPerception: tempWorkload,
+      timePerception: tempTime,
+      communicationWithOthers: tempComm
+    });
+    setIsAdjustingDimensions(false);
+  };
+
+  // Helpers for individual dimensions statuses
+  const getStressStatus = (val: number): Status => (val < 35 ? 'normal' : val < 65 ? 'watch' : 'action');
+  const getMoodStatus = (val: number): Status => (val >= 70 ? 'normal' : val >= 50 ? 'watch' : 'action');
+  const getWorkloadStatus = (val: number): Status => (val <= 40 ? 'normal' : val <= 70 ? 'watch' : 'action');
+  const getTimeStatus = (val: number): Status => (val >= 40 && val <= 60 ? 'normal' : 'watch');
+  const getCommStatus = (val: number): Status => (val >= 75 ? 'normal' : val >= 50 ? 'watch' : 'action');
+
+  const currentStress = latestPsych.stressLevel ?? 24;
+  const currentMood = latestPsych.moodScore ?? 84;
+  const currentWorkload = latestPsych.workloadPerception ?? 32;
+  const currentTime = latestPsych.timePerception ?? 50;
+  const currentComm = latestPsych.communicationWithOthers ?? 88;
 
   return (
     <div className="space-y-10 sm:space-y-12 max-w-4xl mx-auto">
@@ -290,10 +349,10 @@ export const MentalPage: React.FC = () => {
         </section>
       )}
 
-      {/* 3. OVERVIEW VIEW: Last check card + 8-week history + Sleep + Influences */}
+      {/* 3. OVERVIEW VIEW */}
       {mode === 'overview' && (
         <>
-          {/* Last Check Card */}
+          {/* Section A: Last Check Card */}
           <section className="bg-surface p-6 sm:p-8 rounded-2xl border border-slate-border space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-border">
               <div className="space-y-1">
@@ -392,7 +451,212 @@ export const MentalPage: React.FC = () => {
             </div>
           </section>
 
-          {/* Section Sommeil & Récupération */}
+          {/* Section B: 5 Key Behavioral & Psychometric Dimensions (Stress, Mood, Workload, Time, Communication) */}
+          <section className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-border shadow-xs space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-border gap-4">
+              <div>
+                <h2 className="font-serif text-2xl font-bold text-slate-text">
+                  {t('mental.dimensionsTitle')}
+                </h2>
+                <p className="text-xs text-slate-muted mt-0.5 max-w-prose">
+                  {t('mental.dimensionsSubtitle')}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsAdjustingDimensions(true)}
+                className="min-h-[44px] px-4 py-2 rounded-xl border border-primary text-primary font-semibold text-xs flex items-center gap-2 hover:bg-primary-light transition-colors self-start sm:self-auto"
+              >
+                <SlidersHorizontal className="w-4 h-4" />
+                <span>{t('mental.logDimensionsButton')}</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* 1. Stress Level */}
+              <div className="p-4 rounded-xl bg-surface border border-slate-border space-y-3 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-amber-500" />
+                      <span className="text-xs font-bold uppercase tracking-wider text-slate-text">
+                        {t('mental.dimensions.stressLevel.title')}
+                      </span>
+                    </div>
+                    <StatusBadge status={getStressStatus(currentStress)} size="sm" />
+                  </div>
+                  <div className="flex items-baseline gap-1 mt-1">
+                    <span className="font-serif text-3xl font-bold text-slate-text">{currentStress}</span>
+                    <span className="text-xs text-slate-muted font-semibold">/ 100</span>
+                  </div>
+                  <div className="w-full h-2 rounded-full bg-slate-200 overflow-hidden my-2">
+                    <div
+                      className={`h-full rounded-full transition-all duration-300 ${
+                        currentStress < 35 ? 'bg-status-normal' : currentStress < 65 ? 'bg-status-watch' : 'bg-status-action'
+                      }`}
+                      style={{ width: `${currentStress}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-slate-muted leading-tight">
+                    {t('mental.dimensions.stressLevel.desc')}
+                  </p>
+                </div>
+                <div className="text-[11px] font-semibold text-slate-text pt-2 border-t border-slate-200 flex justify-between">
+                  <span>Tonus sympathique</span>
+                  <span className={currentStress < 35 ? 'text-status-normal' : 'text-amber-600'}>
+                    {currentStress < 35 ? t('mental.dimensions.stressLevel.nominal') : currentStress < 65 ? t('mental.dimensions.stressLevel.watch') : t('mental.dimensions.stressLevel.action')}
+                  </span>
+                </div>
+              </div>
+
+              {/* 2. Mood Score */}
+              <div className="p-4 rounded-xl bg-surface border border-slate-border space-y-3 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2">
+                      <Smile className="w-4 h-4 text-accent" />
+                      <span className="text-xs font-bold uppercase tracking-wider text-slate-text">
+                        {t('mental.dimensions.moodScore.title')}
+                      </span>
+                    </div>
+                    <StatusBadge status={getMoodStatus(currentMood)} size="sm" />
+                  </div>
+                  <div className="flex items-baseline gap-1 mt-1">
+                    <span className="font-serif text-3xl font-bold text-slate-text">{currentMood}</span>
+                    <span className="text-xs text-slate-muted font-semibold">/ 100</span>
+                  </div>
+                  <div className="w-full h-2 rounded-full bg-slate-200 overflow-hidden my-2">
+                    <div
+                      className={`h-full rounded-full transition-all duration-300 ${
+                        currentMood >= 70 ? 'bg-status-normal' : currentMood >= 50 ? 'bg-status-watch' : 'bg-status-action'
+                      }`}
+                      style={{ width: `${currentMood}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-slate-muted leading-tight">
+                    {t('mental.dimensions.moodScore.desc')}
+                  </p>
+                </div>
+                <div className="text-[11px] font-semibold text-slate-text pt-2 border-t border-slate-200 flex justify-between">
+                  <span>Valence affective</span>
+                  <span className={currentMood >= 70 ? 'text-status-normal' : 'text-amber-600'}>
+                    {currentMood >= 70 ? t('mental.dimensions.moodScore.nominal') : currentMood >= 50 ? t('mental.dimensions.moodScore.watch') : t('mental.dimensions.moodScore.action')}
+                  </span>
+                </div>
+              </div>
+
+              {/* 3. Workload Perception */}
+              <div className="p-4 rounded-xl bg-surface border border-slate-border space-y-3 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2">
+                      <Gauge className="w-4 h-4 text-primary" />
+                      <span className="text-xs font-bold uppercase tracking-wider text-slate-text">
+                        {t('mental.dimensions.workloadPerception.title')}
+                      </span>
+                    </div>
+                    <StatusBadge status={getWorkloadStatus(currentWorkload)} size="sm" />
+                  </div>
+                  <div className="flex items-baseline gap-1 mt-1">
+                    <span className="font-serif text-3xl font-bold text-slate-text">{currentWorkload}</span>
+                    <span className="text-xs text-slate-muted font-semibold">/ 100</span>
+                  </div>
+                  <div className="w-full h-2 rounded-full bg-slate-200 overflow-hidden my-2">
+                    <div
+                      className={`h-full rounded-full transition-all duration-300 ${
+                        currentWorkload <= 40 ? 'bg-status-normal' : currentWorkload <= 70 ? 'bg-status-watch' : 'bg-status-action'
+                      }`}
+                      style={{ width: `${currentWorkload}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-slate-muted leading-tight">
+                    {t('mental.dimensions.workloadPerception.desc')}
+                  </p>
+                </div>
+                <div className="text-[11px] font-semibold text-slate-text pt-2 border-t border-slate-200 flex justify-between">
+                  <span>Index NASA-TLX</span>
+                  <span className={currentWorkload <= 40 ? 'text-status-normal' : 'text-amber-600'}>
+                    {currentWorkload <= 40 ? t('mental.dimensions.workloadPerception.nominal') : currentWorkload <= 70 ? t('mental.dimensions.workloadPerception.watch') : t('mental.dimensions.workloadPerception.action')}
+                  </span>
+                </div>
+              </div>
+
+              {/* 4. Time Perception */}
+              <div className="p-4 rounded-xl bg-surface border border-slate-border space-y-3 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-primary" />
+                      <span className="text-xs font-bold uppercase tracking-wider text-slate-text">
+                        {t('mental.dimensions.timePerception.title')}
+                      </span>
+                    </div>
+                    <StatusBadge status={getTimeStatus(currentTime)} size="sm" />
+                  </div>
+                  <div className="flex items-baseline gap-1 mt-1">
+                    <span className="font-serif text-3xl font-bold text-slate-text">{currentTime}</span>
+                    <span className="text-xs text-slate-muted font-semibold">/ 100</span>
+                  </div>
+                  <div className="w-full h-2 rounded-full bg-slate-200 overflow-hidden my-2">
+                    <div
+                      className={`h-full rounded-full transition-all duration-300 ${
+                        currentTime >= 40 && currentTime <= 60 ? 'bg-status-normal' : 'bg-status-watch'
+                      }`}
+                      style={{ width: `${currentTime}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-slate-muted leading-tight">
+                    {t('mental.dimensions.timePerception.desc')}
+                  </p>
+                </div>
+                <div className="text-[11px] font-semibold text-slate-text pt-2 border-t border-slate-200 flex justify-between">
+                  <span>Écoulement temporel</span>
+                  <span className={currentTime >= 40 && currentTime <= 60 ? 'text-status-normal' : 'text-amber-600'}>
+                    {currentTime >= 40 && currentTime <= 60 ? t('mental.dimensions.timePerception.nominal') : t('mental.dimensions.timePerception.watch')}
+                  </span>
+                </div>
+              </div>
+
+              {/* 5. Communication with Others */}
+              <div className="p-4 rounded-xl bg-surface border border-slate-border space-y-3 flex flex-col justify-between sm:col-span-2 lg:col-span-1">
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2">
+                      <Users className="w-4 h-4 text-accent" />
+                      <span className="text-xs font-bold uppercase tracking-wider text-slate-text">
+                        {t('mental.dimensions.communicationWithOthers.title')}
+                      </span>
+                    </div>
+                    <StatusBadge status={getCommStatus(currentComm)} size="sm" />
+                  </div>
+                  <div className="flex items-baseline gap-1 mt-1">
+                    <span className="font-serif text-3xl font-bold text-slate-text">{currentComm}</span>
+                    <span className="text-xs text-slate-muted font-semibold">/ 100</span>
+                  </div>
+                  <div className="w-full h-2 rounded-full bg-slate-200 overflow-hidden my-2">
+                    <div
+                      className={`h-full rounded-full transition-all duration-300 ${
+                        currentComm >= 75 ? 'bg-status-normal' : currentComm >= 50 ? 'bg-status-watch' : 'bg-status-action'
+                      }`}
+                      style={{ width: `${currentComm}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-slate-muted leading-tight">
+                    {t('mental.dimensions.communicationWithOthers.desc')}
+                  </p>
+                </div>
+                <div className="text-[11px] font-semibold text-slate-text pt-2 border-t border-slate-200 flex justify-between">
+                  <span>Cohésion d'équipage</span>
+                  <span className={currentComm >= 75 ? 'text-status-normal' : 'text-amber-600'}>
+                    {currentComm >= 75 ? t('mental.dimensions.communicationWithOthers.nominal') : currentComm >= 50 ? t('mental.dimensions.communicationWithOthers.watch') : t('mental.dimensions.communicationWithOthers.action')}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Section C: Sommeil & Récupération */}
           <section className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-border shadow-xs space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-border gap-4">
               <div className="space-y-1">
@@ -459,7 +723,7 @@ export const MentalPage: React.FC = () => {
             </div>
           </section>
 
-          {/* Section: Ce qui influence votre humeur (Couplage) */}
+          {/* Section D: Ce qui influence votre humeur (Couplage) */}
           <section className="bg-surface p-6 sm:p-8 rounded-2xl border border-slate-border space-y-4">
             <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-muted">
               <GitBranch className="w-4 h-4 text-accent" />
@@ -483,6 +747,163 @@ export const MentalPage: React.FC = () => {
             </div>
           </section>
         </>
+      )}
+
+      {/* MODAL: AJUSTER LES 5 DIMENSIONS COMPORTEMENTALES */}
+      {isAdjustingDimensions && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto"
+        >
+          <div className="bg-white rounded-2xl border border-slate-border shadow-xl max-w-lg w-full p-6 sm:p-8 space-y-6">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-border">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-lg bg-primary text-white">
+                  <SlidersHorizontal className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-serif text-xl font-bold text-slate-text">
+                    {t('mental.dimensionsTitle')}
+                  </h3>
+                  <p className="text-xs text-slate-muted">
+                    Auto-évaluation des 5 dimensions de santé comportementale.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsAdjustingDimensions(false)}
+                className="p-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-text"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {/* Slider 1: Stress Level */}
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-center text-xs font-semibold text-slate-text">
+                  <span>{t('mental.dimensions.stressLevel.title')}</span>
+                  <span className="font-mono font-bold text-primary">{tempStress} / 100</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={tempStress}
+                  onChange={(e) => setTempStress(Number(e.target.value))}
+                  className="w-full accent-primary"
+                />
+                <div className="flex justify-between text-[11px] text-slate-400">
+                  <span>0 (Serein)</span>
+                  <span>50 (Modéré)</span>
+                  <span>100 (Stress aigu)</span>
+                </div>
+              </div>
+
+              {/* Slider 2: Mood Score */}
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-center text-xs font-semibold text-slate-text">
+                  <span>{t('mental.dimensions.moodScore.title')}</span>
+                  <span className="font-mono font-bold text-primary">{tempMood} / 100</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={tempMood}
+                  onChange={(e) => setTempMood(Number(e.target.value))}
+                  className="w-full accent-primary"
+                />
+                <div className="flex justify-between text-[11px] text-slate-400">
+                  <span>0 (Moral bas)</span>
+                  <span>50 (Neutre)</span>
+                  <span>100 (Très positif)</span>
+                </div>
+              </div>
+
+              {/* Slider 3: Workload Perception */}
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-center text-xs font-semibold text-slate-text">
+                  <span>{t('mental.dimensions.workloadPerception.title')}</span>
+                  <span className="font-mono font-bold text-primary">{tempWorkload} / 100</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={tempWorkload}
+                  onChange={(e) => setTempWorkload(Number(e.target.value))}
+                  className="w-full accent-primary"
+                />
+                <div className="flex justify-between text-[11px] text-slate-400">
+                  <span>0 (Léger)</span>
+                  <span>50 (Soutenu)</span>
+                  <span>100 (Surcharge NASA-TLX)</span>
+                </div>
+              </div>
+
+              {/* Slider 4: Time Perception */}
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-center text-xs font-semibold text-slate-text">
+                  <span>{t('mental.dimensions.timePerception.title')}</span>
+                  <span className="font-mono font-bold text-primary">{tempTime} / 100</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={tempTime}
+                  onChange={(e) => setTempTime(Number(e.target.value))}
+                  className="w-full accent-primary"
+                />
+                <div className="flex justify-between text-[11px] text-slate-400">
+                  <span>0 (Temps figé / lent)</span>
+                  <span>50 (Nominal)</span>
+                  <span>100 (Temps accéléré)</span>
+                </div>
+              </div>
+
+              {/* Slider 5: Communication with Others */}
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-center text-xs font-semibold text-slate-text">
+                  <span>{t('mental.dimensions.communicationWithOthers.title')}</span>
+                  <span className="font-mono font-bold text-primary">{tempComm} / 100</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={tempComm}
+                  onChange={(e) => setTempComm(Number(e.target.value))}
+                  className="w-full accent-primary"
+                />
+                <div className="flex justify-between text-[11px] text-slate-400">
+                  <span>0 (Repli / Tension)</span>
+                  <span>50 (Modérée)</span>
+                  <span>100 (Cohésion optimale)</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-slate-border flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setIsAdjustingDimensions(false)}
+                className="px-4 py-2.5 rounded-xl border border-slate-border text-xs font-semibold text-slate-text hover:bg-slate-50 min-h-[44px]"
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveDimensions}
+                className="px-5 py-2.5 rounded-xl bg-primary text-white text-xs font-semibold hover:bg-primary-hover shadow-xs min-h-[44px]"
+              >
+                {t('mental.saveDimensions')}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Guided Sleep Measurement Modal */}

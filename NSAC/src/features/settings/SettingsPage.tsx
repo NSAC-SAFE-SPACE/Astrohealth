@@ -645,6 +645,13 @@ export const SettingsPage: React.FC = () => {
               radiationProjection={radiationProjection}
               latestPsychScore={latestPsychScore}
               latestPsychStatus={latestPsychStatus}
+              psychMetrics={{
+                stressLevel: latestPsych?.stressLevel,
+                moodScore: latestPsych?.moodScore,
+                workloadPerception: latestPsych?.workloadPerception,
+                timePerception: latestPsych?.timePerception,
+                communicationWithOthers: latestPsych?.communicationWithOthers
+              }}
               patterns={patterns}
               meanSleepHours={meanSleepHours}
               latestTemp={latestTemp}

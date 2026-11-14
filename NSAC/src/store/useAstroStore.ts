@@ -6,6 +6,7 @@ import type {
   SleepLog,
   BoneDensityRecord,
   PsychAssessment,
+  PsychMetrics,
   ActivityEvent,
   Status,
   ScoreResult,
@@ -61,7 +62,8 @@ export interface AstroState {
   advanceTime24h: () => Promise<void>;
   addMeasurement: (metric: Metric, value: number, unit: string, context?: string) => Promise<void>;
   addSleepLog: (log: Omit<SleepLog, 'id' | 'astronautId'>) => Promise<void>;
-  addPsychAssessment: (answers: number[]) => Promise<void>;
+  addPsychAssessment: (answers: number[], metrics?: Partial<PsychMetrics>) => Promise<void>;
+  updatePsychMetrics: (metrics: Partial<PsychMetrics>) => Promise<void>;
   logActivityEvent: (type: 'login' | 'view' | 'measurement') => Promise<void>;
   updateAstronautProfile: (updates: Partial<Astronaut>) => Promise<void>;
   updateAstronautPhoto: (fileOrDataUrl: File | string) => Promise<string>;
@@ -215,7 +217,7 @@ export const useAstroStore = create<AstroState>((set, get) => ({
     get().recalculateAll();
   },
 
-  addPsychAssessment: async (answers) => {
+  addPsychAssessment: async (answers, customMetrics) => {
     const { astronaut, psychAssessments, activityEvents } = get();
     const now = Date.now();
     const todayStr = new Date().toISOString().split('T')[0];
@@ -224,13 +226,24 @@ export const useAstroStore = create<AstroState>((set, get) => ({
     const status: Status =
       score >= 68 ? 'normal' : score >= 50 ? 'watch' : score >= 29 ? 'action' : 'contact_flight_surgeon';
 
+    const defaultStress = Math.max(15, Math.min(85, Math.round(100 - score * 0.85)));
+    const defaultMood = score;
+    const defaultWorkload = score < 50 ? 72 : 35;
+    const defaultTime = score < 40 ? 30 : 50;
+    const defaultComm = Math.max(25, Math.min(95, Math.round(score * 0.95)));
+
     const newAssessment: PsychAssessment = {
       id: `psych-${now}`,
       astronautId: astronaut.id,
       date: todayStr,
       answers,
       score,
-      status
+      status,
+      stressLevel: customMetrics?.stressLevel ?? defaultStress,
+      moodScore: customMetrics?.moodScore ?? defaultMood,
+      workloadPerception: customMetrics?.workloadPerception ?? defaultWorkload,
+      timePerception: customMetrics?.timePerception ?? defaultTime,
+      communicationWithOthers: customMetrics?.communicationWithOthers ?? defaultComm
     };
 
     await db.psychAssessments.put(newAssessment);
@@ -249,6 +262,23 @@ export const useAstroStore = create<AstroState>((set, get) => ({
         ...activityEvents.filter((e) => e.date !== todayStr || e.type !== 'measurement'),
         { id: `act-psych-${now}`, astronautId: astronaut.id, date: todayStr, type: 'measurement' }
       ]
+    });
+    get().recalculateAll();
+  },
+
+  updatePsychMetrics: async (metrics) => {
+    const { psychAssessments } = get();
+    if (psychAssessments.length === 0) return;
+    const sorted = [...psychAssessments].sort((a, b) => b.date.localeCompare(a.date));
+    const latest = sorted[0];
+    const updated: PsychAssessment = {
+      ...latest,
+      ...metrics
+    };
+
+    await db.psychAssessments.put(updated);
+    set({
+      psychAssessments: psychAssessments.map((p) => (p.id === updated.id ? updated : p))
     });
     get().recalculateAll();
   },
