@@ -5,7 +5,13 @@ import { useAstroStore } from '../store/useAstroStore';
 import { StatusBadge } from './StatusBadge';
 import { assessGlucose } from '../engine/scores/glucose';
 import { assessMeasurement } from '../engine/status';
-import type { Metric, GlucoseContext, LatencyBucket, BoneSite, BoneMethod, Status, Assessment } from '../types';
+import {
+  HeartRateForecaster,
+  BloodPressureForecaster,
+  TemperatureForecaster,
+  GlucoseForecaster
+} from '../engine';
+import type { Metric, GlucoseContext, LatencyBucket, BoneSite, BoneMethod, Status, Assessment, ForecastResult } from '../types';
 
 interface MeasureModalProps {
   isOpen: boolean;
@@ -26,6 +32,7 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
 
   // General numeric value
   const [value, setValue] = useState<string>('72');
+  const [bpDiaValue, setBpDiaValue] = useState<string>('80');
 
   // Glucose context
   const [glucoseContext, setGlucoseContext] = useState<GlucoseContext>('fasting');
@@ -45,6 +52,7 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
     phrase2: string;
     actions: string[];
     isAnomaly?: boolean;
+    forecast?: ForecastResult | null;
   } | null>(null);
 
   if (!isOpen) return null;
@@ -147,24 +155,50 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
 
       await addMeasurement(metric, numVal, currentOption.unit, metric === 'glucose' ? glucoseContext : undefined);
 
+      let forecast: ForecastResult | null = null;
+      if (metric === 'heartRate') {
+        const f = new HeartRateForecaster(numVal);
+        forecast = f.predict('7d');
+      } else if (metric === 'bpSys') {
+        const diaNum = parseFloat(bpDiaValue);
+        if (!isNaN(diaNum)) {
+          await addMeasurement('bpDia', diaNum, 'mmHg');
+        }
+        const f = new BloodPressureForecaster(numVal, isNaN(diaNum) ? 80 : diaNum);
+        forecast = f.predict('7d');
+      } else if (metric === 'temperature') {
+        const f = new TemperatureForecaster(numVal);
+        forecast = f.predict('7d');
+      } else if (metric === 'glucose') {
+        const f = new GlucoseForecaster(numVal);
+        forecast = f.predict('7d');
+      }
+
       if (metric === 'glucose') {
         const res = assessGlucose(numVal, glucoseContext, undefined, astronaut.bloodGlucoseUnit);
         setResultAssessment({
           status: res.status,
           title: `Glycémie : ${numVal} ${currentOption.unit}`,
           phrase1: res.explanation,
-          phrase2: `Mesure classée comme ${res.status.replace('_', ' ')}.`,
+          phrase2: `Mesure consignée dans le profil métabolique.`,
           actions: res.actions,
-          isAnomaly: res.isPlausibilityAnomaly
+          isAnomaly: res.isPlausibilityAnomaly,
+          forecast
         });
       } else {
         const res = assessMeasurement(metric, numVal);
+        const titleText =
+          metric === 'bpSys' && bpDiaValue
+            ? `Pression artérielle : ${numVal} / ${bpDiaValue} mmHg`
+            : `${currentOption.label} : ${numVal} ${currentOption.unit}`;
+
         setResultAssessment({
           status: res.status,
-          title: `${currentOption.label} : ${numVal} ${currentOption.unit}`,
+          title: titleText,
           phrase1: res.explanation,
-          phrase2: 'Donnée synchronisée localement dans le profil de mission.',
-          actions: res.actions
+          phrase2: 'Donnée synchronisée localement dans la télémétrie de bord.',
+          actions: res.actions,
+          forecast
         });
       }
     }
@@ -388,7 +422,7 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
 
                   <div>
                     <label className="block text-sm font-medium text-slate-text mb-1">
-                      {t('measurementModal.enterValue')} ({currentOption.unit})
+                      {metric === 'bpSys' ? 'Pression systolique (mmHg)' : `${t('measurementModal.enterValue')} (${currentOption.unit})`}
                     </label>
                     <div className="relative">
                       <input
@@ -404,6 +438,26 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
                       </span>
                     </div>
                   </div>
+
+                  {metric === 'bpSys' && (
+                    <div>
+                      <label className="block text-sm font-medium text-slate-text mb-1">
+                        Pression diastolique (mmHg)
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          step="1"
+                          value={bpDiaValue}
+                          onChange={(e) => setBpDiaValue(e.target.value)}
+                          className="w-full h-16 px-4 rounded-xl border border-slate-border text-3xl font-bold text-slate-text pr-16"
+                        />
+                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-muted text-sm font-semibold">
+                          mmHg
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -443,6 +497,27 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
                   ))}
                 </div>
               </div>
+
+              {resultAssessment.forecast && (
+                <div className="p-4 rounded-xl bg-surface border border-slate-border space-y-1.5">
+                  <div className="text-xs font-semibold uppercase tracking-wider text-slate-muted">
+                    Prévision physiologique à 7 jours
+                  </div>
+                  <div className="flex flex-wrap items-baseline gap-2">
+                    <span className="font-serif text-2xl font-bold text-slate-text">
+                      ~{resultAssessment.forecast.value} {currentOption.unit}
+                    </span>
+                    <span className="text-xs text-slate-muted font-medium">
+                      (fourchette estimée : {resultAssessment.forecast.low} à {resultAssessment.forecast.high} {currentOption.unit})
+                    </span>
+                  </div>
+                  {resultAssessment.forecast.drivers.length > 0 && (
+                    <p className="text-xs text-slate-muted italic pt-1">
+                      {resultAssessment.forecast.drivers[0].explanation}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </div>

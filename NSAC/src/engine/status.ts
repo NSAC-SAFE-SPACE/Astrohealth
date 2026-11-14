@@ -35,44 +35,38 @@ export function assessMeasurement(
   if (metricConfig) {
     const { normal, watch, action, contact_flight_surgeon } = metricConfig;
 
-    // Check explicit critical boundaries first
+    // 1. Explicit critical boundaries
     if (metricConfig.criticalHigh !== undefined && value >= metricConfig.criticalHigh) {
       rawStatus = 'contact_flight_surgeon';
     } else if (metricConfig.criticalLow !== undefined && value <= metricConfig.criticalLow) {
       rawStatus = 'contact_flight_surgeon';
-    } else if (metricConfig.actionHigh !== undefined && value >= metricConfig.actionHigh) {
-      rawStatus = 'action';
-    } else if (metricConfig.actionLow !== undefined && value <= metricConfig.actionLow) {
-      rawStatus = 'action';
-    } else if (metricConfig.contact_flight_surgeon) {
-      if (
-        (metricConfig.contact_flight_surgeon.max !== undefined && value >= metricConfig.contact_flight_surgeon.max) ||
-        (metricConfig.contact_flight_surgeon.min !== undefined && value <= metricConfig.contact_flight_surgeon.min)
-      ) {
+    } else if (contact_flight_surgeon) {
+      if (contact_flight_surgeon.max !== undefined && value >= contact_flight_surgeon.max) {
+        rawStatus = 'contact_flight_surgeon';
+      } else if (contact_flight_surgeon.min !== undefined && value <= contact_flight_surgeon.min) {
+        rawStatus = 'contact_flight_surgeon';
+      } else if (contact_flight_surgeon.hypotension !== undefined && value <= contact_flight_surgeon.hypotension) {
         rawStatus = 'contact_flight_surgeon';
       }
     }
 
-    if (rawStatus === 'normal' && metricConfig.action) {
-      if (
-        (metricConfig.action.max !== undefined && value > metricConfig.action.max) ||
-        (metricConfig.action.min !== undefined && value < metricConfig.action.min)
-      ) {
+    if (rawStatus === 'normal') {
+      // 2. Normal check: if within nominal range, it's normal
+      if (normal && value >= normal.min && value <= normal.max) {
+        rawStatus = 'normal';
+      } else if (metricConfig.actionHigh !== undefined && value >= metricConfig.actionHigh) {
         rawStatus = 'action';
-      }
-    }
-
-    if (rawStatus === 'normal' && metricConfig.watch) {
-      if (
-        (metricConfig.watch.max !== undefined && value > metricConfig.watch.max) ||
-        (metricConfig.watch.min !== undefined && value < metricConfig.watch.min)
-      ) {
-        rawStatus = 'watch';
-      }
-    }
-
-    if (rawStatus === 'normal' && metricConfig.normal) {
-      if (value < metricConfig.normal.min || value > metricConfig.normal.max) {
+      } else if (metricConfig.actionLow !== undefined && value <= metricConfig.actionLow) {
+        rawStatus = 'action';
+      } else if (action && typeof action === 'object' && metricConfig.actionHigh === undefined) {
+        if (action.min !== undefined && action.max !== undefined && value >= action.min && value <= action.max) {
+          rawStatus = 'action';
+        } else if (watch && (value < watch.min || value > watch.max)) {
+          rawStatus = 'action';
+        } else {
+          rawStatus = 'watch';
+        }
+      } else {
         rawStatus = 'watch';
       }
     }

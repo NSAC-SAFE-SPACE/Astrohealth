@@ -62,6 +62,7 @@ export interface AstroState {
   addMeasurement: (metric: Metric, value: number, unit: string, context?: string) => Promise<void>;
   addSleepLog: (log: Omit<SleepLog, 'id' | 'astronautId'>) => Promise<void>;
   addPsychAssessment: (answers: number[]) => Promise<void>;
+  logActivityEvent: (type: 'login' | 'view' | 'measurement') => Promise<void>;
   updateAstronautProfile: (updates: Partial<Astronaut>) => Promise<void>;
   updateAstronautPhoto: (fileOrDataUrl: File | string) => Promise<string>;
   recalculateAll: () => void;
@@ -185,37 +186,98 @@ export const useAstroStore = create<AstroState>((set, get) => ({
   },
 
   addSleepLog: async (logData) => {
-    const { astronaut, sleepLogs } = get();
+    const { astronaut, sleepLogs, activityEvents } = get();
+    const now = Date.now();
+    const todayStr = new Date().toISOString().split('T')[0];
     const newLog: SleepLog = {
-      id: `sleep-${Date.now()}`,
+      id: `sleep-${now}`,
       astronautId: astronaut.id,
       ...logData
     };
 
     await db.sleepLogs.put(newLog);
-    set({ sleepLogs: [...sleepLogs, newLog] });
+
+    // Register measurement activity
+    await db.activityEvents.put({
+      id: `act-sleep-${now}`,
+      astronautId: astronaut.id,
+      date: todayStr,
+      type: 'measurement'
+    });
+
+    set({
+      sleepLogs: [...sleepLogs, newLog],
+      activityEvents: [
+        ...activityEvents.filter((e) => e.date !== todayStr || e.type !== 'measurement'),
+        { id: `act-sleep-${now}`, astronautId: astronaut.id, date: todayStr, type: 'measurement' }
+      ]
+    });
     get().recalculateAll();
   },
 
   addPsychAssessment: async (answers) => {
-    const { astronaut, psychAssessments } = get();
+    const { astronaut, psychAssessments, activityEvents } = get();
+    const now = Date.now();
+    const todayStr = new Date().toISOString().split('T')[0];
     const sum = answers.reduce((a, b) => a + b, 0);
     const score = sum * 4;
     const status: Status =
       score >= 68 ? 'normal' : score >= 50 ? 'watch' : score >= 29 ? 'action' : 'contact_flight_surgeon';
 
     const newAssessment: PsychAssessment = {
-      id: `psych-${Date.now()}`,
+      id: `psych-${now}`,
       astronautId: astronaut.id,
-      date: new Date().toISOString().split('T')[0],
+      date: todayStr,
       answers,
       score,
       status
     };
 
     await db.psychAssessments.put(newAssessment);
-    set({ psychAssessments: [...psychAssessments, newAssessment] });
+
+    // Register measurement activity
+    await db.activityEvents.put({
+      id: `act-psych-${now}`,
+      astronautId: astronaut.id,
+      date: todayStr,
+      type: 'measurement'
+    });
+
+    set({
+      psychAssessments: [...psychAssessments, newAssessment],
+      activityEvents: [
+        ...activityEvents.filter((e) => e.date !== todayStr || e.type !== 'measurement'),
+        { id: `act-psych-${now}`, astronautId: astronaut.id, date: todayStr, type: 'measurement' }
+      ]
+    });
     get().recalculateAll();
+  },
+
+  logActivityEvent: async (type) => {
+    const { astronaut, activityEvents } = get();
+    const now = Date.now();
+    const todayStr = new Date().toISOString().split('T')[0];
+    const existingForToday = activityEvents.filter((e) => e.date === todayStr);
+
+    // If already has a measurement, do not downgrade it
+    if (existingForToday.some((e) => e.type === 'measurement') && type !== 'measurement') {
+      return;
+    }
+
+    const newEv: ActivityEvent = {
+      id: `act-${type}-${now}`,
+      astronautId: astronaut.id,
+      date: todayStr,
+      type
+    };
+
+    await db.activityEvents.put(newEv);
+    set({
+      activityEvents: [
+        ...activityEvents.filter((e) => e.date !== todayStr || (type === 'measurement' ? e.type !== 'measurement' : false)),
+        newEv
+      ]
+    });
   },
 
   updateAstronautProfile: async (updates) => {

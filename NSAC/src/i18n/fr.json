@@ -27,6 +27,18 @@
     "globalScore": "Score global",
     "measureButton": "Faire une mesure",
     "seeBodyButton": "Voir mon corps",
+    "summaryWords": {
+      "normal": "Stable",
+      "watch": "Surveillance",
+      "action": "Attention",
+      "contact_flight_surgeon": "Alerte"
+    },
+    "adviceSentences": {
+      "normal": "Vos paramètres physiologiques et psychologiques sont parfaitement alignés avec les cibles de vol spatial.",
+      "watch": "Une légère dérive métabolique ou de fatigue est observée. Maintenez vos temps de repos et d’hydratation.",
+      "action": "Plusieurs indicateurs indiquent une charge physiologique élevée. Aménagez vos plages de repos et d’exercice.",
+      "contact_flight_surgeon": "Un résultat critique a été détecté. Un contact médical prioritaire avec la Terre est requis."
+    },
     "activityTitle": "Votre activité",
     "activitySubtitle": "Suivi de régularité des auto-évaluations",
     "activityLegend0": "Aucune consultation",

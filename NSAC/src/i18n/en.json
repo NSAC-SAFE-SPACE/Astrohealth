@@ -27,6 +27,18 @@
     "globalScore": "Overall Score",
     "measureButton": "Take a Measurement",
     "seeBodyButton": "View My Body",
+    "summaryWords": {
+      "normal": "Stable",
+      "watch": "Watch",
+      "action": "Attention",
+      "contact_flight_surgeon": "Alert"
+    },
+    "adviceSentences": {
+      "normal": "Your physiological and psychological parameters are perfectly aligned with spaceflight targets.",
+      "watch": "A slight metabolic or fatigue drift is observed. Maintain your rest and hydration routines.",
+      "action": "Multiple indicators signal an elevated physiological strain. Adjust your rest and exercise schedule.",
+      "contact_flight_surgeon": "A critical result was detected. Priority medical contact with Earth is required."
+    },
     "activityTitle": "Your Activity",
     "activitySubtitle": "Self-assessment regularity tracking",
     "activityLegend0": "No consultation",

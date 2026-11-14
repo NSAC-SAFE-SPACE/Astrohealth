@@ -25,24 +25,15 @@ export const HomePage: React.FC = () => {
 
   const [isMeasureModalOpen, setIsMeasureModalOpen] = useState(false);
 
-  // Status summary word and advice sentence
-  const summaryWord = {
-    normal: 'Stable',
-    watch: 'Surveillance',
-    action: 'Attention',
-    contact_flight_surgeon: 'Alerte'
-  }[globalStatus] || 'Stable';
-
-  const adviceSentence = {
-    normal: 'Vos paramètres physiologiques et psychologiques sont parfaitement alignés avec les cibles de vol spatial.',
-    watch: 'Une légère dérive métabolique ou de fatigue est observée. Maintenez vos temps de repos et d’hydratation.',
-    action: 'Plusieurs indicateurs indiquent une charge physiologique élevée. Aménagez vos plages de repos et d’exercice.',
-    contact_flight_surgeon: 'Un résultat critique a été détecté. Un contact médical prioritaire avec la Terre est requis.'
-  }[globalStatus] || 'Tous les systèmes sont sous contrôle.';
+  // Status summary word and advice sentence from i18n
+  const summaryWord = t(`home.summaryWords.${globalStatus}`, { defaultValue: t('status.normal') });
+  const adviceSentence = t(`home.adviceSentences.${globalStatus}`, {
+    defaultValue: 'Tous les paramètres sont dans les normes orbitales.'
+  });
 
   return (
-    <div className="space-y-12 max-w-4xl">
-      {/* Header Profile Section */}
+    <div className="space-y-10 sm:space-y-12 max-w-4xl mx-auto">
+      {/* 1. Header Profile Section */}
       <section className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b border-slate-border">
         <div className="flex items-center gap-5">
           <div className="relative w-20 h-20 rounded-2xl overflow-hidden border-2 border-primary/20 bg-surface shrink-0 shadow-xs flex items-center justify-center">
@@ -72,7 +63,12 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* Main Condition Card (Score Gauge) */}
+      {/* 2. NASA Activity Calendar Section (GitHub-style 20 weeks x 7 days) */}
+      <section className="space-y-3">
+        <ActivityCalendar events={activityEvents} />
+      </section>
+
+      {/* 3. Main Condition Card (Score Gauge: ring, badge, one word, advice sentence) */}
       <section className="space-y-4">
         <h2 className="font-serif text-2xl font-bold text-slate-text">
           {t('home.statusCardTitle')}
@@ -85,7 +81,7 @@ export const HomePage: React.FC = () => {
         />
       </section>
 
-      {/* Primary Action Buttons */}
+      {/* 4. Primary Action Buttons */}
       <section className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
         <button
           onClick={() => setIsMeasureModalOpen(true)}
@@ -104,41 +100,60 @@ export const HomePage: React.FC = () => {
         </button>
       </section>
 
-      {/* 4 Priority Sub-System Badges / Quick Glance */}
+      {/* 5. Sub-System Quick Glance Cards (Navigation to /corps & /mental) */}
       <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         <div
           onClick={() => navigate('/corps')}
-          className="p-4 rounded-xl border border-slate-border bg-surface hover:border-primary/50 cursor-pointer transition-all space-y-2"
+          className="p-4 rounded-xl border border-slate-border bg-surface hover:border-primary/50 cursor-pointer transition-all space-y-2 min-h-[96px]"
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === 'Enter' && navigate('/corps')}
         >
           <div className="flex items-center justify-between">
             <Heart className="w-5 h-5 text-primary" />
             <StatusBadge status={cardioScore?.status || 'normal'} size="sm" showIcon={false} />
           </div>
-          <div className="text-xs text-slate-muted uppercase tracking-wider font-semibold">Cœur & Tension</div>
-          <div className="font-serif text-xl font-bold text-slate-text">{cardioScore?.value || '--'} / 100</div>
+          <div className="text-xs text-slate-muted uppercase tracking-wider font-semibold">
+            {t('body.zones.heart')}
+          </div>
+          <div className="font-serif text-xl font-bold text-slate-text">
+            {cardioScore?.value || '--'} / 100
+          </div>
         </div>
 
         <div
           onClick={() => navigate('/mental')}
-          className="p-4 rounded-xl border border-slate-border bg-surface hover:border-primary/50 cursor-pointer transition-all space-y-2"
+          className="p-4 rounded-xl border border-slate-border bg-surface hover:border-primary/50 cursor-pointer transition-all space-y-2 min-h-[96px]"
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === 'Enter' && navigate('/mental')}
         >
           <div className="flex items-center justify-between">
             <Moon className="w-5 h-5 text-accent" />
             <StatusBadge status={sleepScore?.status || 'normal'} size="sm" showIcon={false} />
           </div>
-          <div className="text-xs text-slate-muted uppercase tracking-wider font-semibold">Sommeil</div>
-          <div className="font-serif text-xl font-bold text-slate-text">{sleepScore?.value || '--'} / 100</div>
+          <div className="text-xs text-slate-muted uppercase tracking-wider font-semibold">
+            {t('mental.sleepSection')}
+          </div>
+          <div className="font-serif text-xl font-bold text-slate-text">
+            {sleepScore?.value || '--'} / 100
+          </div>
         </div>
 
         <div
           onClick={() => navigate('/corps')}
-          className="p-4 rounded-xl border border-slate-border bg-surface hover:border-primary/50 cursor-pointer transition-all space-y-2"
+          className="p-4 rounded-xl border border-slate-border bg-surface hover:border-primary/50 cursor-pointer transition-all space-y-2 min-h-[96px]"
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === 'Enter' && navigate('/corps')}
         >
           <div className="flex items-center justify-between">
             <ShieldCheck className="w-5 h-5 text-primary" />
             <StatusBadge status={boneLossScore?.status || 'normal'} size="sm" showIcon={false} />
           </div>
-          <div className="text-xs text-slate-muted uppercase tracking-wider font-semibold">Perte osseuse</div>
+          <div className="text-xs text-slate-muted uppercase tracking-wider font-semibold">
+            {t('body.zones.bone')}
+          </div>
           <div className="font-serif text-xl font-bold text-slate-text">
             {boneLossScore ? `-${boneLossScore.value}%` : '--'}
           </div>
@@ -146,22 +161,22 @@ export const HomePage: React.FC = () => {
 
         <div
           onClick={() => navigate('/corps')}
-          className="p-4 rounded-xl border border-slate-border bg-surface hover:border-primary/50 cursor-pointer transition-all space-y-2"
+          className="p-4 rounded-xl border border-slate-border bg-surface hover:border-primary/50 cursor-pointer transition-all space-y-2 min-h-[96px]"
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === 'Enter' && navigate('/corps')}
         >
           <div className="flex items-center justify-between">
             <Zap className="w-5 h-5 text-amber-600" />
             <StatusBadge status={radiationProjection?.status || 'normal'} size="sm" showIcon={false} />
           </div>
-          <div className="text-xs text-slate-muted uppercase tracking-wider font-semibold">Radiations</div>
+          <div className="text-xs text-slate-muted uppercase tracking-wider font-semibold">
+            {t('body.zones.radiation')}
+          </div>
           <div className="font-serif text-xl font-bold text-slate-text">
             {radiationProjection ? `${radiationProjection.currentCumulative_mSv} mSv` : '--'}
           </div>
         </div>
-      </section>
-
-      {/* NASA Activity Calendar Section (GitHub-style 20 weeks x 7 days) */}
-      <section className="space-y-4">
-        <ActivityCalendar events={activityEvents} />
       </section>
 
       {/* Guided Measure Stepper Modal */}
