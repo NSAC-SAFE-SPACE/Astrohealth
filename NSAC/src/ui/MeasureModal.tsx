@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, Check, ArrowRight, ArrowLeft, Heart, Activity, Thermometer, Droplet, Moon, ShieldAlert, Bone } from 'lucide-react';
+import { X, Check, ArrowRight, ArrowLeft, Heart, Activity, Thermometer, Droplet, Moon, ShieldAlert, Bone, Compass } from 'lucide-react';
 import { useAstroStore } from '../store/useAstroStore';
 import { StatusBadge } from './StatusBadge';
+import { CognitiveTestPanel, type CognitiveTestResult } from './CognitiveTestPanel';
 import { assessGlucose } from '../engine/scores/glucose';
 import { assessMeasurement } from '../engine/status';
 import {
@@ -24,7 +25,7 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
   onClose,
   initialMetric = 'heartRate'
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { addMeasurement, addSleepLog, astronaut } = useAstroStore();
 
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
@@ -52,12 +53,14 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
     phrase2: string;
     actions: string[];
     isAnomaly?: boolean;
+    isCognitive?: boolean;
     forecast?: ForecastResult | null;
   } | null>(null);
-  const [completedMeasurements, setCompletedMeasurements] = useState<string[]>([]);
+  const [cognitiveResult, setCognitiveResult] = useState<CognitiveTestResult | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
+
     setStep(1);
     setMetric(initialMetric);
     setValue('72');
@@ -69,7 +72,7 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
     setSleepAwakenings(0);
     setSleepRestfulness(4);
     setResultAssessment(null);
-    setCompletedMeasurements([]);
+    setCognitiveResult(null);
   }, [isOpen, initialMetric]);
 
   if (!isOpen) return null;
@@ -140,14 +143,81 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
         'Lisez la valeur de dose cumulée affichée sur l’écran LCD.',
         'Vérifiez l’absence de voyant de surcharge (flare).'
       ]
+    },
+    {
+      id: 'reactionTime',
+      label: t('measurementModal.cognitive.reactionMetric'),
+      unit: 'ms',
+      icon: Activity,
+      protocol: [
+        t('measurementModal.cognitive.reactionProtocol1'),
+        t('measurementModal.cognitive.reactionProtocol2'),
+        t('measurementModal.cognitive.reactionProtocol3')
+      ]
+    },
+    {
+      id: 'orientationAccuracy',
+      label: t('measurementModal.cognitive.orientationMetric'),
+      unit: '%',
+      icon: Compass,
+      protocol: [
+        t('measurementModal.cognitive.orientationProtocol1'),
+        t('measurementModal.cognitive.orientationProtocol2'),
+        t('measurementModal.cognitive.orientationProtocol3')
+      ]
     }
   ];
 
   const currentOption = METRIC_OPTIONS.find((m) => m.id === metric) || METRIC_OPTIONS[0];
+  const isCognitiveMetric = metric === 'reactionTime' || metric === 'orientationAccuracy';
 
   const handleSave = async () => {
-    let completedTitle = '';
-    if (metric === 'sleepQuality') {
+    if (metric === 'reactionTime' && cognitiveResult?.type === 'reaction') {
+      const { summary, falseStarts } = cognitiveResult;
+      await addMeasurement(
+        'reactionTime',
+        summary.medianMs,
+        'ms',
+        JSON.stringify({ trials: summary.trialCount, lapses: summary.lapses, falseStarts })
+      );
+      setResultAssessment({
+        status: 'normal',
+        title: t('measurementModal.cognitive.reactionMetric'),
+        phrase1: t('measurementModal.cognitive.reactionResult', {
+          median: summary.medianMs,
+          lapses: summary.lapses,
+          trials: summary.trialCount
+        }),
+        phrase2: t('measurementModal.cognitive.nonDiagnostic'),
+        actions: [],
+        isCognitive: true
+      });
+    } else if (metric === 'orientationAccuracy' && cognitiveResult?.type === 'orientation') {
+      const { summary } = cognitiveResult;
+      await addMeasurement(
+        'orientationAccuracy',
+        summary.accuracy,
+        '%',
+        JSON.stringify({
+          trials: summary.trialCount,
+          correct: summary.correctCount,
+          meanResponseMs: summary.meanResponseMs
+        })
+      );
+      setResultAssessment({
+        status: 'normal',
+        title: t('measurementModal.cognitive.orientationMetric'),
+        phrase1: t('measurementModal.cognitive.orientationResult', {
+          correct: summary.correctCount,
+          trials: summary.trialCount,
+          accuracy: summary.accuracy.toLocaleString(i18n.language),
+          time: summary.meanResponseMs
+        }),
+        phrase2: t('measurementModal.cognitive.nonDiagnostic'),
+        actions: [],
+        isCognitive: true
+      });
+    } else if (metric === 'sleepQuality') {
       await addSleepLog({
         date: new Date().toISOString().split('T')[0],
         hours: sleepHours,
@@ -157,7 +227,6 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
         restfulness: sleepRestfulness
       });
 
-      completedTitle = `Sommeil : ${sleepHours} h`;
       setResultAssessment({
         status: sleepHours >= 7 ? 'normal' : sleepHours >= 5.5 ? 'watch' : 'action',
         title: 'Nuit enregistrée avec succès',
@@ -195,7 +264,6 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
 
       if (metric === 'glucose') {
         const res = assessGlucose(numVal, glucoseContext, undefined, astronaut.bloodGlucoseUnit);
-        completedTitle = `Glycémie : ${numVal} ${currentOption.unit}`;
         setResultAssessment({
           status: res.status,
           title: `Glycémie : ${numVal} ${currentOption.unit}`,
@@ -211,7 +279,6 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
           metric === 'bpSys' && bpDiaValue
             ? `Pression artérielle : ${numVal} / ${bpDiaValue} mmHg`
             : `${currentOption.label} : ${numVal} ${currentOption.unit}`;
-        completedTitle = titleText;
 
         setResultAssessment({
           status: res.status,
@@ -223,21 +290,7 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
         });
       }
     }
-    setCompletedMeasurements((previous) => [...previous, completedTitle]);
     setStep(4);
-  };
-
-  const repeatCurrentMeasurement = () => {
-    setResultAssessment(null);
-    setValue(metric === 'bpSys' ? '120' : metric === 'temperature' ? '36.6' : metric === 'glucose' ? '85' : '72');
-    setBpDiaValue('80');
-    setGlucoseContext('fasting');
-    setSleepHours(7.5);
-    setSleepBedtime('23:00');
-    setSleepLatency('<15');
-    setSleepAwakenings(0);
-    setSleepRestfulness(4);
-    setStep(3);
   };
 
   return (
@@ -279,6 +332,7 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
                       key={opt.id}
                       onClick={() => {
                         setMetric(opt.id);
+                        setCognitiveResult(null);
                         if (opt.id === 'bpSys') setValue('120');
                         else if (opt.id === 'temperature') setValue('36.6');
                         else if (opt.id === 'glucose') setValue('85');
@@ -425,6 +479,13 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
                     </div>
                   </div>
                 </div>
+              ) : isCognitiveMetric ? (
+                <CognitiveTestPanel
+                  key={metric}
+                  type={metric === 'reactionTime' ? 'reaction' : 'orientation'}
+                  onComplete={setCognitiveResult}
+                  onReset={() => setCognitiveResult(null)}
+                />
               ) : (
                 <div className="space-y-4">
                   {metric === 'glucose' && (
@@ -505,7 +566,13 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
                 <h3 className="font-serif text-lg font-bold text-slate-text">
                   {resultAssessment.title}
                 </h3>
-                <StatusBadge status={resultAssessment.status} />
+                {resultAssessment.isCognitive ? (
+                  <span className="rounded-full border border-slate-border bg-surface px-3 py-1 text-xs font-semibold text-slate-muted">
+                    {t('measurementModal.cognitive.trackingOnly')}
+                  </span>
+                ) : (
+                  <StatusBadge status={resultAssessment.status} />
+                )}
               </div>
 
               {resultAssessment.isAnomaly && (
@@ -519,19 +586,25 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
                 <p className="text-slate-muted">{resultAssessment.phrase2}</p>
               </div>
 
-              <div className="space-y-2 pt-2">
-                <div className="text-xs uppercase tracking-wider font-semibold text-slate-muted">
-                  Actions recommandées :
+              {resultAssessment.isCognitive ? (
+                <p className="rounded-lg border border-slate-border bg-surface px-3 py-2 text-xs text-slate-muted">
+                  {t('measurementModal.cognitive.disclaimer')}
+                </p>
+              ) : (
+                <div className="space-y-2 pt-2">
+                  <div className="text-xs uppercase tracking-wider font-semibold text-slate-muted">
+                    Actions recommandées :
+                  </div>
+                  <div className="space-y-2">
+                    {resultAssessment.actions.map((act, i) => (
+                      <div key={i} className="flex items-start gap-2.5 p-3 rounded-lg bg-surface border border-slate-border text-sm">
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary mt-2 shrink-0" />
+                        <span>{act}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  {resultAssessment.actions.map((act, i) => (
-                    <div key={i} className="flex items-start gap-2.5 p-3 rounded-lg bg-surface border border-slate-border text-sm">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary mt-2 shrink-0" />
-                      <span>{act}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              )}
 
               {resultAssessment.forecast && (
                 <div className="p-4 rounded-xl bg-surface border border-slate-border space-y-1.5">
@@ -551,19 +624,6 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
                       {resultAssessment.forecast.drivers[0].explanation}
                     </p>
                   )}
-                </div>
-              )}
-
-              {completedMeasurements.length > 1 && (
-                <div className="rounded-xl border border-slate-border p-4 space-y-2">
-                  <h4 className="text-xs uppercase tracking-wider font-semibold text-slate-muted">
-                    Mesures enregistrées dans cette série
-                  </h4>
-                  <ul className="space-y-1 text-sm text-slate-text">
-                    {completedMeasurements.map((measurement, index) => (
-                      <li key={`${index}-${measurement}`}>{measurement}</li>
-                    ))}
-                  </ul>
                 </div>
               )}
             </div>
@@ -597,7 +657,8 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
           {step === 3 && (
             <button
               onClick={handleSave}
-              className="px-6 py-2.5 rounded-lg bg-primary text-white font-medium text-sm flex items-center gap-2 hover:bg-primary-hover shadow-xs"
+              disabled={isCognitiveMetric && !cognitiveResult}
+              className="px-6 py-2.5 rounded-lg bg-primary text-white font-medium text-sm flex items-center gap-2 hover:bg-primary-hover shadow-xs disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Check className="w-4 h-4" />
               {t('measurementModal.confirm')}
@@ -605,29 +666,12 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
           )}
 
           {step === 4 && (
-            <div className="flex flex-wrap justify-end gap-2">
-              <button
-                onClick={() => {
-                  setResultAssessment(null);
-                  setStep(1);
-                }}
-                className="px-4 py-2.5 rounded-lg border border-slate-border text-slate-text font-medium text-sm hover:bg-white"
-              >
-                {t('measurementModal.nextMetric')}
-              </button>
-              <button
-                onClick={repeatCurrentMeasurement}
-                className="px-4 py-2.5 rounded-lg bg-primary text-white font-medium text-sm hover:bg-primary-hover shadow-xs"
-              >
-                {t('measurementModal.repeat')}
-              </button>
-              <button
-                onClick={onClose}
-                className="px-4 py-2.5 rounded-lg border border-slate-border text-slate-text font-medium text-sm hover:bg-white"
-              >
-                {t('measurementModal.finish')}
-              </button>
-            </div>
+            <button
+              onClick={onClose}
+              className="px-6 py-2.5 rounded-lg bg-primary text-white font-medium text-sm hover:bg-primary-hover shadow-xs"
+            >
+              Terminer et revenir au tableau de bord
+            </button>
           )}
         </div>
       </div>

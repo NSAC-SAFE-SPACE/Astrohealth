@@ -25,17 +25,6 @@
     "greeting": "Hello, {{name}}.",
     "statusCardTitle": "General Condition",
     "globalScore": "Overall Score",
-    "openProfiles": "Open profile management",
-    "openStatusDetails": "View status details: {{status}}",
-    "scoreDetailsTitle": "Data used for this score",
-    "scoreStartsAt": "Starting value: {{count}} points.",
-    "cardioScoreDetail": "Cardio: {{score}}/100 (mean systolic pressure {{meanSys}} mmHg, mean heart rate {{meanHr}} bpm); deduction {{deduction}}.",
-    "sleepScoreDetail": "Sleep: {{score}}/100 (components {{components}}); deduction {{deduction}}.",
-    "boneScoreDetail": "Bone: measured loss {{loss}}%; deduction {{deduction}}.",
-    "radiationScoreDetail": "Radiation: status {{status}}; deduction {{deduction}} points.",
-    "patternScoreDetail": "Combined patterns detected: {{count}}; deduction {{deduction}} points.",
-    "scoreClampDetail": "Final score is rounded and clamped to a range of 20 to 100.",
-    "notAvailable": "unavailable",
     "measureButton": "Take a Measurement",
     "seeBodyButton": "View My Body",
     "summaryWords": {
@@ -286,7 +275,7 @@
   },
   "history": {
     "title": "History & Predictive Trajectories",
-    "subtitle": "Single biometric indicator at a time: temporal trend, 14-day rolling baseline, and forecasts with confidence bounds.",
+    "subtitle": "Trends for health indicators and cognitive exercises, with a personal baseline and forecasts where available.",
     "selectMetric": "Select biometric indicator",
     "range7d": "7 days",
     "range30d": "30 days",
@@ -295,6 +284,8 @@
     "forecastLegend": "Forecast (confidence bounds)",
     "thresholdNormal": "Optimal range",
     "forecastNotice": "Solid blue line: actual recorded measurements · Dashed teal line: 7-day projected trajectory with estimated bounds",
+    "cognitiveNotice": "These exercises provide personal tracking indicators without medical thresholds or forecasts.",
+    "noData": "No results in this period. Run the test from “Take a measurement” to start tracking.",
     "metrics": {
       "heartRate": "Heart Rate",
       "bpSys": "Systolic Blood Pressure",
@@ -304,7 +295,9 @@
       "sleep": "Sleep Duration",
       "mood": "Adapted WHO-5 Index",
       "stress": "Stress Level",
-      "radiation": "Cumulative Radiation"
+      "radiation": "Cumulative Radiation",
+      "reactionTime": "Median Reaction Time",
+      "orientationAccuracy": "Spatial Orientation"
     }
   },
   "missions": {
@@ -363,12 +356,6 @@
   "settings": {
     "title": "Settings & Flight Surgeon Report",
     "profileSection": "Astronaut Profile",
-    "newProfile": "New Profile",
-    "cancelNewProfile": "Cancel",
-    "selectProfile": "Select a profile",
-    "startTracking": "Create profile and start tracking",
-    "profileCreated": "New profile created; tracking started",
-    "profileSaved": "Changes saved locally",
     "name": "First Name / Call-sign",
     "age": "Age",
     "sex": "Sex",
@@ -405,11 +392,47 @@
     "random": "Other / Random",
     "enterValue": "Measured value",
     "confirm": "Save Measurement",
-    "nextMetric": "Another metric",
-    "repeat": "Repeat a measurement",
-    "finish": "Finish",
     "next": "Continue",
     "back": "Back",
-    "close": "Close"
+    "close": "Close",
+    "cognitive": {
+      "reactionMetric": "Reaction Time Test",
+      "orientationMetric": "Spatial Orientation",
+      "reactionProtocol1": "Get comfortable and keep a finger ready to tap the screen.",
+      "reactionProtocol2": "Tap the response area only when it changes color.",
+      "reactionProtocol3": "After 2 practice trials, 8 trials are timed; wait for the signal and avoid anticipating it.",
+      "orientationProtocol1": "Look at the arrow shown in the center of the dial.",
+      "orientationProtocol2": "Choose which of the eight directions the arrow points toward.",
+      "orientationProtocol3": "After one practice trial, 8 trials are recorded; take your time and answer without outside help.",
+      "reactionTitle": "Visual Reaction Time",
+      "reactionInstructions": "Two practice trials come before the 8 measured trials. Tap the area as soon as it appears.",
+      "orientationTitle": "Direction Finding",
+      "orientationInstructions": "Identify the direction indicated by the arrow. Accuracy and mean response time are recorded.",
+      "disclaimer": "Informal exercise, not validated for diagnosis. Results also depend on the display, input method, vision, and fatigue.",
+      "nonDiagnostic": "Recorded as a personal tracking indicator only, without interpretation or medical thresholds.",
+      "trackingOnly": "Non-diagnostic tracking",
+      "start": "Start test",
+      "wait": "Wait for the signal…",
+      "tapNow": "Tap now",
+      "progress": "Trial {{current}} of {{total}}",
+      "practice": "Practice trial",
+      "practiceProgress": "Practice {{current}} of {{total}}",
+      "reactionResult": "Median reaction time: {{median}} ms · Responses ≥ 500 ms: {{lapses}} of {{trials}} trials.",
+      "falseStarts": "Anticipatory responses: {{count}}",
+      "orientationResult": "Score: {{correct}}/{{trials}} · Accuracy: {{accuracy}}% · Mean time: {{time}} ms.",
+      "chooseDirection": "Which direction does the arrow point?",
+      "directionArrow": "Arrow indicating a cardinal or diagonal direction",
+      "retry": "Try again",
+      "directions": {
+        "north": "N",
+        "northEast": "NE",
+        "east": "E",
+        "southEast": "SE",
+        "south": "S",
+        "southWest": "SW",
+        "west": "W",
+        "northWest": "NW"
+      }
+    }
   }
 }

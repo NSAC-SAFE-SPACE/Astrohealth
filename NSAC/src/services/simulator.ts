@@ -294,8 +294,7 @@ export async function seedDemoData(scenario: DemoScenario = 'healthy') {
  */
 export async function advanceTime24h(
   currentMissionDay: number,
-  scenario: DemoScenario = 'healthy',
-  astronautId: string = DEFAULT_ASTRONAUT.id
+  scenario: DemoScenario = 'healthy'
 ): Promise<{ nextMissionDay: number; newDateStr: string }> {
   const nextMissionDay = currentMissionDay + 1;
   const now = new Date();
@@ -306,7 +305,7 @@ export async function advanceTime24h(
   const actId = `act-adv-${nextMissionDay}-${Date.now()}`;
   await db.activityEvents.put({
     id: actId,
-    astronautId,
+    astronautId: 'astro-01',
     date: dateStr,
     type: 'measurement'
   });
@@ -334,7 +333,7 @@ export async function advanceTime24h(
   const newMeasurements: Measurement[] = [
     {
       id: `adv-hr-${nextMissionDay}`,
-      astronautId,
+      astronautId: 'astro-01',
       metric: 'heartRate',
       value: Math.round(hr),
       unit: 'bpm',
@@ -343,7 +342,7 @@ export async function advanceTime24h(
     },
     {
       id: `adv-sys-${nextMissionDay}`,
-      astronautId,
+      astronautId: 'astro-01',
       metric: 'bpSys',
       value: Math.round(sys),
       unit: 'mmHg',
@@ -352,7 +351,7 @@ export async function advanceTime24h(
     },
     {
       id: `adv-dia-${nextMissionDay}`,
-      astronautId,
+      astronautId: 'astro-01',
       metric: 'bpDia',
       value: Math.round(dia),
       unit: 'mmHg',
@@ -361,7 +360,7 @@ export async function advanceTime24h(
     },
     {
       id: `adv-temp-${nextMissionDay}`,
-      astronautId,
+      astronautId: 'astro-01',
       metric: 'temperature',
       value: Math.round(temp * 10) / 10,
       unit: '°C',
@@ -370,7 +369,7 @@ export async function advanceTime24h(
     },
     {
       id: `adv-glu-${nextMissionDay}`,
-      astronautId,
+      astronautId: 'astro-01',
       metric: 'glucose',
       value: Math.round(glucose),
       unit: 'mg/dL',
@@ -384,7 +383,7 @@ export async function advanceTime24h(
 
   await db.sleepLogs.put({
     id: `adv-sleep-${nextMissionDay}`,
-    astronautId,
+    astronautId: 'astro-01',
     date: dateStr,
     hours: Math.round(sleepHours * 10) / 10,
     bedtime: '23:30',

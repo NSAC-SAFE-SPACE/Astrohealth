@@ -17,7 +17,9 @@ export type Metric =
   | 'boneProxy'
   | 'boneDensity'
   | 'radiationDose'
-  | 'radiationRate';
+  | 'radiationRate'
+  | 'reactionTime'
+  | 'orientationAccuracy';
 
 export type Status = 'normal' | 'watch' | 'action' | 'contact_flight_surgeon';
 
@@ -156,7 +158,6 @@ export interface Astronaut {
   baselineBoneDensity?: Partial<Record<BoneSite, number>>;
   bloodGlucoseUnit?: 'mg/dL' | 'mmol/L';
   commDelayMinutes?: number;
-  missionDay?: number;
 }
 
 export interface ThresholdConfigItem {

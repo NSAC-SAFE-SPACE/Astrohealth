@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Silhouette, BodyZoneKey } from '../../ui/Silhouette';
 import { StatusBadge } from '../../ui/StatusBadge';
@@ -47,18 +46,10 @@ export const BodyPage: React.FC = () => {
   } = useAstroStore();
 
   const [selectedZone, setSelectedZone] = useState<BodyZoneKey>('heart');
-  const [searchParams] = useSearchParams();
   const [viewMode, setViewMode] = useState<'body' | 'list'>('body');
   const [isMeasureModalOpen, setIsMeasureModalOpen] = useState(false);
 
   // Default to list view on mobile screens (< 768px)
-  useEffect(() => {
-    const zone = searchParams.get('zone');
-    if (zone === 'heart' || zone === 'bone' || zone === 'belly' || zone === 'skin' || zone === 'radiation') {
-      setSelectedZone(zone);
-    }
-  }, [searchParams]);
-
   useEffect(() => {
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
       setViewMode('list');
