@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import {
   ResponsiveContainer,
   LineChart,
@@ -21,6 +22,11 @@ import {
 } from '../../engine';
 import { TrendingUp, Activity, HelpCircle, Calendar, ShieldCheck } from 'lucide-react';
 import { BODY_MEASURE_FIELDS } from '../../engine/config/bodyMeasures';
+import type { Metric } from '../../types';
+
+export const MIN_FORECAST_POINTS = 5;
+export const BASELINE_WINDOW_DAYS = 14;
+export const MIN_BASELINE_DAYS = 14;
 
 export type HistoryMetricKey =
   | 'heartRate'
@@ -44,6 +50,8 @@ export type HistoryMetricKey =
 
 export const HistoryPage: React.FC = () => {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
+  const { openMeasure } = useOutletContext<{ openMeasure: (metric?: Metric) => void }>();
   const isFrench = i18n.language.startsWith('fr');
 
   const {
@@ -51,12 +59,14 @@ export const HistoryPage: React.FC = () => {
     sleepLogs,
     psychAssessments,
     boneRecords,
-    missionDay,
-    logActivityEvent
+    logActivityEvent,
+    astronaut,
+    isLoading
   } = useAstroStore();
 
   const [selectedMetric, setSelectedMetric] = useState<HistoryMetricKey>('heartRate');
   const [timeRange, setTimeRange] = useState<7 | 30 | 90>(30);
+  const [showAllMeasurements, setShowAllMeasurements] = useState(false);
 
   // Register view event on page load
   useEffect(() => {
@@ -138,7 +148,11 @@ export const HistoryPage: React.FC = () => {
   const currentConfig = METRIC_CONFIGS[selectedMetric]!;
 
   // Build real time series and forecasts
+<<<<<<< Updated upstream
   const { chartData, personalBaseline, forecastSummary, hasData } = useMemo(() => {
+=======
+  const { chartData, personalBaseline, forecastSummary, forecastReason, olderCount, baselineDays } = useMemo(() => {
+>>>>>>> Stashed changes
     const now = Date.now();
     const rangeMs = timeRange * 24 * 60 * 60 * 1000;
     const startTs = now - rangeMs;
@@ -152,36 +166,36 @@ export const HistoryPage: React.FC = () => {
     const rawPoints: RawPoint[] = [];
 
     if (selectedMetric === 'sleep') {
-      sleepLogs.forEach((log) => {
+      sleepLogs.filter((log) => log.astronautId === astronaut.id).forEach((log) => {
         const ts = new Date(log.date).getTime();
-        if (ts >= startTs) {
+        if (ts <= now) {
           rawPoints.push({ timestamp: ts, value: log.hours, dateStr: log.date.slice(5) });
         }
       });
     } else if (selectedMetric === 'mood') {
-      psychAssessments.forEach((p) => {
+      psychAssessments.filter((assessment) => assessment.astronautId === astronaut.id).forEach((p) => {
         const ts = new Date(p.date).getTime();
-        if (ts >= startTs) {
+        if (ts <= now) {
           rawPoints.push({ timestamp: ts, value: p.score, dateStr: p.date.slice(5) });
         }
       });
     } else if (selectedMetric === 'stress') {
-      psychAssessments.forEach((p) => {
+      psychAssessments.filter((assessment) => assessment.astronautId === astronaut.id).forEach((p) => {
         const ts = new Date(p.date).getTime();
-        if (ts >= startTs) {
-          rawPoints.push({ timestamp: ts, value: p.stressLevel ?? 24, dateStr: p.date.slice(5) });
+        if (ts <= now && p.stressLevel !== undefined) {
+          rawPoints.push({ timestamp: ts, value: p.stressLevel, dateStr: p.date.slice(5) });
         }
       });
     } else if (selectedMetric === 'boneLoss') {
-      boneRecords.forEach((b) => {
+      boneRecords.filter((record) => record.astronautId === astronaut.id).forEach((b) => {
         const ts = new Date(b.date).getTime();
-        if (ts >= startTs) {
+        if (ts <= now) {
           rawPoints.push({ timestamp: ts, value: b.valueGcm2, dateStr: b.date.slice(5) });
         }
       });
       // Also look into measurements for boneProxy
       measurements
-        .filter((m) => m.metric === 'boneProxy' && m.timestamp >= startTs)
+        .filter((m) => m.astronautId === astronaut.id && m.metric === 'boneProxy' && m.timestamp <= now)
         .forEach((m) => {
           rawPoints.push({
             timestamp: m.timestamp,
@@ -189,11 +203,29 @@ export const HistoryPage: React.FC = () => {
             dateStr: new Date(m.timestamp).toISOString().split('T')[0].slice(5)
           });
         });
-    } else {
-      const metricName = selectedMetric;
-
+    } else if (selectedMetric === 'glucose' || selectedMetric === 'fastingGlucose') {
+      const displayUnit = selectedMetric === 'glucose' ? 'mg/dL' : 'g/L';
       measurements
-        .filter((m) => m.metric === metricName && m.timestamp >= startTs)
+        .filter((measurement) => measurement.astronautId === astronaut.id && measurement.timestamp <= now && (
+          measurement.metric === selectedMetric ||
+          (selectedMetric === 'glucose' && measurement.metric === 'fastingGlucose') ||
+          (selectedMetric === 'fastingGlucose' && measurement.metric === 'glucose' && (measurement.context ?? 'fasting') === 'fasting')
+        ))
+        .forEach((measurement) => {
+          let value = measurement.value;
+          if (measurement.unit !== displayUnit) {
+            if (displayUnit === 'mg/dL') value = measurement.unit === 'g/L' ? value * 100 : value * 18;
+            else value = measurement.unit === 'mg/dL' ? value / 100 : value / 5.55;
+          }
+          rawPoints.push({
+            timestamp: measurement.timestamp,
+            value: Number(value.toFixed(1)),
+            dateStr: new Date(measurement.timestamp).toISOString().split('T')[0].slice(5)
+          });
+        });
+    } else {
+      measurements
+        .filter((m) => m.astronautId === astronaut.id && m.metric === selectedMetric && m.timestamp <= now)
         .forEach((m) => {
           rawPoints.push({
             timestamp: m.timestamp,
@@ -205,21 +237,24 @@ export const HistoryPage: React.FC = () => {
 
     // Sort chronologically
     rawPoints.sort((a, b) => a.timestamp - b.timestamp);
-    if (rawPoints.length === 0) {
-      return { chartData: [], personalBaseline: null, forecastSummary: null };
+    const inRangePoints = rawPoints.filter((point) => point.timestamp >= startTs && point.timestamp <= now);
+    const visiblePoints = showAllMeasurements ? rawPoints : inRangePoints;
+    if (visiblePoints.length === 0) {
+      return { chartData: [], personalBaseline: null, forecastSummary: null, forecastReason: null, olderCount: rawPoints.length, baselineDays: 0 };
     }
 
-    // Compute rolling 14-day baseline
-    const fourteenDaysMs = 14 * 24 * 3600 * 1000;
-    const baselinePoints = rawPoints.filter((p) => p.timestamp >= now - fourteenDaysMs);
-    const computedBaseline =
-      baselinePoints.length > 0
-        ? Math.round((baselinePoints.reduce((sum, p) => sum + p.value, 0) / baselinePoints.length) * 10) / 10
-        : currentConfig.fallbackBaseline;
+    // Only claim a personal baseline when at least one real point exists for each of 14 days.
+    const baselineStart = now - BASELINE_WINDOW_DAYS * 24 * 60 * 60 * 1000;
+    const baselinePoints = rawPoints.filter((point) => point.timestamp >= baselineStart && point.timestamp <= now);
+    const baselineDaySet = new Set(baselinePoints.map((point) => point.dateStr));
+    const baselineDays = baselineDaySet.size;
+    const computedBaseline = baselineDays >= MIN_BASELINE_DAYS
+      ? Math.round((baselinePoints.reduce((sum, point) => sum + point.value, 0) / baselinePoints.length) * 10) / 10
+      : null;
 
     // Resample/group points by days if dense
     const aggregatedMap = new Map<string, { sum: number; count: number }>();
-    rawPoints.forEach((p) => {
+    visiblePoints.forEach((p) => {
       const existing = aggregatedMap.get(p.dateStr) || { sum: 0, count: 0 };
       existing.sum += p.value;
       existing.count += 1;
@@ -239,10 +274,24 @@ export const HistoryPage: React.FC = () => {
     });
 
     // Calculate 7-day future prediction with forecaster
-    const latestVal = historicalData[historicalData.length - 1]?.valeur || computedBaseline;
+    const latestVal = historicalData[historicalData.length - 1]?.valeur;
+    const forecastSupported = ['heartRate', 'bpSys', 'temperature', 'glucose', 'boneLoss', 'mood', 'radiationDose'].includes(selectedMetric);
+    const enoughForForecast = historicalData.length >= MIN_FORECAST_POINTS;
+    if (!forecastSupported || !enoughForForecast || latestVal === undefined) {
+      return {
+        chartData: historicalData,
+        personalBaseline: computedBaseline,
+        forecastSummary: null,
+        forecastReason: forecastSupported
+          ? `Pas assez de mesures pour une prévision (${historicalData.length} sur ${MIN_FORECAST_POINTS} requises).`
+          : 'Prévision indisponible pour cet indicateur.',
+        olderCount: Math.max(0, rawPoints.length - inRangePoints.length),
+        baselineDays
+      };
+    }
     let predVal = latestVal;
-    let predLow = latestVal * 0.96;
-    let predHigh = latestVal * 1.04;
+    let predLow = latestVal;
+    let predHigh = latestVal;
     let driverNote = '';
 
     if (selectedMetric === 'heartRate') {
@@ -272,27 +321,31 @@ export const HistoryPage: React.FC = () => {
       predLow = res.low;
       predHigh = res.high;
     } else if (selectedMetric === 'boneLoss') {
-      const f = new BoneMassForecaster(missionDay, 60);
+      const baselineRecords = boneRecords.filter((record) => record.isBaseline);
+      const hasDensityBaseline = baselineRecords.length > 0;
+      const baselineDensity = baselineRecords.length > 0
+        ? baselineRecords.reduce((sum, record) => sum + record.valueGcm2, 0) / baselineRecords.length
+        : rawPoints[0]?.value ?? 100;
+      const currentPercent = hasDensityBaseline ? (latestVal / baselineDensity) * 100 : latestVal;
+      const densityScale = hasDensityBaseline ? baselineDensity / 100 : 1;
+      const f = new BoneMassForecaster(currentPercent);
       const res = f.predict('30d');
-      predVal = res.value;
-      predLow = res.low;
-      predHigh = res.high;
+      predVal = res.value * densityScale;
+      predLow = res.low * densityScale;
+      predHigh = res.high * densityScale;
     } else if (selectedMetric === 'mood') {
       const f = new MoodForecaster(latestVal);
       const res = f.predict('7d');
       predVal = res.value;
       predLow = res.low;
       predHigh = res.high;
-    } else if (selectedMetric === 'stress') {
-      predVal = Math.round(latestVal * 10) / 10;
-      predLow = Math.max(0, Math.round((latestVal - 5) * 10) / 10);
-      predHigh = Math.min(100, Math.round((latestVal + 6) * 10) / 10);
     } else if (selectedMetric === 'radiationDose') {
       predVal = Math.round((latestVal + 1.2) * 10) / 10;
       predLow = Math.round(latestVal * 10) / 10;
       predHigh = Math.round((latestVal + 2.5) * 10) / 10;
     }
 
+<<<<<<< Updated upstream
     // Connect the last historical point to the forecast trajectory
     const forecastPoints: any[] = [];
     const stepCount = 5;
@@ -311,11 +364,31 @@ export const HistoryPage: React.FC = () => {
         borneBasse: interpLow
       });
     }
+=======
+    // The forecast is shown only at its modelled seven-day endpoint; no intermediate values are fabricated.
+    historicalData[historicalData.length - 1].prevision = latestVal;
+    historicalData[historicalData.length - 1].borneHaute = latestVal;
+    historicalData[historicalData.length - 1].borneBasse = latestVal;
+    const forecastPoint = {
+      date: '+7j',
+      valeur: null,
+      baseline: computedBaseline,
+      prevision: predVal,
+      borneHaute: predHigh,
+      borneBasse: predLow
+    };
+>>>>>>> Stashed changes
 
     return {
-      chartData: [...historicalData, ...forecastPoints],
+      chartData: [...historicalData, forecastPoint],
       personalBaseline: computedBaseline,
+<<<<<<< Updated upstream
       hasData: rawPoints.length > 0,
+=======
+      forecastReason: null,
+      olderCount: Math.max(0, rawPoints.length - inRangePoints.length),
+      baselineDays,
+>>>>>>> Stashed changes
       forecastSummary: {
         val: predVal,
         low: predLow,
@@ -323,7 +396,17 @@ export const HistoryPage: React.FC = () => {
         driverNote
       }
     };
-  }, [selectedMetric, timeRange, measurements, sleepLogs, psychAssessments, boneRecords, missionDay, currentConfig, isFrench]);
+  }, [selectedMetric, timeRange, showAllMeasurements, measurements, sleepLogs, psychAssessments, boneRecords, currentConfig, isFrench, astronaut.id]);
+
+  const requestSelectedMeasurement = () => {
+    const bodyField = BODY_MEASURE_FIELDS.find((field) => field.metric === selectedMetric);
+    if (bodyField) {
+      navigate('/corps', { state: { focusFieldKey: bodyField.key } });
+      return;
+    }
+    const initialMetric: Metric = selectedMetric === 'bpDia' ? 'bpSys' : selectedMetric === 'sleep' ? 'sleepQuality' : selectedMetric as Metric;
+    openMeasure(initialMetric);
+  };
 
   const METRIC_KEYS: HistoryMetricKey[] = Array.from(new Set<HistoryMetricKey>([
     'heartRate',
@@ -355,7 +438,7 @@ export const HistoryPage: React.FC = () => {
           {([7, 30, 90] as const).map((days) => (
             <button
               key={days}
-              onClick={() => setTimeRange(days)}
+              onClick={() => { setTimeRange(days); setShowAllMeasurements(false); }}
               className={`min-h-[44px] px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
                 timeRange === days
                   ? 'bg-primary text-white shadow-xs'
@@ -379,7 +462,7 @@ export const HistoryPage: React.FC = () => {
             return (
               <button
                 key={key}
-                onClick={() => setSelectedMetric(key)}
+                onClick={() => { setSelectedMetric(key); setShowAllMeasurements(false); }}
                 className={`min-h-[48px] px-4 py-2.5 rounded-xl text-sm font-semibold border transition-all ${
                   isSelected
                     ? 'bg-primary text-white border-primary shadow-xs'
@@ -394,7 +477,19 @@ export const HistoryPage: React.FC = () => {
       </section>
 
       {/* Main Single Chart View Card */}
-      <section className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-border shadow-xs space-y-6">
+      <section className="min-w-0 overflow-hidden bg-white p-6 sm:p-8 rounded-2xl border border-slate-border shadow-xs space-y-6">
+        {isLoading ? <div role="status" className="flex min-h-72 items-center justify-center text-sm text-slate-muted">Chargement des mesures…</div> : chartData.length === 0 ? (
+          <div role="status" className="flex min-h-72 flex-col items-center justify-center gap-4 rounded-xl border border-slate-border bg-surface/40 p-6 text-center">
+            <div>
+              <h2 className="font-serif text-xl font-bold text-slate-text">{t(currentConfig.labelKey)}</h2>
+              <p className="mt-2 text-sm text-slate-muted">Aucune mesure enregistrée pour cette période.</p>
+            </div>
+            <div className="flex flex-wrap justify-center gap-3">
+              {olderCount > 0 && !showAllMeasurements && <button type="button" onClick={() => setShowAllMeasurements(true)} className="min-h-11 rounded-xl border border-slate-border bg-white px-4 py-2 text-sm font-semibold text-slate-text hover:bg-surface">Voir toute la période ({olderCount} mesures antérieures)</button>}
+              <button type="button" onClick={requestSelectedMeasurement} className="min-h-11 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-hover">Saisir une mesure</button>
+            </div>
+          </div>
+        ) : <>
         {/* Chart Header with Legend & Baseline Callout */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-border gap-4">
           <div>
@@ -407,7 +502,11 @@ export const HistoryPage: React.FC = () => {
               </span>
             </div>
             <p className="text-xs text-slate-muted mt-1">
+<<<<<<< Updated upstream
               {currentConfig.forecastable ? t('history.forecastNotice') : t('history.cognitiveNotice')}
+=======
+              {forecastSummary ? t('history.forecastNotice') : forecastReason}
+>>>>>>> Stashed changes
             </p>
           </div>
 
@@ -417,14 +516,14 @@ export const HistoryPage: React.FC = () => {
               <span className="w-3.5 h-1 bg-primary rounded-full inline-block" />
               <span>Mesures réelles</span>
             </span>
-            <span className="flex items-center gap-1.5">
+            {forecastSummary && <span className="flex items-center gap-1.5">
               <span className="w-3.5 h-1 bg-accent border-b-2 border-dashed border-accent inline-block" />
               <span>{t('history.forecastLegend')}</span>
-            </span>
-            <span className="flex items-center gap-1.5">
+            </span>}
+            {personalBaseline !== null ? <span className="flex items-center gap-1.5">
               <span className="w-3.5 h-1 bg-slate-400 border-b border-dashed border-slate-500 inline-block" />
-              <span>{t('history.baselineLegend')} ({personalBaseline ?? '—'} {currentConfig.unit})</span>
-            </span>
+              <span>{t('history.baselineLegend')} ({personalBaseline} {currentConfig.unit})</span>
+            </span> : <span>{`Ligne de base indisponible (${baselineDays} sur ${MIN_BASELINE_DAYS} jours requis)`}</span>}
             <span className="flex items-center gap-1.5">
               <span className="w-3 h-3 bg-status-normal/15 rounded-xs inline-block" />
               <span>{t('history.thresholdNormal')}</span>
@@ -433,10 +532,9 @@ export const HistoryPage: React.FC = () => {
         </div>
 
         {/* Recharts Container */}
-        <div className="w-full h-84 sm:h-96">
-          {!chartData.length && <div className="flex h-full items-center justify-center text-sm text-slate-muted">Aucune mesure enregistrée pour cette période.</div>}
+        <div className="relative isolate min-w-0 w-full h-[340px] sm:h-[384px] overflow-hidden">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData} margin={{ top: 12, right: 12, left: -10, bottom: 4 }}>
+            <LineChart key={`${astronaut.id}-${selectedMetric}-${timeRange}-${showAllMeasurements}`} data={chartData} margin={{ top: 12, right: 12, left: -10, bottom: 4 }}>
               {/* Discrete optimal physiological range reference area */}
               {currentConfig.forecastable && (
                 <ReferenceArea
@@ -508,6 +606,7 @@ export const HistoryPage: React.FC = () => {
               />
 
               {/* Dotted 7-day forecast line */}
+<<<<<<< Updated upstream
               {currentConfig.forecastable && (
                 <Line
                   type="monotone"
@@ -545,9 +644,41 @@ export const HistoryPage: React.FC = () => {
                   dot={false}
                 />
               )}
+=======
+              {forecastSummary && <Line
+                type="monotone"
+                dataKey="prevision"
+                stroke="#2A9D8F"
+                strokeWidth={2.5}
+                strokeDasharray="5 5"
+                dot={{ r: 3, fill: '#2A9D8F' }}
+                connectNulls={false}
+              />}
+
+              {/* Upper forecast bound */}
+              {forecastSummary && <Line
+                type="monotone"
+                dataKey="borneHaute"
+                stroke="#2A9D8F"
+                strokeWidth={1}
+                strokeDasharray="2 2"
+                strokeOpacity={0.4}
+                dot={false}
+              />}
+
+              {/* Lower forecast bound */}
+              {forecastSummary && <Line
+                type="monotone"
+                dataKey="borneBasse"
+                stroke="#2A9D8F"
+                strokeWidth={1}
+                strokeDasharray="2 2"
+                strokeOpacity={0.4}
+                dot={false}
+              />}
+>>>>>>> Stashed changes
             </LineChart>
           </ResponsiveContainer>
-          )}
         </div>
 
         {/* Prediction summary callout under graph */}
@@ -561,7 +692,7 @@ export const HistoryPage: React.FC = () => {
               {forecastSummary ? <>Valeur attendue : ~{forecastSummary.val} {currentConfig.unit}
               <span className="font-normal text-slate-muted ml-2">
                 (fourchette estimée : {forecastSummary.low} à {forecastSummary.high} {currentConfig.unit})
-              </span></> : 'Aucune prévision sans mesures enregistrées.'}
+              </span></> : forecastReason}
             </div>
           </div>
           {forecastSummary?.driverNote && (
@@ -570,7 +701,11 @@ export const HistoryPage: React.FC = () => {
             </p>
           )}
         </div>
+<<<<<<< Updated upstream
         )}
+=======
+        </>}
+>>>>>>> Stashed changes
       </section>
     </div>
   );

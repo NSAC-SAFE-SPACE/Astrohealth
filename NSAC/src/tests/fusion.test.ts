@@ -11,8 +11,7 @@ describe('Engine Fusion & Multi-Metric Patterns', () => {
       mood: 75,
       glucose: 85,
       exerciseMin: 60,
-      boneLossPercent: 0.5,
-      missionDays: 10
+      boneLossPercent: 0.5
     });
 
     expect(patterns.length).toBe(0);
@@ -77,7 +76,7 @@ describe('Engine Fusion & Multi-Metric Patterns', () => {
   it('detects accelerated bone loss pattern when resistance exercise is insufficient in prolonged mission', () => {
     const patterns = detectPatterns({
       exerciseMin: 10,
-      missionDays: 60,
+      missionStartDate: new Date(Date.now() - 60 * 86400000).toISOString(),
       boneLossPercent: 3.2
     });
 

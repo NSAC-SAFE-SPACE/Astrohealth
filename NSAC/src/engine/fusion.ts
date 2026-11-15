@@ -11,7 +11,7 @@ export interface FusionInputMetrics {
   glucose?: number;
   exerciseMin?: number;
   boneLossPercent?: number;
-  missionDays?: number;
+  missionStartDate?: string;
 }
 
 export interface FusionResult {
@@ -42,7 +42,10 @@ export function detectPatterns(
   const glucose = metrics.glucose;
   const exercise = metrics.exerciseMin;
   const boneLoss = metrics.boneLossPercent;
-  const missionDays = metrics.missionDays ?? 0;
+  const missionStartTimestamp = metrics.missionStartDate ? Date.parse(metrics.missionStartDate) : Number.NaN;
+  const elapsedMissionDays = Number.isFinite(missionStartTimestamp)
+    ? Math.max(0, Math.floor((Date.now() - missionStartTimestamp) / 86400000))
+    : 0;
 
   // 1. Fatigue or Impending Infection Pattern
   // Heart rate elevated + temperature elevated + sleep debt
@@ -115,7 +118,7 @@ export function detectPatterns(
   if (exercise !== undefined) {
     const lowExercise = exercise < 30;
     const elevatedLoss = boneLoss !== undefined && boneLoss >= 2.5;
-    const prolongedMission = missionDays >= 30;
+    const prolongedMission = elapsedMissionDays >= 30;
 
     if (lowExercise && (elevatedLoss || prolongedMission)) {
       const severity: Status = (boneLoss !== undefined && boneLoss >= 5.0) ? 'action' : 'watch';

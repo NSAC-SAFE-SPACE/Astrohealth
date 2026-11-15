@@ -14,8 +14,6 @@ import {
   Download,
   Printer,
   Upload,
-  Play,
-  FastForward,
   Clock,
   CheckCircle2,
   AlertCircle,
@@ -31,10 +29,14 @@ export const SettingsPage: React.FC = () => {
   const { t, i18n } = useTranslation();
   const {
     astronaut,
+<<<<<<< Updated upstream
     activeScenario,
     missionDay,
     loadScenario,
     advanceTime24h,
+=======
+    astronautProfiles,
+>>>>>>> Stashed changes
     updateAstronautProfile,
     cardioScore,
     sleepScore,
@@ -162,7 +164,7 @@ export const SettingsPage: React.FC = () => {
       periodDays: reportPeriod,
       status: commDelay > 0 ? 'en attente' : 'transmis',
       deliveredAt: commDelay === 0 ? Date.now() : undefined,
-      summaryText: `Rapport J+${missionDay} (${reportPeriod}j) - Statut: ${globalStatus}`,
+      summaryText: `Rapport du ${new Date().toLocaleDateString('fr-FR')} (${reportPeriod} jours) - Statut : ${globalStatus}`,
       reportJson: JSON.stringify(reportData)
     };
 
@@ -170,7 +172,7 @@ export const SettingsPage: React.FC = () => {
 
     if (commDelay > 0) {
       setReportStatus('en attente');
-      // Scaled demo countdown: max 12 seconds for UX responsiveness
+      // Keep the transmission state visible without making the user wait for full orbital latency.
       const simulatedSeconds = Math.max(3, Math.min(commDelay * 2, 12));
       setCountdownSec(simulatedSeconds);
     } else {
@@ -208,7 +210,6 @@ export const SettingsPage: React.FC = () => {
         environment: astronaut.mission,
         generatedAt: new Date().toISOString(),
         periodDays: reportPeriod,
-        missionDay,
         disclaimer: 'Outil éducatif, pas un diagnostic médical.'
       },
       astronaut: {
@@ -244,7 +245,7 @@ export const SettingsPage: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Astrohealth_Rapport_Chirurgien_J${missionDay}_${name}.json`;
+    a.download = `Astrohealth_Rapport_Chirurgien_${new Date().toISOString().slice(0, 10)}_${name}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -309,10 +310,11 @@ export const SettingsPage: React.FC = () => {
           {t('settings.title')}
         </h1>
         <p className="text-body-sm text-slate-muted max-w-prose">
-          Paramètres individuels, environnement orbital, transmission télémétrique et démonstration pour l'évaluation.
+          Paramètres individuels, environnement orbital et transmission télémétrique.
         </p>
       </div>
 
+<<<<<<< Updated upstream
       {/* 1. DEMO MODE SECTION (HIGH PRIORITY FOR JURY EVALUATION - NO-PRINT) */}
       <section className="bg-surface p-6 sm:p-8 rounded-2xl border border-primary/30 shadow-xs space-y-6 no-print">
         <div className="flex items-center gap-3">
@@ -376,6 +378,47 @@ export const SettingsPage: React.FC = () => {
         <h2 className="font-serif text-2xl font-bold text-slate-text">
           {t('settings.profileSection')}
         </h2>
+=======
+      {/* Astronaut profile form */}
+      <section id="profils" className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-border shadow-xs space-y-6 no-print">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <h2 className="font-serif text-2xl font-bold text-slate-text">
+            {t('settings.profileSection')}
+          </h2>
+          <div className="flex flex-wrap items-center gap-2">
+            {!isCreatingProfile && astronautProfiles.length > 1 && (
+              <select
+                aria-label={t('settings.selectProfile')}
+                value={astronaut.id}
+                onChange={(e) => selectAstronautProfile(e.target.value)}
+                className="h-11 px-3 rounded-xl border border-slate-border text-sm font-semibold bg-white"
+              >
+                {astronautProfiles.map((profile) => (
+                  <option key={profile.id} value={profile.id}>{profile.name}</option>
+                ))}
+              </select>
+            )}
+            {isCreatingProfile ? (
+              <button
+                type="button"
+                onClick={cancelNewProfile}
+                className="px-4 py-2.5 rounded-xl border border-slate-border text-sm font-semibold hover:bg-surface min-h-[44px]"
+              >
+                {t('settings.cancelNewProfile')}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={startNewProfile}
+                className="px-4 py-2.5 rounded-xl bg-primary text-white text-sm font-semibold flex items-center gap-2 hover:bg-primary-hover min-h-[44px]"
+              >
+                <PlusCircle className="w-4 h-4" />
+                {t('settings.newProfile')}
+              </button>
+            )}
+          </div>
+        </div>
+>>>>>>> Stashed changes
 
         {/* Profile photo with local 256px crop */}
         <div className="flex items-center gap-6">
@@ -515,7 +558,7 @@ export const SettingsPage: React.FC = () => {
         </form>
       </section>
 
-      {/* 3. FLIGHT SURGEON REPORT & TELEMETRY QUEUE */}
+      {/* Flight surgeon report and telemetry queue */}
       <section className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-border shadow-xs space-y-6">
         <div className="flex items-center gap-3 no-print">
           <div className="p-2.5 rounded-xl bg-primary text-white">
@@ -592,9 +635,9 @@ export const SettingsPage: React.FC = () => {
                   type="button"
                   onClick={handleForceTransmit}
                   className="px-3.5 py-2 rounded-xl bg-amber-100 text-amber-800 border border-amber-300 font-semibold text-xs hover:bg-amber-200 min-h-[40px]"
-                  title="Accélérer le délai pour le test jury"
+                  title="Transmettre maintenant"
                 >
-                  Accélérer (démo)
+                  Transmettre maintenant
                 </button>
               )}
               <button
@@ -633,7 +676,6 @@ export const SettingsPage: React.FC = () => {
           <div className="pt-2">
             <ReportPreview
               astronaut={{ ...astronaut, name, age, mission }}
-              missionDay={missionDay}
               reportPeriod={reportPeriod}
               reportStatus={reportStatus}
               commDelayMinutes={commDelay}
@@ -661,7 +703,7 @@ export const SettingsPage: React.FC = () => {
         )}
       </section>
 
-      {/* 4. OPTIONAL LAB BLOOD PANEL (F-12 - NO-PRINT) */}
+      {/* Optional lab blood panel (F-12) */}
       <section className="bg-surface p-6 sm:p-8 rounded-2xl border border-slate-border space-y-6 no-print">
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-xl bg-primary text-white">

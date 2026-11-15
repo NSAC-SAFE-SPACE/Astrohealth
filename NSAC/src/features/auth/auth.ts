@@ -62,7 +62,7 @@ export async function signUp(name: string, matricule: string, mission: MissionEn
   const normalizedMatricule = String(matricule).trim();
   console.log('matricule:', normalizedMatricule, typeof normalizedMatricule);
   if (await db.users.get(normalizedMatricule) || (await db.astronauts.toArray()).some((profile) => (profile.matricule ?? profile.id) === normalizedMatricule && profile.id !== 'astro-01')) throw new Error('Ce matricule est déjà enregistré, veuillez vous connecter.');
-  const user: Astronaut = { id: normalizedMatricule, matricule: normalizedMatricule, name: name.trim(), age: 0, sex: 'male', weightKg: 0, mission, createdAt: new Date().toISOString(), profileComplete: false, missionDay: 1 };
+  const user: Astronaut = { id: normalizedMatricule, matricule: normalizedMatricule, name: name.trim(), age: 0, sex: 'male', weightKg: 0, mission, createdAt: new Date().toISOString(), profileComplete: false };
   await db.transaction('rw', db.users, db.astronauts, async () => { await db.users.add(user); await db.astronauts.put(user); });
   startSession(user.matricule!);
   return user;
