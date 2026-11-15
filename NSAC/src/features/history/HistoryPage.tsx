@@ -73,6 +73,7 @@ export const HistoryPage: React.FC = () => {
       minNorm: number;
       maxNorm: number;
       yDomain: [number, number];
+      forecastable: boolean;
     }
   >> = {
     glucose: {
@@ -81,7 +82,8 @@ export const HistoryPage: React.FC = () => {
       fallbackBaseline: 85,
       minNorm: 70,
       maxNorm: 100,
-      yDomain: [60, 140]
+      yDomain: [60, 140],
+      forecastable: true
     },
     boneLoss: {
       labelKey: 'history.metrics.boneLoss',
@@ -89,7 +91,8 @@ export const HistoryPage: React.FC = () => {
       fallbackBaseline: 2.1,
       minNorm: 0,
       maxNorm: 4.5,
-      yDomain: [0, 8]
+      yDomain: [0, 8],
+      forecastable: true
     },
     sleep: {
       labelKey: 'history.metrics.sleep',
@@ -97,7 +100,8 @@ export const HistoryPage: React.FC = () => {
       fallbackBaseline: 7.5,
       minNorm: 7.0,
       maxNorm: 9.0,
-      yDomain: [4, 11]
+      yDomain: [4, 11],
+      forecastable: true
     },
     mood: {
       labelKey: 'history.metrics.mood',
@@ -105,7 +109,8 @@ export const HistoryPage: React.FC = () => {
       fallbackBaseline: 76,
       minNorm: 68,
       maxNorm: 100,
-      yDomain: [20, 100]
+      yDomain: [20, 100],
+      forecastable: true
     },
     stress: {
       labelKey: 'history.metrics.stress',
@@ -133,7 +138,7 @@ export const HistoryPage: React.FC = () => {
   const currentConfig = METRIC_CONFIGS[selectedMetric]!;
 
   // Build real time series and forecasts
-  const { chartData, personalBaseline, forecastSummary } = useMemo(() => {
+  const { chartData, personalBaseline, forecastSummary, hasData } = useMemo(() => {
     const now = Date.now();
     const rangeMs = timeRange * 24 * 60 * 60 * 1000;
     const startTs = now - rangeMs;
@@ -291,7 +296,7 @@ export const HistoryPage: React.FC = () => {
     // Connect the last historical point to the forecast trajectory
     const forecastPoints: any[] = [];
     const stepCount = 5;
-    for (let step = 1; step <= stepCount; step++) {
+    for (let step = 1; currentConfig.forecastable && step <= stepCount; step++) {
       const dayOffset = Math.round((step / stepCount) * 7);
       const interpVal = Math.round((latestVal + (predVal - latestVal) * (step / stepCount)) * 10) / 10;
       const interpLow = Math.round((latestVal + (predLow - latestVal) * (step / stepCount)) * 10) / 10;
@@ -310,6 +315,7 @@ export const HistoryPage: React.FC = () => {
     return {
       chartData: [...historicalData, ...forecastPoints],
       personalBaseline: computedBaseline,
+      hasData: rawPoints.length > 0,
       forecastSummary: {
         val: predVal,
         low: predLow,
@@ -401,7 +407,7 @@ export const HistoryPage: React.FC = () => {
               </span>
             </div>
             <p className="text-xs text-slate-muted mt-1">
-              {t('history.forecastNotice')}
+              {currentConfig.forecastable ? t('history.forecastNotice') : t('history.cognitiveNotice')}
             </p>
           </div>
 
@@ -432,12 +438,14 @@ export const HistoryPage: React.FC = () => {
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData} margin={{ top: 12, right: 12, left: -10, bottom: 4 }}>
               {/* Discrete optimal physiological range reference area */}
-              <ReferenceArea
-                y1={currentConfig.minNorm}
-                y2={currentConfig.maxNorm}
-                fill="#2E9E6B"
-                fillOpacity={0.07}
-              />
+              {currentConfig.forecastable && (
+                <ReferenceArea
+                  y1={currentConfig.minNorm}
+                  y2={currentConfig.maxNorm}
+                  fill="#2E9E6B"
+                  fillOpacity={0.07}
+                />
+              )}
 
               <XAxis dataKey="date" stroke="#94A3B8" fontSize={12} tickLine={false} />
               <YAxis domain={currentConfig.yDomain} stroke="#94A3B8" fontSize={12} tickLine={false} />
@@ -500,42 +508,50 @@ export const HistoryPage: React.FC = () => {
               />
 
               {/* Dotted 7-day forecast line */}
-              <Line
-                type="monotone"
-                dataKey="prevision"
-                stroke="#2A9D8F"
-                strokeWidth={2.5}
-                strokeDasharray="5 5"
-                dot={{ r: 3, fill: '#2A9D8F' }}
-                connectNulls={false}
-              />
+              {currentConfig.forecastable && (
+                <Line
+                  type="monotone"
+                  dataKey="prevision"
+                  stroke="#2A9D8F"
+                  strokeWidth={2.5}
+                  strokeDasharray="5 5"
+                  dot={{ r: 3, fill: '#2A9D8F' }}
+                  connectNulls={false}
+                />
+              )}
 
               {/* Upper forecast bound */}
-              <Line
-                type="monotone"
-                dataKey="borneHaute"
-                stroke="#2A9D8F"
-                strokeWidth={1}
-                strokeDasharray="2 2"
-                strokeOpacity={0.4}
-                dot={false}
-              />
+              {currentConfig.forecastable && (
+                <Line
+                  type="monotone"
+                  dataKey="borneHaute"
+                  stroke="#2A9D8F"
+                  strokeWidth={1}
+                  strokeDasharray="2 2"
+                  strokeOpacity={0.4}
+                  dot={false}
+                />
+              )}
 
               {/* Lower forecast bound */}
-              <Line
-                type="monotone"
-                dataKey="borneBasse"
-                stroke="#2A9D8F"
-                strokeWidth={1}
-                strokeDasharray="2 2"
-                strokeOpacity={0.4}
-                dot={false}
-              />
+              {currentConfig.forecastable && (
+                <Line
+                  type="monotone"
+                  dataKey="borneBasse"
+                  stroke="#2A9D8F"
+                  strokeWidth={1}
+                  strokeDasharray="2 2"
+                  strokeOpacity={0.4}
+                  dot={false}
+                />
+              )}
             </LineChart>
           </ResponsiveContainer>
+          )}
         </div>
 
         {/* Prediction summary callout under graph */}
+        {currentConfig.forecastable && (
         <div className="p-4 rounded-xl bg-surface border border-slate-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm">
           <div>
             <div className="text-xs font-semibold uppercase tracking-wider text-slate-muted">
@@ -554,6 +570,7 @@ export const HistoryPage: React.FC = () => {
             </p>
           )}
         </div>
+        )}
       </section>
     </div>
   );
