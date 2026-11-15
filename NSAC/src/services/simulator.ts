@@ -1,303 +1,199 @@
 import { db } from '../db';
-import type {
-  Astronaut,
-  Measurement,
-  SleepLog,
-  PsychAssessment,
-  ActivityEvent,
-} from '../types';
-import { DEFAULT_AVATAR_SILHOUETTE, ENVIRONMENT_COMM_DELAYS } from './profile';
+import type { ActivityEvent, Astronaut, Measurement, PsychAssessment, SleepLog } from '../types';
 import { BODY_MEASURE_FIELDS, validateBodyMeasureValues, type BodyMeasureKey } from '../engine/config/bodyMeasures';
 import { calculatePsychScore, evaluatePsychStatus } from '../engine/scores/psych';
-import { computePsychSleepQuality, computeSleepQuality } from '../engine/scores/sleep';
-import { createMentalStateData } from '../features/mental/mentalState';
+import { computePsychSleepQuality } from '../engine/scores/sleep';
+import { createMentalStateData, validate_mental_state } from '../features/mental/mentalState';
+import { CURRENT_USER_ID } from '../config/currentUser';
+import { DEFAULT_AVATAR_SILHOUETTE, ENVIRONMENT_COMM_DELAYS } from './profile';
 
-export const DEMO_ACCOUNT_IDS = Array.from({ length: 10 }, (_, index) => `AST-${String(index + 1).padStart(4, '0')}`);
+const KNOWN_LEGACY_SEED_IDS = Array.from({ length: 10 }, (_, index) => `AST-${String(index + 1).padStart(4, '0')}`);
+const LEGACY_DEMO_NAMES = new Set(['Maëlys Virelande', 'Idriss Solmaren', 'Noura Cendrelune', 'Sacha Orvélis', 'Elian Brumeciel', 'Yuna Valombre', 'Téo Mirastel', 'Liora Destenac', 'Kamil Asterive', 'Ilyana Rovelune']);
+const DAY_MS = 24 * 60 * 60 * 1000;
+export const DEMO_HISTORY_DAYS = 60;
+export const DEMO_REFRESH_AGE_HOURS = 24;
 
-export function shouldAutoSeedFictionalCrew(enabled: boolean, existingDemoAccountCount: number, force = false): boolean {
-  return enabled && (force || existingDemoAccountCount === 0);
+export function isLegacyFictionalProfile(profile: Astronaut | undefined): boolean {
+  return Boolean(profile && KNOWN_LEGACY_SEED_IDS.includes(profile.id) && LEGACY_DEMO_NAMES.has(profile.name));
 }
 
-/** Remove only records owned by the ten known fictional crew accounts. */
-export async function resetFictionalCrew(): Promise<void> {
-  await db.transaction('rw', [
-    db.users, db.astronauts, db.measurements, db.sleepLogs, db.psychAssessments,
-    db.activityEvents, db.boneDensityRecords, db.labResults, db.reports
-  ], async () => {
-    await db.users.where('matricule').anyOf(DEMO_ACCOUNT_IDS).delete();
-    await db.astronauts.bulkDelete(DEMO_ACCOUNT_IDS);
-    for (const table of [
-      db.measurements, db.sleepLogs, db.psychAssessments, db.activityEvents,
-      db.boneDensityRecords, db.labResults, db.reports
-    ]) {
-      await table.where('astronautId').anyOf(DEMO_ACCOUNT_IDS).delete();
-    }
-  });
+export function shouldAutoSeedFictionalCrew(enabled: boolean, profileExists: boolean, newestDemoTimestamp: number | undefined, now = Date.now(), force = false): boolean {
+  if (!enabled) return false;
+  if (force) return true;
+  if (!profileExists || newestDemoTimestamp === undefined) return true;
+  return now - newestDemoTimestamp >= DEMO_REFRESH_AGE_HOURS * 60 * 60 * 1000;
 }
 
-/** Seed a stable, entirely fictional multi-crew dataset without clearing existing app data. */
-export async function seedFictionalCrew(options: { reset?: boolean } = {}): Promise<{ astronauts: number; measurements: number; sleepLogs: number; assessments: number; activityEvents: number }> {
-  if (options.reset) await resetFictionalCrew();
-  const now = new Date();
-  const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-  const crew = [
-    { id: 'AST-0001', name: 'Maëlys Virelande', age: 34, sex: 'female' as const, heightCm: 168, weightKg: 61, mission: 'station' as const, launch: '2026-10-01', days: 45, mode: 'steady' },
-    { id: 'AST-0002', name: 'Idriss Solmaren', age: 42, sex: 'male' as const, heightCm: 181, weightKg: 79, mission: 'station' as const, launch: '2026-10-01', days: 36, mode: 'fatigue' },
-    { id: 'AST-0003', name: 'Noura Cendrelune', age: 31, sex: 'female' as const, heightCm: 172, weightKg: 64, mission: 'spacecraft' as const, launch: '2026-10-18', days: 30, mode: 'steady' },
-    { id: 'AST-0004', name: 'Sacha Orvélis', age: 47, sex: 'male' as const, heightCm: 176, weightKg: 83, mission: 'spacecraft' as const, launch: '2026-10-18', days: 21, mode: 'isolation' },
-    { id: 'AST-0005', name: 'Elian Brumeciel', age: 38, sex: 'male' as const, heightCm: 188, weightKg: 86, mission: 'lunar_base' as const, launch: '2026-10-28', days: 14, mode: 'steady' },
-    { id: 'AST-0006', name: 'Yuna Valombre', age: 29, sex: 'female' as const, heightCm: 164, weightKg: 56, mission: 'lunar_base' as const, launch: '2026-10-28', days: 9, mode: 'adaptation' },
-    { id: 'AST-0007', name: 'Téo Mirastel', age: 52, sex: 'male' as const, heightCm: 174, weightKg: 75, mission: 'mars_rover' as const, launch: '2026-11-04', days: 6, mode: 'steady' },
-    { id: 'AST-0008', name: 'Liora Destenac', age: 36, sex: 'female' as const, heightCm: 179, weightKg: 68, mission: 'mars_rover' as const, launch: '2026-11-04', days: 3, mode: 'steady' },
-    { id: 'AST-0009', name: 'Kamil Asterive', age: 40, sex: 'male' as const, heightCm: 183, weightKg: 81, mission: 'spacecraft' as const, launch: '2026-11-12', days: 1, mode: 'steady' },
-    { id: 'AST-0010', name: 'Ilyana Rovelune', age: 33, sex: 'female' as const, heightCm: 170, weightKg: 59, mission: 'station' as const, launch: '2026-11-15', days: 5, mode: 'steady', incomplete: true }
-  ];
+function seededNoise(day: number, channel: number): number {
+  const raw = Math.sin((day + 1) * 78.233 + (channel + 17) * 17.719 + 2026) * 43758.5453;
+  return (raw - Math.floor(raw)) * 2 - 1;
+}
 
-  const tables = { astronauts: [] as Astronaut[], measurements: [] as Measurement[], sleepLogs: [] as SleepLog[], psychAssessments: [] as PsychAssessment[], activityEvents: [] as ActivityEvent[] };
+function isoDate(epoch: number): string { return new Date(epoch).toISOString().slice(0, 10); }
+
+function deleteByIds<T extends { id: string }>(table: { bulkDelete(keys: string[]): Promise<unknown> }, rows: T[], predicate: (row: T) => boolean) {
+  const ids = rows.filter(predicate).map((row) => row.id);
+  return ids.length ? table.bulkDelete(ids) : Promise.resolve();
+}
+
+/** Replace only generated rows; manually entered measurements and tests stay untouched. */
+export async function seedFictionalCrew(options: { now?: Date; reset?: boolean } = {}): Promise<{ astronauts: number; measurements: number; sleepLogs: number; assessments: number; activityEvents: number; startDate: string; endDate: string }> {
+  const now = options.now ?? new Date();
+  const nowMs = now.getTime();
+  const todayEpoch = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  const startDate = isoDate(todayEpoch - (DEMO_HISTORY_DAYS - 1) * DAY_MS);
+  const endDate = isoDate(todayEpoch);
+  const knownDemoIds = new Set(KNOWN_LEGACY_SEED_IDS);
+  const oldProfiles = await db.astronauts.toArray();
+  const oldUsers = await db.users.toArray();
+  const rawCurrent = oldProfiles.find((profile) => profile.id === CURRENT_USER_ID);
+  const rawCurrentUser = oldUsers.find((user) => (user.matricule ?? user.id) === CURRENT_USER_ID);
+  const currentIsLegacySeed = Boolean((rawCurrent && LEGACY_DEMO_NAMES.has(rawCurrent.name)) || (rawCurrentUser && LEGACY_DEMO_NAMES.has(rawCurrentUser.name)));
+  if ((rawCurrent && rawCurrent.demo !== true && !currentIsLegacySeed) || (rawCurrentUser && rawCurrentUser.demo !== true && !currentIsLegacySeed)) throw new Error(`Le profil ${CURRENT_USER_ID} n’est pas une donnée générée ; le seed s’arrête sans le modifier.`);
+  const current = rawCurrent?.demo === true ? rawCurrent : undefined;
+  const legacyProfileIds = new Set(oldProfiles.filter((profile) => knownDemoIds.has(profile.id) && (profile.demo === true || LEGACY_DEMO_NAMES.has(profile.name))).map((profile) => profile.id));
+  if (currentIsLegacySeed) legacyProfileIds.add(CURRENT_USER_ID);
+  const legacyUserIds = new Set(oldUsers.filter((user) => knownDemoIds.has(user.matricule ?? user.id) && (user.demo === true || LEGACY_DEMO_NAMES.has(user.name))).map((user) => user.matricule ?? user.id));
+
+  const [oldMeasurements, oldSleeps, oldAssessments, oldEvents] = await Promise.all([
+    db.measurements.toArray(), db.sleepLogs.toArray(), db.psychAssessments.toArray(), db.activityEvents.toArray()
+  ]);
   const unitByMetric = new Map(BODY_MEASURE_FIELDS.map((field) => [field.metric, field.unit]));
-  const valueFor = (metric: string, day: number, seed: number, mode: string, dailyDose: number, cumulative: number): number => {
-    const n = Math.sin((seed + 3) * 19.17 + day * 7.31) * 10000;
-    const noise = n - Math.floor(n);
-    const wobble = (noise - 0.5);
-    const stress = mode === 'fatigue' && day >= 30 ? 1 : mode === 'isolation' && day >= 12 ? 1 : 0;
-    const adaptation = mode === 'adaptation' && day >= 4 ? -1 : 0;
-    const values: Record<string, number> = {
-      boneZScore: Math.max(-1.5, 0.25 - day * 0.012 + wobble * 0.1),
-      muscleStrengthLoss: Math.min(18, Math.max(0, day * 0.11 + wobble * 1.2)),
-      heartRate: 67 + stress * 8 + adaptation * 2 + wobble * 7,
-      bpSys: 116 + stress * 7 + wobble * 7,
-      bpDia: 74 + stress * 4 + wobble * 5,
-      spo2: 97.5 + wobble * 1.8,
-      radiationDoseDaily: dailyDose,
-      radiationDose: cumulative,
-      intraocularPressure: 15.5 + day * 0.012 + wobble * 1.6,
-      temperature: 36.7 + stress * 0.15 + wobble * 0.3,
-      urineSpecificGravity: 1.014 + (mode === 'fatigue' ? 0.004 : 0) + wobble * 0.006,
-      co2PartialPressure: 2.4 + (mode === 'isolation' ? 0.35 : 0) + wobble * 0.55,
-      fastingGlucose: 0.88 + stress * 0.1 + wobble * 0.12
-    };
-    const value = values[metric] ?? 0;
-    return metric === 'urineSpecificGravity' ? Number(value.toFixed(3)) : Number(value.toFixed(1));
+  const measurements: Measurement[] = [];
+  const sleepLogs: SleepLog[] = [];
+  const psychAssessments: PsychAssessment[] = [];
+  const activityEvents: ActivityEvent[] = [];
+  const previousNights: SleepLog[] = [];
+  let cumulativeDose = 0;
+
+  const missionStartDate = current?.missionStartDate ?? startDate;
+  const missionStartEpoch = Date.parse(`${missionStartDate}T00:00:00Z`);
+  const profile: Astronaut = {
+    ...(current ?? {} as Astronaut),
+    id: CURRENT_USER_ID, matricule: CURRENT_USER_ID,
+    name: current?.name ?? 'Ariane Solenne', age: current?.age ?? 36, sex: current?.sex ?? 'female',
+    heightCm: current?.heightCm ?? 171, weightKg: current?.weightKg ?? 64,
+    mission: current?.mission ?? 'station', missionName: 'Aurora-7',
+    missionStartDate, missionDay: Math.max(1, Math.floor((todayEpoch - missionStartEpoch) / DAY_MS) + 1),
+    photo: current?.photo ?? DEFAULT_AVATAR_SILHOUETTE,
+    careerRadiationDose: current?.careerRadiationDose ?? 52,
+    baselineBoneDensity: current?.baselineBoneDensity ?? { total_hip: 1.02, lumbar_spine: 1.12, femoral_neck: 0.96 },
+    bloodGlucoseUnit: current?.bloodGlucoseUnit ?? 'mg/dL',
+    commDelayMinutes: current?.commDelayMinutes ?? ENVIRONMENT_COMM_DELAYS.station.nominalMin,
+    demo: true,
+    createdAt: current?.createdAt ?? new Date(missionStartEpoch).toISOString()
   };
 
-  for (let crewIndex = 0; crewIndex < crew.length; crewIndex++) {
-    const person = crew[crewIndex];
-    const missionStart = new Date(`${person.launch}T00:00:00Z`).getTime();
-    const missionDay = Math.max(1, Math.floor((today.getTime() - missionStart) / 86400000) + 1);
-    const profile: Astronaut = {
-      id: person.id, matricule: person.id, name: person.name, age: person.age, sex: person.sex,
-      heightCm: person.heightCm, weightKg: person.weightKg, mission: person.mission,
-      photo: DEFAULT_AVATAR_SILHOUETTE, careerRadiationDose: 48 + crewIndex * 13,
-      baselineBoneDensity: { total_hip: 1.01 + crewIndex * 0.006, lumbar_spine: 1.14 + crewIndex * 0.005, femoral_neck: 0.94 + crewIndex * 0.004 },
-      bloodGlucoseUnit: 'mg/dL', commDelayMinutes: ENVIRONMENT_COMM_DELAYS[person.mission].nominalMin,
-      missionDay, createdAt: new Date(today.getTime() - (person.days - 1) * 86400000).toISOString(),
-      profileComplete: !person.incomplete
+  for (let day = 0; day < DEMO_HISTORY_DAYS; day++) {
+    const dateEpoch = todayEpoch - (DEMO_HISTORY_DAYS - 1 - day) * DAY_MS;
+    const date = isoDate(dateEpoch);
+    const nightHours = [31, 32, 46].includes(day) ? 5.4 + (day % 2) * 0.4 : 7.1 + ((day * 7) % 9) * 0.12;
+    const bedtimeMinutes = 22 * 60 + 25 + ((day * 17) % 75);
+    const bedtime = `${String(Math.floor(bedtimeMinutes / 60)).padStart(2, '0')}:${String(bedtimeMinutes % 60).padStart(2, '0')}`;
+    const poorSleep = nightHours < 6;
+    const sleep: SleepLog = {
+      id: `demo-sleep-${CURRENT_USER_ID}-j${String(day).padStart(2, '0')}`,
+      astronautId: CURRENT_USER_ID, date, demo: true,
+      hours: Number(nightHours.toFixed(1)), bedtime,
+      latencyBucket: poorSleep ? '30-60' : (day % 4 === 0 ? '15-30' : '<15'),
+      awakenings: poorSleep ? 3 : day % 11 === 0 ? 2 : day % 3,
+      restfulness: poorSleep ? 2 : 3 + (day % 3)
     };
-    tables.astronauts.push(profile);
+    sleep.calculatedQuality = computePsychSleepQuality(sleep, previousNights.slice(-7));
+    sleepLogs.push(sleep);
+    previousNights.push(sleep);
 
-    let cumulative = 8 + crewIndex * 2;
-    const daysToGenerate = person.days;
-    for (let age = daysToGenerate - 1; age >= 0; age--) {
-      // Crew member 9 is the requested one-measure account registered today.
-      if (person.id === 'AST-0009') {
-        const date = today.toISOString().slice(0, 10);
-        tables.measurements.push({ id: `${person.id}-only-reading`, astronautId: person.id, metric: 'heartRate', value: 68, unit: 'bpm', timestamp: today.getTime() + 8 * 3600000, source: 'simulated' });
-        tables.activityEvents.push({ id: `${person.id}-only-event`, astronautId: person.id, date, type: 'measurement' });
-        break;
-      }
-      const dateObj = new Date(today.getTime() - age * 86400000);
-      const date = dateObj.toISOString().slice(0, 10);
-      const dayIndex = daysToGenerate - age;
-      // A few realistic gaps. The last day is retained except for the one-reading account above.
-      const skipped = age !== 0 && (dayIndex + crewIndex * 2) % 13 === 0;
-      if (skipped) continue;
-      const mode = person.mode;
-      const dailyDose = Number(({ station: 0.6, spacecraft: 1.8, lunar_base: 1.4, mars_rover: 0.6 }[person.mission] * (0.86 + ((crewIndex + dayIndex) % 5) * 0.07)).toFixed(2));
-      cumulative = Number((cumulative + dailyDose).toFixed(2));
+    const dailyDose = Number((0.3 + (seededNoise(day, 1) + 1) * 0.3).toFixed(2));
+    cumulativeDose = Number((cumulativeDose + dailyDose).toFixed(2));
+    const dehydrated = day === 39;
+    const body: Partial<Record<BodyMeasureKey, number>> = {
+      Bone_ZScore: Number((0.12 - day * 0.0038 + seededNoise(day, 2) * 0.035).toFixed(2)),
+      Muscle_Strength_Loss: Number((Math.max(0, day * 0.045 + seededNoise(day, 3) * 0.5)).toFixed(1)),
+      Heart_Rate: Number(([23, 49].includes(day) ? 109 + seededNoise(day, 4) * 2 : poorSleep || dehydrated ? 98 + seededNoise(day, 4) * 3 : 71 + seededNoise(day, 4) * 7).toFixed(0)),
+      Systolic_BP: Number((poorSleep ? 132 : 116 + seededNoise(day, 5) * 6).toFixed(0)),
+      Diastolic_BP: Number((poorSleep ? 86 : 74 + seededNoise(day, 6) * 5).toFixed(0)),
+      SpO2: Number((97.5 + seededNoise(day, 7) * 1.2).toFixed(1)),
+      Radiation_Dose_Daily: dailyDose,
+      Radiation_Dose_Cumulative: cumulativeDose,
+      Intraocular_Pressure: Number((15.5 + day * 0.004 + seededNoise(day, 8) * 1.2).toFixed(1)),
+      Body_Temperature: Number((poorSleep || dehydrated ? 37.3 : 36.7 + seededNoise(day, 9) * 0.22).toFixed(1)),
+      Urine_Specific_Gravity: Number(((day === 39 ? 1.031 : 1.014 + seededNoise(day, 10) * 0.004)).toFixed(3)),
+      CO2_Partial_Pressure: Number((2.4 + seededNoise(day, 11) * 0.35).toFixed(1)),
+      Fasting_Glucose: Number((0.88 + seededNoise(day, 12) * 0.08).toFixed(2))
+    };
+    if (day !== DEMO_HISTORY_DAYS - 1) {
+      if (day % 12 === 4) delete body.CO2_Partial_Pressure;
+      if (day % 15 === 8) delete body.Intraocular_Pressure;
+    }
+    validateBodyMeasureValues(body);
+    const todayHour = Math.min(now.getUTCHours(), 8);
+    BODY_MEASURE_FIELDS.forEach((field, channel) => {
+      const value = body[field.key];
+      if (value === undefined) return;
+      const timestamp = day === DEMO_HISTORY_DAYS - 1 ? Math.min(nowMs, dateEpoch + todayHour * 60 * 60 * 1000) - channel * 1000 : dateEpoch + (6 + (channel % 4)) * 60 * 60 * 1000;
+      measurements.push({
+        id: `demo-measure-${CURRENT_USER_ID}-j${String(day).padStart(2, '0')}-${field.metric}`,
+        astronautId: CURRENT_USER_ID, metric: field.metric, value, unit: unitByMetric.get(field.metric)!, timestamp, source: 'simulated', demo: true
+      });
+    });
+    const cognitiveValues = [
+      { metric: 'reactionTime' as const, value: Number((poorSleep ? 332 : 245 + seededNoise(day, 13) * 22).toFixed(0)), unit: 'ms', skip: day !== DEMO_HISTORY_DAYS - 1 && day % 12 === 4 },
+      { metric: 'orientationAccuracy' as const, value: Number((poorSleep ? 82 : 95 + seededNoise(day, 14) * 3).toFixed(0)), unit: '%', skip: day !== DEMO_HISTORY_DAYS - 1 && day % 10 === 7 }
+    ];
+    cognitiveValues.forEach(({ metric, value, unit, skip }, index) => {
+      if (skip) return;
+      const timestamp = day === DEMO_HISTORY_DAYS - 1 ? Math.min(nowMs, dateEpoch + todayHour * 60 * 60 * 1000) - (BODY_MEASURE_FIELDS.length + index) * 1000 : dateEpoch + 12 * 60 * 60 * 1000 + index * 1000;
+      measurements.push({ id: `demo-measure-${CURRENT_USER_ID}-j${String(day).padStart(2, '0')}-${metric}`, astronautId: CURRENT_USER_ID, metric, value, unit, timestamp, source: 'simulated', demo: true });
+    });
 
-      const bedtimeMinute = 22 * 60 + 25 + ((dayIndex * 17 + crewIndex * 11) % 95);
-      const bedtime = `${String(Math.floor(bedtimeMinute / 60) % 24).padStart(2, '0')}:${String(bedtimeMinute % 60).padStart(2, '0')}`;
-      const poorSleep = (mode === 'fatigue' && age < 9) || (mode === 'isolation' && age < 6);
-      const sleep: SleepLog = {
-        id: `sleep-${person.id}-${date}`, astronautId: person.id, date,
-        hours: Number((poorSleep ? 5.4 + ((crewIndex + dayIndex) % 4) * 0.35 : 7.1 + ((crewIndex + dayIndex) % 5) * 0.32).toFixed(1)),
-        bedtime, latencyBucket: poorSleep ? (dayIndex % 2 ? '30-60' : '15-30') : (dayIndex % 4 === 0 ? '15-30' : '<15'),
-        awakenings: poorSleep ? 2 + (dayIndex % 2) : dayIndex % 5 === 0 ? 2 : dayIndex % 2,
-        restfulness: poorSleep ? 2 : 3 + ((dayIndex + crewIndex) % 3)
-      };
-      const previousNights = tables.sleepLogs.filter((log) => log.astronautId === person.id && log.date >= new Date(dateObj.getTime() - 6 * 86400000).toISOString().slice(0, 10));
-      sleep.calculatedQuality = computeSleepQuality(sleep, previousNights);
-      tables.sleepLogs.push(sleep);
+    activityEvents.push({ id: `demo-activity-${CURRENT_USER_ID}-j${String(day).padStart(2, '0')}`, astronautId: CURRENT_USER_ID, date, type: 'measurement', demo: true });
 
-      const physical: Partial<Record<BodyMeasureKey, number>> = {};
-      // Leave one or two channels absent on selected days; systolic and diastolic stay paired.
-      const missingGroup = (dayIndex + crewIndex) % 4;
-      for (const field of BODY_MEASURE_FIELDS) {
-        const group = field.metric === 'bpSys' || field.metric === 'bpDia' ? 1 : field.metric === 'radiationDoseDaily' || field.metric === 'radiationDose' ? 2 : field.metric === 'co2PartialPressure' ? 3 : 0;
-        if ((missingGroup === 1 && group === 3) || (missingGroup === 2 && group === 2) || (missingGroup === 3 && field.metric === 'intraocularPressure')) continue;
-        physical[field.key] = valueFor(field.metric, dayIndex, crewIndex, mode, dailyDose, cumulative);
-      }
-      validateBodyMeasureValues(physical);
-      for (const field of BODY_MEASURE_FIELDS) {
-        const value = physical[field.key];
-        if (value === undefined) continue;
-        const hour = field.metric === 'fastingGlucose' ? 6 : field.metric === 'radiationDose' ? 20 : field.metric === 'temperature' ? 9 : 8;
-        tables.measurements.push({ id: `m-${person.id}-${date}-${field.metric}`, astronautId: person.id, metric: field.metric, value, unit: unitByMetric.get(field.metric)!, timestamp: dateObj.getTime() + hour * 3600000, source: 'simulated' });
-      }
-
-      tables.activityEvents.push({ id: `act-${person.id}-${date}`, astronautId: person.id, date, type: 'measurement' });
-
-      // A brief self-assessment every third day; sleep quality always comes from the score engine.
-      if (dayIndex % 3 === 1 || age === 0) {
-        const strained = poorSleep || (mode === 'isolation' && age < 9);
-        const happiness = strained ? 4 + ((crewIndex + dayIndex) % 3) : 7 + ((crewIndex + dayIndex) % 4);
-        const psychAnswers = strained ? [2, 2, 3, 2, 3] : [3, 4, 4, 4, 4];
-        const psychScore = calculatePsychScore(psychAnswers);
-        const status = evaluatePsychStatus(psychScore).status;
-        const mental = createMentalStateData({
-          Stress_level: strained ? 'High' : 'Low', Happiness: happiness,
-          Mood_Score: strained ? 'negative' : 'positive',
-          'Workload Perception': strained ? 'impossible' : 'possible',
-          Time_Perception: strained ? 'Fast' : 'Normal', Food: dayIndex % 5 === 0 ? 'Neutral' : 'Good',
-          Communication_with_Earth_mins: person.mission === 'station' ? 0.02 : person.mission === 'spacecraft' ? 5 + crewIndex : 1.5
-        }, computePsychSleepQuality(sleep, previousNights));
-        tables.psychAssessments.push({ id: `psych-${person.id}-${date}`, astronautId: person.id, date, answers: psychAnswers, score: psychScore, status, mentalStateData: mental });
-      }
+    if (day % 3 === 0 || day === DEMO_HISTORY_DAYS - 1) {
+      const previousNight = day > 0 ? sleepLogs[day - 1] : sleep;
+      const strained = previousNight.hours < 6 || dehydrated;
+      const communicationHours = day >= 35 && day <= 37 ? 0.1 : 1.5 + (day % 4) * 0.35;
+      const answers = strained ? [2, 2, 2, 2, 2] : [4, 4, 4, 4, 4];
+      const score = calculatePsychScore(answers);
+      const mental = createMentalStateData({
+        Stress_level: strained ? 'High' : day % 5 === 0 ? 'Medium' : 'Low',
+        Happiness: strained ? 4 : communicationHours < 0.2 ? 6 : 8 + (day % 3),
+        Mood_Score: strained ? 'negative' : communicationHours < 0.2 ? 'neutral' : 'positive',
+        'Workload Perception': strained ? 'impossible' : 'possible',
+        Time_Perception: strained ? 'Fast' : 'Normal', Food: day % 7 === 0 ? 'Neutral' : 'Good',
+        Communication_with_Earth_mins: communicationHours
+        }, sleep.calculatedQuality!);
+      validate_mental_state(mental, { sleepQualityCalculated: true });
+      psychAssessments.push({ id: `demo-psych-${CURRENT_USER_ID}-j${String(day).padStart(2, '0')}`, astronautId: CURRENT_USER_ID, date, answers, score, status: evaluatePsychStatus(score).status, mentalStateData: mental, demo: true });
     }
   }
 
+  const legacyMeasurements = oldMeasurements.filter((row) => knownDemoIds.has(row.astronautId));
+  const legacySleeps = oldSleeps.filter((row) => knownDemoIds.has(row.astronautId));
+  const legacyAssessments = oldAssessments.filter((row) => knownDemoIds.has(row.astronautId));
+  const legacyEvents = oldEvents.filter((row) => knownDemoIds.has(row.astronautId));
   await db.transaction('rw', [db.users, db.astronauts, db.measurements, db.sleepLogs, db.psychAssessments, db.activityEvents], async () => {
-    for (const profile of tables.astronauts) {
-      await db.users.put(profile);
-      await db.astronauts.put(profile);
-    }
-<<<<<<< Updated upstream
-  ];
+    // Legacy fictional accounts were generated by the previous known AST-0001…AST-0010 seed.
+    await db.users.bulkDelete([...legacyUserIds]);
+    await db.astronauts.bulkDelete([...legacyProfileIds]);
+    await deleteByIds(db.measurements, legacyMeasurements, (row) => row.demo === true || (legacyProfileIds.has(row.astronautId) && (row.source === 'simulated' || row.id.startsWith('m-AST-'))));
+    await deleteByIds(db.sleepLogs, legacySleeps, (row) => row.demo === true || (legacyProfileIds.has(row.astronautId) && row.id.startsWith('sleep-AST-') && row.calculatedQuality !== undefined));
+    await deleteByIds(db.psychAssessments, legacyAssessments, (row) => row.demo === true || (legacyProfileIds.has(row.astronautId) && row.id.startsWith('psych-AST-')));
+    await deleteByIds(db.activityEvents, legacyEvents, (row) => row.demo === true || (legacyProfileIds.has(row.astronautId) && row.id.startsWith('act-AST-')));
 
-  await db.measurements.bulkPut(measurements);
-  await db.sleepLogs.bulkPut(sleepLogs);
-  await db.activityEvents.bulkPut(activityEvents);
-  await db.psychAssessments.bulkPut(psychAssessments);
-  await db.boneDensityRecords.bulkPut(boneRecords);
+    // Refresh this demo profile only. Manual records are outside these marker queries.
+    await db.measurements.where('astronautId').equals(CURRENT_USER_ID).filter((row) => row.demo === true).delete();
+    await db.sleepLogs.where('astronautId').equals(CURRENT_USER_ID).filter((row) => row.demo === true).delete();
+    await db.psychAssessments.where('astronautId').equals(CURRENT_USER_ID).filter((row) => row.demo === true).delete();
+    await db.activityEvents.where('astronautId').equals(CURRENT_USER_ID).filter((row) => row.demo === true).delete();
+    await db.astronauts.put(profile);
+    await db.users.put(profile);
+    await db.measurements.bulkPut(measurements);
+    await db.sleepLogs.bulkPut(sleepLogs);
+    await db.psychAssessments.bulkPut(psychAssessments);
+    await db.activityEvents.bulkPut(activityEvents);
+  });
+
+  return { astronauts: 1, measurements: measurements.length, sleepLogs: sleepLogs.length, assessments: psychAssessments.length, activityEvents: activityEvents.length, startDate, endDate };
 }
 
-/**
- * Simulates advancing time by 24 hours (1 mission day).
- * Appends new measurements, registers today's activity, and maintains trajectory continuity.
- */
-export async function advanceTime24h(
-  currentMissionDay: number,
-  scenario: DemoScenario = 'healthy'
-): Promise<{ nextMissionDay: number; newDateStr: string }> {
-  const nextMissionDay = currentMissionDay + 1;
-  const now = new Date();
-  const dateStr = now.toISOString().split('T')[0];
-  const timestamp = now.getTime();
-
-  // 1. Record measurement activity for the new day
-  const actId = `act-adv-${nextMissionDay}-${Date.now()}`;
-  await db.activityEvents.put({
-    id: actId,
-    astronautId: 'astro-01',
-    date: dateStr,
-    type: 'measurement'
-  });
-
-  // 2. Generate new day's readings according to the scenario
-  let hr = 70 + (Math.random() - 0.5) * 4;
-  let sys = 118 + (Math.random() - 0.5) * 4;
-  let dia = 76 + (Math.random() - 0.5) * 3;
-  let temp = 36.7 + (Math.random() - 0.5) * 0.2;
-  let glucose = 85 + (Math.random() - 0.5) * 6;
-  let sleepHours = 7.5;
-
-  if (scenario === 'fatigue') {
-    sleepHours = 4.2;
-    hr += 10;
-    sys += 8;
-    dia += 4;
-    temp += 0.3;
-    glucose += 12;
-  } else if (scenario === 'isolation') {
-    hr += 7;
-    sys += 6;
-  }
-
-  const newMeasurements: Measurement[] = [
-    {
-      id: `adv-hr-${nextMissionDay}`,
-      astronautId: 'astro-01',
-      metric: 'heartRate',
-      value: Math.round(hr),
-      unit: 'bpm',
-      timestamp: timestamp + 8 * 3600000,
-      source: 'simulated'
-    },
-    {
-      id: `adv-sys-${nextMissionDay}`,
-      astronautId: 'astro-01',
-      metric: 'bpSys',
-      value: Math.round(sys),
-      unit: 'mmHg',
-      timestamp: timestamp + 8 * 3600000,
-      source: 'simulated'
-    },
-    {
-      id: `adv-dia-${nextMissionDay}`,
-      astronautId: 'astro-01',
-      metric: 'bpDia',
-      value: Math.round(dia),
-      unit: 'mmHg',
-      timestamp: timestamp + 8 * 3600000,
-      source: 'simulated'
-    },
-    {
-      id: `adv-temp-${nextMissionDay}`,
-      astronautId: 'astro-01',
-      metric: 'temperature',
-      value: Math.round(temp * 10) / 10,
-      unit: '°C',
-      timestamp: timestamp + 9 * 3600000,
-      source: 'simulated'
-    },
-    {
-      id: `adv-glu-${nextMissionDay}`,
-      astronautId: 'astro-01',
-      metric: 'glucose',
-      value: Math.round(glucose),
-      unit: 'mg/dL',
-      timestamp: timestamp + 7 * 3600000,
-      source: 'simulated',
-      context: 'fasting'
-    }
-  ];
-
-  await db.measurements.bulkPut(newMeasurements);
-
-  await db.sleepLogs.put({
-    id: `adv-sleep-${nextMissionDay}`,
-    astronautId: 'astro-01',
-    date: dateStr,
-    hours: Math.round(sleepHours * 10) / 10,
-    bedtime: '23:30',
-    latencyBucket: sleepHours < 5 ? '30-60' : '<15',
-    awakenings: sleepHours < 5 ? 2 : 0,
-    restfulness: sleepHours < 5 ? 2 : 4
-  });
-
-  return { nextMissionDay, newDateStr: dateStr };
-=======
-    await db.measurements.bulkPut(tables.measurements);
-    await db.sleepLogs.bulkPut(tables.sleepLogs);
-    await db.psychAssessments.bulkPut(tables.psychAssessments);
-    await db.activityEvents.bulkPut(tables.activityEvents);
-  });
-
-  return {
-    astronauts: tables.astronauts.length, measurements: tables.measurements.length,
-    sleepLogs: tables.sleepLogs.length, assessments: tables.psychAssessments.length,
-    activityEvents: tables.activityEvents.length
-  };
->>>>>>> Stashed changes
-}
-
+export const seedLambdaData = seedFictionalCrew;

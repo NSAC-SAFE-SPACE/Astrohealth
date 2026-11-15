@@ -22,6 +22,16 @@ export interface MedicalReportRecord {
   reportJson: string;
 }
 
+export interface PredictionRecord {
+  id: string;
+  astronautId: string;
+  kind: 'body' | 'mental';
+  createdAt: number;
+  apiVersion?: string;
+  requestJson: string;
+  responseJson: string;
+}
+
 export class AstrohealthDatabase extends Dexie {
   measurements!: Table<Measurement, string>;
   sleepLogs!: Table<SleepLog, string>;
@@ -32,6 +42,7 @@ export class AstrohealthDatabase extends Dexie {
   astronauts!: Table<Astronaut, string>;
   users!: Table<Astronaut, string>;
   reports!: Table<MedicalReportRecord, string>;
+  predictionRecords!: Table<PredictionRecord, string>;
 
   constructor() {
     super('AstrohealthDB');
@@ -81,6 +92,13 @@ export class AstrohealthDatabase extends Dexie {
           assessment.mentalStateData = migrateLegacyMentalStateData(assessment.mentalStateData) as MentalStateData;
         }
       });
+    });
+    this.version(5).stores({
+      measurements: 'id, astronautId, metric, timestamp, source', sleepLogs: 'id, astronautId, date',
+      boneDensityRecords: 'id, astronautId, date, site, method, isBaseline', psychAssessments: 'id, astronautId, date, status',
+      activityEvents: 'id, astronautId, date, type', labResults: 'id, astronautId, analyte, date',
+      astronauts: 'id, matricule', users: '&matricule, id, name', reports: 'id, astronautId, generatedAt, status',
+      predictionRecords: 'id, astronautId, kind, createdAt'
     });
   }
 }

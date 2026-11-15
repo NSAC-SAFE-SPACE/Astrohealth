@@ -24,7 +24,9 @@ export type Metric =
   | 'intraocularPressure'
   | 'urineSpecificGravity'
   | 'co2PartialPressure'
-  | 'fastingGlucose';
+  | 'fastingGlucose'
+  | 'reactionTime'
+  | 'orientationAccuracy';
 
 export type Status = 'normal' | 'watch' | 'action' | 'contact_flight_surgeon';
 
@@ -63,6 +65,7 @@ export interface Measurement {
   source: 'manual' | 'simulated';
   context?: GlucoseContext | string;
   isPlausibilityAnomaly?: boolean;
+  demo?: boolean;
 }
 
 export interface Assessment {
@@ -92,6 +95,7 @@ export interface SleepLog {
   awakenings: number;
   restfulness: number; // 1 to 5
   calculatedQuality?: number;
+  demo?: boolean;
 }
 
 export interface BoneDensityRecord {
@@ -126,6 +130,7 @@ export interface PsychAssessment {
   timePerception?: number;
   communicationWithOthers?: number;
   mentalStateData?: MentalStateData;
+  demo?: boolean;
 }
 
 export interface MentalStateData {
@@ -143,7 +148,8 @@ export interface ActivityEvent {
   id: string;
   astronautId: string;
   date: string; // YYYY-MM-DD
-  type: 'login' | 'view' | 'measurement';
+  type: 'view' | 'measurement';
+  demo?: boolean;
 }
 
 export interface Pattern {
@@ -173,6 +179,8 @@ export interface Astronaut {
   weightKg: number;
   heightCm?: number;
   mission: MissionEnvironment;
+  missionName?: string;
+  missionStartDate?: string;
   photo?: string; // Data URL resized to 256px
   careerRadiationDose?: number; // mSv prior to current mission
   baselineBoneDensity?: Partial<Record<BoneSite, number>>;
@@ -180,7 +188,7 @@ export interface Astronaut {
   commDelayMinutes?: number;
   missionDay?: number;
   createdAt?: string;
-  profileComplete?: boolean;
+  demo?: boolean;
 }
 
 export interface ThresholdConfigItem {

@@ -8,12 +8,58 @@ export interface BaselineStats {
   n?: number;
 }
 
+interface ThresholdRange {
+  min?: number;
+  max?: number;
+  hypotension?: number;
+}
+
+interface MetricThresholds {
+  normal?: ThresholdRange;
+  watch?: ThresholdRange;
+  action?: ThresholdRange;
+  contact_flight_surgeon?: ThresholdRange;
+  criticalLow?: number;
+  criticalHigh?: number;
+  actionLow?: number;
+  actionHigh?: number;
+  unit?: string;
+}
+
 const STATUS_HIERARCHY: Status[] = ['normal', 'watch', 'action', 'contact_flight_surgeon'];
 
 export function escalateStatus(status: Status, levels: number = 1): Status {
   const currentIndex = STATUS_HIERARCHY.indexOf(status);
   const newIndex = Math.min(currentIndex + levels, STATUS_HIERARCHY.length - 1);
   return STATUS_HIERARCHY[newIndex];
+}
+
+function isWithinRange(value: number, range?: ThresholdRange): boolean {
+  if (!range) return false;
+  return value >= (range.min ?? Number.NEGATIVE_INFINITY) &&
+    value <= (range.max ?? Number.POSITIVE_INFINITY);
+}
+
+function reachesContactThreshold(value: number, thresholds: MetricThresholds): boolean {
+  const contact = thresholds.contact_flight_surgeon;
+  if (!contact) return false;
+
+  if (contact.hypotension !== undefined && value <= contact.hypotension) return true;
+
+  if (contact.min !== undefined && contact.max !== undefined) {
+    const normal = thresholds.normal;
+    const boundsSurroundNormal = normal?.min !== undefined &&
+      normal.max !== undefined &&
+      contact.min <= normal.min &&
+      contact.max >= normal.max;
+
+    return boundsSurroundNormal
+      ? value <= contact.min || value >= contact.max
+      : isWithinRange(value, contact);
+  }
+
+  return (contact.min !== undefined && value <= contact.min) ||
+    (contact.max !== undefined && value >= contact.max);
 }
 
 /**
@@ -63,42 +109,25 @@ export function assessMeasurement(
   const drivers: string[] = [];
 
   if (metricConfig) {
-    const { normal, watch, action, contact_flight_surgeon } = metricConfig;
-
-    // 1. Explicit critical boundaries
     if (metricConfig.criticalHigh !== undefined && value >= metricConfig.criticalHigh) {
       rawStatus = 'contact_flight_surgeon';
     } else if (metricConfig.criticalLow !== undefined && value <= metricConfig.criticalLow) {
       rawStatus = 'contact_flight_surgeon';
-    } else if (contact_flight_surgeon) {
-      if (contact_flight_surgeon.max !== undefined && value >= contact_flight_surgeon.max) {
-        rawStatus = 'contact_flight_surgeon';
-      } else if (contact_flight_surgeon.min !== undefined && value <= contact_flight_surgeon.min) {
-        rawStatus = 'contact_flight_surgeon';
-      } else if (contact_flight_surgeon.hypotension !== undefined && value <= contact_flight_surgeon.hypotension) {
-        rawStatus = 'contact_flight_surgeon';
-      }
-    }
-
-    if (rawStatus === 'normal') {
-      // 2. Normal check: if within nominal range, it's normal
-      if (normal && value >= normal.min && value <= normal.max) {
-        rawStatus = 'normal';
-      } else if (metricConfig.actionHigh !== undefined && value >= metricConfig.actionHigh) {
-        rawStatus = 'action';
-      } else if (metricConfig.actionLow !== undefined && value <= metricConfig.actionLow) {
-        rawStatus = 'action';
-      } else if (action && typeof action === 'object' && metricConfig.actionHigh === undefined) {
-        if (action.min !== undefined && action.max !== undefined && value >= action.min && value <= action.max) {
-          rawStatus = 'action';
-        } else if (watch && (value < watch.min || value > watch.max)) {
-          rawStatus = 'action';
-        } else {
-          rawStatus = 'watch';
-        }
-      } else {
-        rawStatus = 'watch';
-      }
+    } else if (reachesContactThreshold(value, metricConfig)) {
+      rawStatus = 'contact_flight_surgeon';
+    } else if (isWithinRange(value, metricConfig.normal)) {
+      rawStatus = 'normal';
+    } else if (
+      (metricConfig.actionLow !== undefined && value <= metricConfig.actionLow) ||
+      (metricConfig.actionHigh !== undefined && value >= metricConfig.actionHigh)
+    ) {
+      rawStatus = 'action';
+    } else if (isWithinRange(value, metricConfig.watch)) {
+      rawStatus = 'watch';
+    } else if (isWithinRange(value, metricConfig.action)) {
+      rawStatus = 'action';
+    } else if (metricConfig.watch || metricConfig.action) {
+      rawStatus = 'action';
     }
   }
 

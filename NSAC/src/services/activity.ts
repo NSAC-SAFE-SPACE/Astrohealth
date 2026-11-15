@@ -1,5 +1,6 @@
 import { db } from '../db';
 import type { ActivityEvent } from '../types';
+import { CURRENT_USER_ID } from '../config/currentUser';
 
 export type ActivityDayState = 0 | 1 | 2;
 
@@ -7,7 +8,7 @@ export interface ActivityDayInfo {
   date: string; // YYYY-MM-DD
   state: ActivityDayState;
   hasMeasurement: boolean;
-  hasViewOrLogin: boolean;
+  hasVisit: boolean;
   eventCount: number;
   measurementCount: number;
   daysAgo: number;
@@ -26,8 +27,8 @@ export interface ActivitySummary {
  * Logs an activity event to IndexedDB without blocking the UI.
  */
 export async function logActivityEvent(
-  type: 'login' | 'view' | 'measurement',
-  astronautId: string = 'astro-01',
+  type: 'view' | 'measurement',
+  astronautId: string = CURRENT_USER_ID,
   dateStr?: string
 ): Promise<void> {
   const date = dateStr ?? new Date().toISOString().split('T')[0];
@@ -46,14 +47,13 @@ export async function logActivityEvent(
 }
 
 /**
- * Computes the day state (0 = none, 1 = view/login, 2 = measurement)
+ * Computes the day state (0 = none, 1 = view, 2 = measurement)
  */
 export function computeDayState(events: ActivityEvent[]): ActivityDayState {
   if (events.length === 0) return 0;
   const hasMeasurement = events.some((e) => e.type === 'measurement');
   if (hasMeasurement) return 2;
-  const hasViewOrLogin = events.some((e) => e.type === 'login' || e.type === 'view');
-  return hasViewOrLogin ? 1 : 0;
+  return events.some((e) => e.type === 'view') ? 1 : 0;
 }
 
 /**
@@ -102,7 +102,7 @@ export function computeActivitySummary(
       date: dateStr,
       state,
       hasMeasurement: state === 2,
-      hasViewOrLogin: state === 1,
+      hasVisit: state === 1,
       eventCount: dayEvents.length,
       measurementCount: mCount,
       daysAgo: d,

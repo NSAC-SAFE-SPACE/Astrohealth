@@ -7,9 +7,9 @@ describe('Activity Tracking & NASA Calendar Service', () => {
     // State 0: no events
     expect(computeDayState([])).toBe(0);
 
-    // State 1: login or view only
+    // State 1: view only
     expect(computeDayState([
-      { id: '1', astronautId: 'a', date: '2026-11-14', type: 'login' }
+      { id: '1', astronautId: 'a', date: '2026-11-14', type: 'view' }
     ])).toBe(1);
 
     expect(computeDayState([
@@ -47,7 +47,7 @@ describe('Activity Tracking & NASA Calendar Service', () => {
         id: `e-${d}`,
         astronautId: 'a',
         date: dateStr,
-        type: d % 2 === 0 ? 'measurement' : 'login'
+        type: d % 2 === 0 ? 'measurement' : 'view'
       });
     }
 

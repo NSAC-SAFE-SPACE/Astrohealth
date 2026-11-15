@@ -21,7 +21,7 @@ import {
   ChevronDown,
   ChevronUp,
   FlaskConical,
-  Zap
+  Zap,
 } from 'lucide-react';
 import type { MissionEnvironment, LabResult, Status } from '../../types';
 
@@ -29,14 +29,6 @@ export const SettingsPage: React.FC = () => {
   const { t, i18n } = useTranslation();
   const {
     astronaut,
-<<<<<<< Updated upstream
-    activeScenario,
-    missionDay,
-    loadScenario,
-    advanceTime24h,
-=======
-    astronautProfiles,
->>>>>>> Stashed changes
     updateAstronautProfile,
     cardioScore,
     sleepScore,
@@ -61,10 +53,12 @@ export const SettingsPage: React.FC = () => {
   const [glucoseUnit, setGlucoseUnit] = useState<'mg/dL' | 'mmol/L'>(astronaut.bloodGlucoseUnit || 'mg/dL');
   const [commDelay, setCommDelay] = useState(astronaut.commDelayMinutes ?? 5);
   const [reportPeriod, setReportPeriod] = useState<7 | 30>(7);
+  const [saveSuccessMessage, setSaveSuccessMessage] = useState('');
 
   // Transmission queue simulated state
   const [reportStatus, setReportStatus] = useState<'aucun' | 'en attente' | 'transmis'>('aucun');
   const [countdownSec, setCountdownSec] = useState<number>(0);
+  const [pendingReportId, setPendingReportId] = useState<string | null>(null);
   const [showReportPreview, setShowReportPreview] = useState<boolean>(true);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
@@ -92,14 +86,12 @@ export const SettingsPage: React.FC = () => {
         if (prev <= 1) {
           setReportStatus('transmis');
           // Update DB record
-          db.reports.toCollection().last().then((lastReport) => {
-            if (lastReport?.id) {
-              db.reports.update(lastReport.id, {
-                status: 'transmis',
-                deliveredAt: Date.now()
-              });
-            }
-          });
+          if (pendingReportId) {
+            db.reports.update(pendingReportId, {
+              status: 'transmis',
+              deliveredAt: Date.now()
+            }).then(() => setPendingReportId(null));
+          }
           return 0;
         }
         return prev - 1;
@@ -107,7 +99,7 @@ export const SettingsPage: React.FC = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [reportStatus, countdownSec]);
+  }, [reportStatus, countdownSec, pendingReportId]);
 
   // Handle local client-side image resize to 256px
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -139,15 +131,16 @@ export const SettingsPage: React.FC = () => {
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    await updateAstronautProfile({
+    const profile = {
       name,
       age: Number(age),
       sex,
       weightKg: Number(weightKg),
       mission,
-      bloodGlucoseUnit: glucoseUnit,
-      commDelayMinutes: Number(commDelay)
-    });
+      bloodGlucoseUnit: glucoseUnit
+    };
+    await updateAstronautProfile({ ...profile, commDelayMinutes: Number(commDelay) });
+    setSaveSuccessMessage(t('settings.profileSaved'));
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 2500);
   };
@@ -169,6 +162,7 @@ export const SettingsPage: React.FC = () => {
     };
 
     await db.reports.put(newRecord);
+    setPendingReportId(newRecord.id ?? null);
 
     if (commDelay > 0) {
       setReportStatus('en attente');
@@ -186,12 +180,12 @@ export const SettingsPage: React.FC = () => {
   const handleForceTransmit = async () => {
     setCountdownSec(0);
     setReportStatus('transmis');
-    const lastReport = await db.reports.toCollection().last();
-    if (lastReport?.id) {
-      await db.reports.update(lastReport.id, {
+    if (pendingReportId) {
+      await db.reports.update(pendingReportId, {
         status: 'transmis',
         deliveredAt: Date.now()
       });
+      setPendingReportId(null);
     }
   };
 
@@ -206,7 +200,7 @@ export const SettingsPage: React.FC = () => {
 
     return {
       metadata: {
-        mission: 'Expedition 72',
+        mission: astronaut.missionName ?? astronaut.mission,
         environment: astronaut.mission,
         generatedAt: new Date().toISOString(),
         periodDays: reportPeriod,
@@ -314,111 +308,13 @@ export const SettingsPage: React.FC = () => {
         </p>
       </div>
 
-<<<<<<< Updated upstream
-      {/* 1. DEMO MODE SECTION (HIGH PRIORITY FOR JURY EVALUATION - NO-PRINT) */}
-      <section className="bg-surface p-6 sm:p-8 rounded-2xl border border-primary/30 shadow-xs space-y-6 no-print">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-primary text-white">
-            <Play className="w-5 h-5" />
-          </div>
-          <div>
-            <h2 className="font-serif text-2xl font-bold text-slate-text">
-              {t('settings.demoSection')}
-            </h2>
-            <p className="text-xs text-slate-muted">
-              Injectez instantanément des scénarios physiologiques réalistes pour valider les modèles et les alertes.
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-          {[
-            { id: 'healthy', label: '1. Astronaute nominal', desc: 'Constantes stables, excellente récupération circadienne.' },
-            { id: 'fatigue', label: '2. Dette de sommeil & Fatigue', desc: 'Nuites courtes (<4h), tension systolique en hausse.' },
-            { id: 'isolation', label: '3. Stress & Isolement', desc: 'Chute de l’indice OMS-5 (<50), baisse de tonus.' },
-            { id: 'bone_loss', label: '4. Déminéralisation osseuse', desc: 'Perte de masse fémorale > 5% sous microgravité.' },
-            { id: 'radiation_spike', label: '5. Pic solaire (SPE)', desc: 'Événement radiologique aigu, dose cumulée x4.' }
-          ].map((sc) => (
-            <button
-              key={sc.id}
-              onClick={() => loadScenario(sc.id as any)}
-              className={`p-3.5 rounded-xl border text-left transition-all flex flex-col justify-between min-h-[72px] ${
-                activeScenario === sc.id
-                  ? 'bg-primary text-white border-primary shadow-xs'
-                  : 'bg-white text-slate-text border-slate-border hover:bg-slate-50'
-              }`}
-            >
-              <div>
-                <div className="text-sm font-bold">{sc.label}</div>
-                <div className={`text-xs mt-1 ${activeScenario === sc.id ? 'text-white/80' : 'text-slate-muted'}`}>
-                  {sc.desc}
-                </div>
-              </div>
-            </button>
-          ))}
-        </div>
-
-        {/* Advance time button */}
-        <div className="pt-2 flex items-center justify-between border-t border-slate-border">
-          <div className="text-xs text-slate-muted">
-            Jour actuel de mission : <strong>J+{missionDay}</strong>
-          </div>
-          <button
-            onClick={advanceTime24h}
-            className="px-4 py-2.5 rounded-xl bg-white border border-slate-border text-slate-text font-semibold text-xs flex items-center gap-2 hover:bg-slate-50 min-h-[44px]"
-          >
-            <FastForward className="w-4 h-4 text-primary" />
-            <span>{t('settings.advanceTime')}</span>
-          </button>
-        </div>
-      </section>
-
-      {/* 2. ASTRONAUT PROFILE FORM (NO-PRINT) */}
-      <section className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-border shadow-xs space-y-6 no-print">
-        <h2 className="font-serif text-2xl font-bold text-slate-text">
-          {t('settings.profileSection')}
-        </h2>
-=======
       {/* Astronaut profile form */}
       <section id="profils" className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-border shadow-xs space-y-6 no-print">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <h2 className="font-serif text-2xl font-bold text-slate-text">
             {t('settings.profileSection')}
           </h2>
-          <div className="flex flex-wrap items-center gap-2">
-            {!isCreatingProfile && astronautProfiles.length > 1 && (
-              <select
-                aria-label={t('settings.selectProfile')}
-                value={astronaut.id}
-                onChange={(e) => selectAstronautProfile(e.target.value)}
-                className="h-11 px-3 rounded-xl border border-slate-border text-sm font-semibold bg-white"
-              >
-                {astronautProfiles.map((profile) => (
-                  <option key={profile.id} value={profile.id}>{profile.name}</option>
-                ))}
-              </select>
-            )}
-            {isCreatingProfile ? (
-              <button
-                type="button"
-                onClick={cancelNewProfile}
-                className="px-4 py-2.5 rounded-xl border border-slate-border text-sm font-semibold hover:bg-surface min-h-[44px]"
-              >
-                {t('settings.cancelNewProfile')}
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={startNewProfile}
-                className="px-4 py-2.5 rounded-xl bg-primary text-white text-sm font-semibold flex items-center gap-2 hover:bg-primary-hover min-h-[44px]"
-              >
-                <PlusCircle className="w-4 h-4" />
-                {t('settings.newProfile')}
-              </button>
-            )}
-          </div>
         </div>
->>>>>>> Stashed changes
 
         {/* Profile photo with local 256px crop */}
         <div className="flex items-center gap-6">
@@ -459,6 +355,7 @@ export const SettingsPage: React.FC = () => {
               </label>
               <input
                 type="text"
+                required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full h-11 px-3.5 rounded-xl border border-slate-border text-sm font-semibold"
@@ -487,8 +384,26 @@ export const SettingsPage: React.FC = () => {
               </label>
               <input
                 type="number"
+                min="1"
+                max="120"
+                required
                 value={age}
                 onChange={(e) => setAge(Number(e.target.value))}
+                className="w-full h-11 px-3.5 rounded-xl border border-slate-border text-sm font-semibold"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-muted mb-1">
+                {t('settings.weight')}
+              </label>
+              <input
+                type="number"
+                min="1"
+                step="0.1"
+                required
+                value={weightKg}
+                onChange={(e) => setWeightKg(Number(e.target.value))}
                 className="w-full h-11 px-3.5 rounded-xl border border-slate-border text-sm font-semibold"
               />
             </div>
@@ -551,7 +466,7 @@ export const SettingsPage: React.FC = () => {
             {saveSuccess && (
               <span className="text-xs font-semibold text-status-normal flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4" />
-                Modifications enregistrées localement
+                {saveSuccessMessage}
               </span>
             )}
           </div>

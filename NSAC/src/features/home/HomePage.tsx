@@ -7,6 +7,7 @@ import { StatusBadge } from '../../ui/StatusBadge';
 import { MeasureModal } from '../../ui/MeasureModal';
 import { useAstroStore } from '../../store/useAstroStore';
 import { AstronautMascot } from '../../ui/AstronautMascot';
+import { AstrohealthLogo } from '../../ui/AstrohealthLogo';
 import { PlusCircle, ArrowRight, ShieldCheck, Heart, Moon, Zap, User } from 'lucide-react';
 
 export const HomePage: React.FC = () => {
@@ -34,6 +35,9 @@ export const HomePage: React.FC = () => {
   return (
     <div className="relative isolate space-y-10 sm:space-y-12 max-w-4xl mx-auto">
       <AstronautMascot />
+      <div className="flex justify-center logo-intro" aria-label="Astrohealth">
+        <AstrohealthLogo size={120} />
+      </div>
       {/* 1. Header Profile Section */}
       <section className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b border-slate-border">
         <div className="flex items-center gap-5">
@@ -50,7 +54,7 @@ export const HomePage: React.FC = () => {
           </div>
           <div className="space-y-1 max-w-prose">
             <div className="text-xs font-semibold uppercase tracking-wider text-slate-muted">
-              <span className="block">{astronaut.mission.replace('_', ' ')}</span>
+              <span className="block">{astronaut.missionName ?? astronaut.mission.replace('_', ' ')}</span>
             </div>
             <h1 className="font-serif text-3xl sm:text-4xl font-bold text-slate-text">
               {t('home.greeting', { name: astronaut.name })}

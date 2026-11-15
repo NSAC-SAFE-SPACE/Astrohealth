@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useEffect, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { BodyMeasuresPanel } from './BodyMeasuresPanel';
@@ -6,6 +6,8 @@ import { BodyZonesPanel } from './BodyZonesPanel';
 import type { BodyMeasureKey } from '../../engine/config/bodyMeasures';
 import type { BodyZoneId } from '../../engine/config/bodyZones';
 import { useAstroStore } from '../../store/useAstroStore';
+import { buildBodyPrediction, getBodyKeyFromApiField } from '../../services/predictionCompleteness';
+import { PredictionPanel } from '../../ui/PredictionPanel';
 
 const BodyModelViewer = lazy(() => import('./BodyModelViewer'));
 
@@ -14,6 +16,7 @@ export const BodyPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const logActivityEvent = useAstroStore((state) => state.logActivityEvent);
+  const { astronaut, measurements } = useAstroStore();
   const [focusFieldKey, setFocusFieldKey] = useState<BodyMeasureKey | null>(null);
   const [selectedZone, setSelectedZone] = useState<BodyZoneId>('thorax');
 
@@ -32,6 +35,8 @@ export const BodyPage: React.FC = () => {
     window.setTimeout(() => document.getElementById('body-measures')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0);
   };
 
+  const prediction = useMemo(() => buildBodyPrediction(measurements, astronaut.id), [measurements, astronaut.id]);
+
   return <div className="mx-auto max-w-6xl space-y-7 sm:space-y-9">
     <header className="border-b border-slate-border pb-5">
       <h1 className="font-serif text-3xl font-bold text-slate-text sm:text-4xl">{t('body.title')}</h1>
@@ -44,5 +49,9 @@ export const BodyPage: React.FC = () => {
       <BodyZonesPanel onRequestMeasure={requestMeasure} selectedZone={selectedZone} onSelectZone={setSelectedZone} />
     </div>
     <BodyMeasuresPanel focusFieldKey={focusFieldKey} onFieldFocused={() => setFocusFieldKey(null)} />
+    <PredictionPanel kind="body" astronautId={astronaut.id} payload={prediction.payload} missing={prediction.missing} total={13} onMissingField={(field) => {
+      const key = getBodyKeyFromApiField(field.key);
+      if (key) requestMeasure(key);
+    }} />
   </div>;
 };

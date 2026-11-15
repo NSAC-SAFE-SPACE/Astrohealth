@@ -54,7 +54,7 @@ export const NasaDot: React.FC<NasaDotProps> = ({
   }
 
   if (state === 1) {
-    // State 1: Active consultation/login without measurement (Slate grey #C9D1D9 with white details)
+    // State 1: App visit without a measurement (Slate grey #C9D1D9 with white details)
     return (
       <svg
         width={size}
@@ -87,7 +87,7 @@ export const NasaDot: React.FC<NasaDotProps> = ({
     );
   }
 
-  // State 0: Inactive / no login (White with subtle grey outline #AEB9C5)
+  // State 0: No app visit (White with subtle grey outline #AEB9C5)
   return (
     <svg
       width={size}

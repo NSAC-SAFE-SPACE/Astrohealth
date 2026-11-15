@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { calculatePsychScore, evaluatePsychStatus, WHO5_QUESTIONS, WHO5_CHOICES } from '../engine/scores/psych';
 import frTranslations from '../i18n/fr.json';
 import enTranslations from '../i18n/en.json';
+import { CURRENT_USER_ID } from '../config/currentUser';
 
 describe('Étape 6: Mental (Questionnaire OMS-5, Bilan, Évolution, Sommeil, Couplage)', () => {
   it('respecte la structure officielle OMS-5 (5 questions, 6 choix de 0 à 5 points)', () => {
@@ -105,7 +106,7 @@ describe('Étape 6: Mental (Questionnaire OMS-5, Bilan, Évolution, Sommeil, Cou
     // Check simulation defaults and thresholds
     const testAssessment = {
       id: 'psych-dim-test',
-      astronautId: 'astro-01',
+      astronautId: CURRENT_USER_ID,
       date: '2026-11-14',
       answers: [4, 4, 4, 4, 4],
       score: 80,
