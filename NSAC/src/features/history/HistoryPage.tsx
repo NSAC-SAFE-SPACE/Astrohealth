@@ -547,7 +547,6 @@ export const HistoryPage: React.FC = () => {
               )}
             </LineChart>
           </ResponsiveContainer>
-          )}
         </div>
 
         {/* Prediction summary callout under graph */}
