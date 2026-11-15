@@ -1,5 +1,6 @@
 import type { Metric, Status, Assessment } from '../types';
 import thresholdsConfig from './config/thresholds.json';
+import { BODY_MEASURE_CONFIG, BODY_MEASURE_FIELDS, getBodyMeasureStatus } from './config/bodyMeasures';
 
 export interface BaselineStats {
   mean: number;
@@ -71,6 +72,35 @@ export function assessMeasurement(
   concurrentDegradedIndicatorsCount: number = 0,
   context?: string
 ): Assessment {
+  const bodyField = BODY_MEASURE_FIELDS.find((field) => field.metric === metric);
+  if (bodyField) {
+    const bodyStatus = getBodyMeasureStatus(bodyField, value);
+    let status: Status = bodyStatus;
+    let zScore: number | undefined;
+    const drivers: string[] = [];
+    if (baseline && baseline.std > 0) {
+      zScore = (value - baseline.mean) / baseline.std;
+      if (Math.abs(zScore) > 2) {
+        status = escalateStatus(status);
+        drivers.push(`Écart significatif à votre référence personnelle (|z| = ${zScore.toFixed(1)} > 2.0).`);
+      }
+    }
+    if (concurrentDegradedIndicatorsCount >= 2 && status === 'watch') {
+      status = 'action';
+      drivers.push('Gravité accrue en raison de plusieurs indicateurs simultanément dégradés.');
+    }
+    const indicator = BODY_MEASURE_CONFIG.indicators.find((item) => item.fields.some((field) => field.key === bodyField.key));
+    const explanation = status === 'normal'
+      ? `${bodyField.label} : ${value} ${bodyField.unit}, ${bodyField.nominalText.toLocaleLowerCase()}.`
+      : `${bodyField.label} : ${value} ${bodyField.unit}. ${indicator?.risk ?? 'Valeur à surveiller selon le référentiel corporel.'}`;
+    return {
+      metric, status, value, explanation,
+      actions: status === 'normal' ? ['Poursuivre le protocole habituel de la mission.'] : ['Confirmer la mesure selon le protocole de bord.'],
+      drivers: status === 'normal' ? drivers : [...drivers, indicator?.risk ?? 'Valeur hors de la plage nominale.'],
+      baselineDeviation: zScore,
+      baseline: baseline ? { mean: baseline.mean, std: baseline.std, zScore } : undefined
+    };
+  }
   const metricConfig = (thresholdsConfig.metrics as Record<string, MetricThresholds>)[metric];
 
   let rawStatus: Status = 'normal';
