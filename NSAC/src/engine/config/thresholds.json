@@ -1,0 +1,249 @@
+{
+  "general": {
+    "source": "NASA HRP / NASA-STD-3001",
+    "validated": false,
+    "label": "À VÉRIFIER avec NASA HRP et NASA-STD-3001"
+  },
+  "metrics": {
+    "heartRate": {
+      "unit": "bpm",
+      "normal": { "min": 60, "max": 100 },
+      "watch": { "min": 50, "max": 115 },
+      "action": { "min": 40, "max": 115 },
+      "actionLow": 50,
+      "actionHigh": 116,
+      "criticalLow": 40,
+      "criticalHigh": 131,
+      "source": "NASA HRP / NASA-STD-3001 Rev B",
+      "validated": false,
+      "label": "À VÉRIFIER avec NASA HRP et NASA-STD-3001"
+    },
+    "bpSys": {
+      "unit": "mmHg",
+      "normal": { "min": 90, "max": 119 },
+      "watch": { "min": 120, "max": 139 },
+      "action": { "min": 140, "max": 179 },
+      "contact_flight_surgeon": { "max": 180, "hypotension": 80 },
+      "source": "NASA-STD-3001 & AHA Guidelines",
+      "validated": false,
+      "label": "À VÉRIFIER avec NASA HRP et NASA-STD-3001"
+    },
+    "bpDia": {
+      "unit": "mmHg",
+      "normal": { "min": 60, "max": 79 },
+      "watch": { "min": 80, "max": 89 },
+      "action": { "min": 90, "max": 119 },
+      "contact_flight_surgeon": { "max": 120, "hypotension": 50 },
+      "source": "NASA-STD-3001 & AHA Guidelines",
+      "validated": false,
+      "label": "À VÉRIFIER avec NASA HRP et NASA-STD-3001"
+    },
+    "temperature": {
+      "unit": "°C",
+      "normal": { "min": 36.1, "max": 37.2 },
+      "watch": { "min": 35.8, "max": 37.5 },
+      "action": { "min": 35.0, "max": 37.9 },
+      "contact_flight_surgeon": { "min": 35.0, "max": 38.0 },
+      "source": "NASA-STD-3001 Section 6",
+      "validated": false,
+      "label": "À VÉRIFIER avec NASA HRP et NASA-STD-3001"
+    },
+    "spo2": {
+      "unit": "%",
+      "normal": { "min": 95, "max": 100 },
+      "watch": { "min": 92, "max": 94 },
+      "action": { "min": 88, "max": 91 },
+      "contact_flight_surgeon": { "min": 0, "max": 87 },
+      "source": "NASA HRP Hypoxia Standards",
+      "validated": false,
+      "label": "À VÉRIFIER avec NASA HRP et NASA-STD-3001"
+    },
+    "sleepHours": {
+      "unit": "h",
+      "normal": { "min": 7.0, "max": 9.0 },
+      "watch": { "min": 6.0, "max": 10.0 },
+      "action": { "min": 4.5, "max": 11.0 },
+      "contact_flight_surgeon": { "min": 4.0, "max": 12.0 },
+      "source": "NASA Behavioral Health Performance Standards",
+      "validated": false,
+      "label": "À VÉRIFIER avec NASA HRP et NASA-STD-3001"
+    }
+  },
+  "glucose": {
+    "plausibility": {
+      "min": 50,
+      "max": 400,
+      "warningMessage": "anomalie possible : vérifier la mesure"
+    },
+    "fasting": {
+      "normal": { "min": 70, "max": 99 },
+      "watch": { "min": 100, "max": 125 },
+      "actionLow": 70,
+      "actionHigh": 126,
+      "criticalLow": 54,
+      "criticalHigh": 250
+    },
+    "post_meal": {
+      "normal": { "min": 70, "max": 139 },
+      "watch": { "min": 140, "max": 199 },
+      "actionHigh": 200,
+      "actionLow": 65,
+      "criticalLow": 50,
+      "criticalHigh": 300
+    },
+    "random": {
+      "normal": { "min": 70, "max": 139 },
+      "watch": { "min": 140, "max": 199 },
+      "actionHigh": 200,
+      "actionLow": 65,
+      "criticalLow": 54,
+      "criticalHigh": 250
+    },
+    "source": "ADA Guidelines & NASA HRP Nutritional Assessment",
+    "validated": false,
+    "label": "À VÉRIFIER avec NASA HRP et NASA-STD-3001"
+  },
+  "sleepScore": {
+    "weights": {
+      "duration": 0.40,
+      "continuity": 0.25,
+      "regularity": 0.15,
+      "restfulness": 0.20
+    },
+    "durationCurve": [
+      { "hours": 3, "score": 0 },
+      { "hours": 4, "score": 15 },
+      { "hours": 5, "score": 40 },
+      { "hours": 6, "score": 70 },
+      { "hours": 7, "score": 100 },
+      { "hours": 9, "score": 100 },
+      { "hours": 10, "score": 85 },
+      { "hours": 11, "score": 65 }
+    ],
+    "latencyCurve": [
+      { "minutes": 15, "score": 100 },
+      { "minutes": 30, "score": 80 },
+      { "minutes": 45, "score": 55 },
+      { "minutes": 60, "score": 30 },
+      { "minutes": 90, "score": 0 }
+    ],
+    "awakeningsCurve": [
+      { "count": 1, "score": 100 },
+      { "count": 2, "score": 75 },
+      { "count": 3, "score": 55 },
+      { "count": 4, "score": 35 },
+      { "count": 5, "score": 20 }
+    ],
+    "regularityCurve": [
+      { "stdMin": 30, "score": 100 },
+      { "stdMin": 60, "score": 70 },
+      { "stdMin": 90, "score": 40 },
+      { "stdMin": 120, "score": 10 }
+    ],
+    "status": {
+      "normal": 80,
+      "watch": 60
+    },
+    "criticalRule": {
+      "maxConsecutiveHours": 4.0,
+      "consecutiveNights": 3
+    },
+    "source": "NASA HRP Sleep and Fatigue Countermeasures",
+    "validated": false,
+    "label": "À VÉRIFIER avec NASA HRP et NASA-STD-3001"
+  },
+  "cardioScore": {
+    "weights": {
+      "sys": 0.60,
+      "hr": 0.40
+    },
+    "sysPenalties": [
+      { "sys": 80, "pen": 100 },
+      { "sys": 90, "pen": 0 },
+      { "sys": 119, "pen": 0 },
+      { "sys": 120, "pen": 10 },
+      { "sys": 130, "pen": 25 },
+      { "sys": 140, "pen": 40 },
+      { "sys": 160, "pen": 75 },
+      { "sys": 180, "pen": 100 }
+    ],
+    "hrPenalties": [
+      { "hr": 50, "pen": 20 },
+      { "hr": 55, "pen": 0 },
+      { "hr": 60, "pen": 0 },
+      { "hr": 70, "pen": 8 },
+      { "hr": 80, "pen": 20 },
+      { "hr": 90, "pen": 40 },
+      { "hr": 100, "pen": 60 },
+      { "hr": 120, "pen": 100 }
+    ],
+    "femaleHrOffset": 3,
+    "terrainAge": [
+      { "maxAge": 39, "factor": 1.00 },
+      { "maxAge": 54, "factor": 1.10 },
+      { "maxAge": 69, "factor": 1.25 },
+      { "maxAge": 120, "factor": 1.40 }
+    ],
+    "terrainSexBonus": {
+      "maleAgeThreshold": 45,
+      "femaleAgeThreshold": 55,
+      "bonus": 0.05
+    },
+    "status": {
+      "normal": 75,
+      "watch": 55,
+      "action": 35
+    },
+    "criticalThresholds": {
+      "sysMax": 180,
+      "hrMax": 130
+    },
+    "source": "NASA Cardiovascular Risk Heuristics",
+    "validated": false,
+    "label": "À VÉRIFIER avec NASA HRP et NASA-STD-3001"
+  },
+  "bone": {
+    "measurementNoise": 2.0,
+    "lossThresholds": {
+      "normalMax": 2.0,
+      "watchMax": 5.0,
+      "actionMax": 8.0
+    },
+    "ratePerMonthCritical": 1.5,
+    "aprioriDeclineRatePerMonth": 1.0,
+    "source": "NASA Human Research Program Bone Summit Reports",
+    "validated": false,
+    "label": "À VÉRIFIER avec NASA HRP et NASA-STD-3001"
+  },
+  "radiation": {
+    "careerLimitTotal_mSv": 600,
+    "thresholdsPercent": {
+      "normalMax": 50,
+      "watchMax": 75,
+      "actionMax": 90
+    },
+    "typicalRates_mSv_day": {
+      "station": 0.6,
+      "spacecraft": 1.8,
+      "lunar_base": 1.4,
+      "mars_rover": 0.6
+    },
+    "spikeMultipliers": {
+      "watch": 3.0,
+      "contact_flight_surgeon": 10.0
+    },
+    "source": "NASA-STD-3001 Vol 1 Rev B (Permissible Exposure Limits)",
+    "validated": false,
+    "label": "À VÉRIFIER avec NASA HRP et NASA-STD-3001"
+  },
+  "psych": {
+    "status": {
+      "normalMin": 68,
+      "watchMin": 50,
+      "actionMin": 29
+    },
+    "source": "OMS-5 Well-Being Index (adapté pour vol spatial)",
+    "validated": false,
+    "label": "INDICATIFS : à valider avec l'équipe médicale"
+  }
+}

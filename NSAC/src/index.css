@@ -1,0 +1,59 @@
+@import '@fontsource/source-sans-3/400.css';
+@import '@fontsource/source-sans-3/600.css';
+@import '@fontsource/source-sans-3/700.css';
+@import '@fontsource/source-serif-4/600.css';
+@import '@fontsource/source-serif-4/700.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #FFFFFF;
+  color: #1F2A37;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure minimum touch target size */
+button, a, input, select {
+  touch-action: manipulation;
+}
+
+/* Accessible focus ring */
+:focus-visible {
+  outline: 2px solid #0B4F8A;
+  outline-offset: 2px;
+}
+
+/* Print Styles for Flight Surgeon Report */
+@media print {
+  aside, nav, header, footer, .no-print {
+    display: none !important;
+  }
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+  body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .shadow-xs, .shadow-md, .shadow-lg, .shadow-xl {
+    box-shadow: none !important;
+  }
+  .border {
+    border-color: #CBD5E1 !important;
+  }
+}

@@ -1,0 +1,395 @@
+{
+  "app": {
+    "title": "Astrohealth",
+    "subtitle": "Expedition 72 // Autonomous Mission Health Monitoring",
+    "disclaimer": "Educational tool, not a medical diagnosis.",
+    "missionDay": "Mission Day",
+    "badgeDoctorAlert": "Flight surgeon contact required",
+    "offlineReady": "100% Offline functionality guaranteed"
+  },
+  "nav": {
+    "home": "Home",
+    "body": "My Body",
+    "mental": "Mental",
+    "history": "History",
+    "missions": "Missions",
+    "settings": "Settings & Report"
+  },
+  "status": {
+    "normal": "Normal",
+    "watch": "Watch",
+    "action": "Action Advised",
+    "contact_flight_surgeon": "Contact Flight Surgeon"
+  },
+  "home": {
+    "greeting": "Hello, {{name}}.",
+    "statusCardTitle": "General Condition",
+    "globalScore": "Overall Score",
+    "measureButton": "Take a Measurement",
+    "seeBodyButton": "View My Body",
+    "summaryWords": {
+      "normal": "Stable",
+      "watch": "Watch",
+      "action": "Attention",
+      "contact_flight_surgeon": "Alert"
+    },
+    "adviceSentences": {
+      "normal": "Your physiological and psychological parameters are perfectly aligned with spaceflight targets.",
+      "watch": "A slight metabolic or fatigue drift is observed. Maintain your rest and hydration routines.",
+      "action": "Multiple indicators signal an elevated physiological strain. Adjust your rest and exercise schedule.",
+      "contact_flight_surgeon": "A critical result was detected. Priority medical contact with Earth is required."
+    },
+    "activityTitle": "Your Activity",
+    "activitySubtitle": "Self-assessment regularity tracking",
+    "activityLegend0": "No consultation",
+    "activityLegend1": "Consultation without measurement",
+    "activityLegend2": "At least one measurement recorded",
+    "activityStreak": "{{count}} measurements recorded · Current streak: {{streak}} days",
+    "quickStats": "Priority Indicators",
+    "activeAlerts": "Priority Alerts",
+    "noAlerts": "No active alerts. All vital systems stable."
+  },
+  "body": {
+    "title": "Physical Models & Biomechanics",
+    "viewBody": "Body View",
+    "viewList": "List View",
+    "selectZone": "Click on any body area to display comprehensive analytical details",
+    "zones": {
+      "heart": "Heart & Cardiovascular",
+      "bone": "Bones & Muscles",
+      "belly": "Belly & Metabolism (Glucose)",
+      "skin": "Skin & Thermoregulation",
+      "radiation": "Radiation Exposure"
+    },
+    "panel": {
+      "lastMeasure": "Latest measurement",
+      "forecast7d": "7-day forecast",
+      "projectionNote": "Simple linear projection, not a clinical prediction.",
+      "whatIsIt": "Clinical purpose",
+      "spaceEffect": "Spaceflight effect",
+      "influences": "Physiological drivers (coupling)",
+      "whatToDo": "Actionable guidance",
+      "measureNow": "Record measurement",
+      "compositeDetails": "Score components breakdown",
+      "confidence": "Data completeness level",
+      "partial": "Partial calculation (missing inputs)",
+      "complete": "Complete"
+    },
+    "zoneDetails": {
+      "heart": {
+        "whatIsIt": "Monitors resting blood pressure regulation and resting heart rate stability.",
+        "spaceEffect": "In microgravity, body fluids shift toward the head, reducing plasma volume and elevating orthostatic intolerance risk upon return.",
+        "whatToDo": [
+          "Maintain 2 hours of daily cardiovascular and resistive training.",
+          "Adhere to the prescribed hydration and electrolyte intake.",
+          "Transition postures gradually to avoid lightheadedness."
+        ]
+      },
+      "bone": {
+        "whatIsIt": "Assesses bone mineral density and muscular mass preservation in load-bearing regions (spine, femoral neck, hip).",
+        "spaceEffect": "Lack of mechanical loading accelerates bone resorption over formation, causing 0.5% to 1% monthly bone loss if unprotected.",
+        "whatToDo": [
+          "Never skip resistance training sessions on the ARED device.",
+          "Take daily vitamin D3 supplements and meet dietary calcium targets.",
+          "Record any joint or bone discomfort promptly."
+        ]
+      },
+      "belly": {
+        "whatIsIt": "Tracks capillary blood glucose stability and metabolic energy balance.",
+        "spaceEffect": "Confinement and neuroendocrine stress can induce transient insulin resistance and alter gut microbiome absorption.",
+        "whatToDo": [
+          "Choose meals with moderate glycemic indices.",
+          "Maintain consistent hydration throughout waking hours.",
+          "Perform a verification check 2 hours post-meal if needed."
+        ]
+      },
+      "skin": {
+        "whatIsIt": "Monitors core body temperature and febrile or inflammatory responses.",
+        "spaceEffect": "Absence of natural convection in microgravity impedes sweat evaporation, posing a risk of 'space fever' during and after workouts.",
+        "whatToDo": [
+          "Ensure personal cabin and exercise ventilation fans remain active.",
+          "Towel off thoroughly following physical exertion.",
+          "Report any temperature ≥ 38 °C immediately to the flight surgeon."
+        ]
+      },
+      "radiation": {
+        "whatIsIt": "Measures cumulative ionizing radiation dose from galactic cosmic rays and solar particle events.",
+        "spaceEffect": "Beyond Earth's protective magnetosphere, deep-space radiation penetrates vehicle shielding and increases lifetime health risks.",
+        "whatToDo": [
+          "Check and log the active dosimeter reading daily.",
+          "In the event of a solar particle event (SPE) alert, retreat immediately to the storm shelter.",
+          "Verify that the dosimeter sensor indicates normal operating range."
+        ]
+      }
+    }
+  },
+  "mental": {
+    "title": "Psychological Well-Being & Sleep",
+    "subtitle": "Autonomous assessment of emotional balance, psychological vitality, and sleep recovery.",
+    "startAssessment": "Start WHO-5 Assessment",
+    "retakeAssessment": "Retake WHO-5 Assessment",
+    "lastAssessment": "Latest psychological check",
+    "scoreLabel": "Adapted WHO-5 Index",
+    "historyTitle": "Last 8 assessments",
+    "historySubtitle": "Weekly trajectory and thresholds",
+    "questionPrompt": "Over the last few days…",
+    "questionProgress": "Question {{current}} of {{total}}",
+    "prevQuestion": "Previous",
+    "nextQuestion": "Next",
+    "finishAssessment": "Submit Assessment",
+    "saveAndReturn": "Save and return to overview",
+    "cancelAssessment": "Cancel assessment",
+    "newAssessmentTitle": "WHO-5 Self-Assessment Summary",
+    "doctorAlertNotice": "⚠️ Critical result: a priority medical alert has been automatically added to the confidential flight surgeon report.",
+    "questions": [
+      "I have felt cheerful and in good spirits.",
+      "I have felt calm and relaxed.",
+      "I have felt active and vigorous.",
+      "I woke up feeling fresh and rested.",
+      "My daily life has been filled with things that interest me."
+    ],
+    "choices": [
+      {
+        "label": "All of the time",
+        "points": 5
+      },
+      {
+        "label": "Most of the time",
+        "points": 4
+      },
+      {
+        "label": "More than half of the time",
+        "points": 3
+      },
+      {
+        "label": "Less than half of the time",
+        "points": 2
+      },
+      {
+        "label": "Some of the time",
+        "points": 1
+      },
+      {
+        "label": "At no time",
+        "points": 0
+      }
+    ],
+    "evaluations": {
+      "normal": {
+        "title": "Optimal Psychological Well-Being",
+        "phrase": "Your level of vitality, calmness, and daily engagement is excellent and strongly supports long-duration mission resilience.",
+        "actions": [
+          "Maintain your positive daily relaxation and physical training habits.",
+          "Keep up regular informal conversations and shared meals with crewmates.",
+          "Continue scheduled video contacts with loved ones on Earth."
+        ]
+      },
+      "watch": {
+        "title": "Watch: Moderate dip in vitality",
+        "phrase": "A mild decrease in energy or emotional calm has been reported over recent days.",
+        "actions": [
+          "Protect your 8-hour sleep block in your crew quarters.",
+          "Share how you are feeling with a trusted crewmate.",
+          "Retake this assessment in 3 to 4 days."
+        ]
+      },
+      "action": {
+        "title": "Action Advised: Significant strain or low mood",
+        "phrase": "Your responses suggest noticeable mental strain or a dip in morale and daily motivation.",
+        "actions": [
+          "Carve out quiet personal time for reading or calming music.",
+          "Discuss potential workload adjustments with the mission commander.",
+          "Practice guided heart-rate coherence and relaxation breathing sessions."
+        ]
+      },
+      "contact_flight_surgeon": {
+        "title": "Alert: Flight Surgeon Contact Required",
+        "phrase": "Your level of exhaustion or emotional distress requires prompt, confidential support from the ground medical team.",
+        "actions": [
+          "Schedule a confidential call with the flight surgeon or mission psychologist.",
+          "Take an immediate rest period in your sleep station.",
+          "Report any changes in sleep continuity or appetite to the medical officer."
+        ]
+      }
+    },
+    "dimensionsTitle": "Spaceflight Psychometric Dimensions",
+    "dimensionsSubtitle": "Vector monitoring of the 5 pillars of behavioral stability in orbital confinement",
+    "logDimensionsButton": "Adjust Dimensions",
+    "saveDimensions": "Save Dimensions",
+    "dimensions": {
+      "stressLevel": {
+        "title": "Stress Level",
+        "desc": "Autonomic nervous system activation and perceived emotional strain.",
+        "nominal": "Low • Optimal Zone",
+        "watch": "Moderate • Vigilance",
+        "action": "Elevated • Regulation Needed"
+      },
+      "moodScore": {
+        "title": "Mood Score",
+        "desc": "General affective valence, enthusiasm, and serenity.",
+        "nominal": "Positive & Balanced",
+        "watch": "Neutral / declining valence",
+        "action": "Marked energy drop"
+      },
+      "workloadPerception": {
+        "title": "Workload Perception",
+        "desc": "NASA-TLX index: mental demand, effort, and operational task pace.",
+        "nominal": "Manageable • Moderate effort",
+        "watch": "Heavy workload",
+        "action": "Cognitive overload"
+      },
+      "timePerception": {
+        "title": "Time Perception",
+        "desc": "Subjective time flow and alertness against orbital confinement monotony.",
+        "nominal": "Nominal balanced pace",
+        "watch": "Time feels slowed down",
+        "action": "Marked temporal distortion"
+      },
+      "communicationWithOthers": {
+        "title": "Communication with Others",
+        "desc": "Crew cohesion, interpersonal dynamics, and Earth liaison contact.",
+        "nominal": "Smooth & Constructive",
+        "watch": "Reserved interactions",
+        "action": "Tension or social withdrawal"
+      }
+    },
+    "sleepSection": "Sleep Quality & Recovery",
+    "sleepLogButton": "Log morning sleep",
+    "sleepComponents": "Sleep score components (duration, continuity, regularity, feeling)",
+    "sleepTrend": "7-night trend",
+    "influencesTitle": "Mood drivers",
+    "influences": [
+      {
+        "title": "Restorative sleep",
+        "text": "A sleep duration over 7 hours with minimal awakenings directly stabilizes next-day mood (+12%)."
+      },
+      {
+        "title": "Consistent exercise",
+        "text": "The mandatory 2-hour daily workout on ARED and treadmill boosts endorphins and counters isolation stress."
+      },
+      {
+        "title": "Confinement and monotony",
+        "text": "Sensory deprivation in enclosed habitats increases mental fatigue: protect crew rituals and variety."
+      }
+    ]
+  },
+  "history": {
+    "title": "History & Predictive Trajectories",
+    "subtitle": "Single biometric indicator at a time: temporal trend, 14-day rolling baseline, and forecasts with confidence bounds.",
+    "selectMetric": "Select biometric indicator",
+    "range7d": "7 days",
+    "range30d": "30 days",
+    "range90d": "90 days",
+    "baselineLegend": "Personal baseline (14d)",
+    "forecastLegend": "Forecast (confidence bounds)",
+    "thresholdNormal": "Optimal range",
+    "forecastNotice": "Solid blue line: actual recorded measurements · Dashed teal line: 7-day projected trajectory with estimated bounds",
+    "metrics": {
+      "heartRate": "Heart Rate",
+      "bpSys": "Systolic Blood Pressure",
+      "temperature": "Body Temperature",
+      "glucose": "Blood Glucose",
+      "boneLoss": "Estimated Bone Loss",
+      "sleep": "Sleep Duration",
+      "mood": "Adapted WHO-5 Index",
+      "stress": "Stress Level",
+      "radiation": "Cumulative Radiation"
+    }
+  },
+  "missions": {
+    "title": "Daily Missions & Regularity",
+    "subtitle": "Rewards are strictly based on self-assessment regularity, never on measured values.",
+    "currentStreak": "Active Streak",
+    "days": "consecutive days",
+    "todayMissions": "Today's Missions (3 max)",
+    "badgesTitle": "Orbital Discipline Badges",
+    "environmentReminderTitle": "Operational Guidance for Your Mission Environment",
+    "environmentReminders": {
+      "spacecraft": {
+        "title": "Deep Space Transit Protocol",
+        "text": "Mandatory 2 hours of daily cardiovascular and resistive training to preserve orthostatic tolerance and mitigate muscular atrophy."
+      },
+      "station": {
+        "title": "Orbital Microgravity Protocol",
+        "text": "Daily workout sessions on ARED resistance device and T2 treadmill are essential to counter progressive bone demineralization."
+      },
+      "lunar_base": {
+        "title": "Lunar Surface Protocol (1/6 g)",
+        "text": "Monitor partial mechanical loading, record daily surface dosimeter reading, and follow regolith dust decontamination procedures."
+      },
+      "mars_rover": {
+        "title": "Martian Exploration Protocol (1/3 g)",
+        "text": "Earth communications delay of 15 to 20 minutes: strict daily self-assessment of vitals, active dosimeter monitoring, and complete medical autonomy."
+      }
+    },
+    "badges": {
+      "firstContact": {
+        "name": "First Contact",
+        "desc": "At least one self-assessment successfully logged on board."
+      },
+      "lowOrbit": {
+        "name": "Low Orbit",
+        "desc": "7-day consecutive streak of health monitoring."
+      },
+      "orbitalDiscipline": {
+        "name": "Orbital Routine",
+        "desc": "14-day consecutive streak without interruption."
+      },
+      "lunarTrajectory": {
+        "name": "Lunar Trajectory",
+        "desc": "30-day consecutive streak of exemplary regularity."
+      },
+      "martianEndurance": {
+        "name": "Martian Endurance",
+        "desc": "60-day consecutive streak of complete telemetry protocol."
+      },
+      "guardian": {
+        "name": "Telemetry Guardian",
+        "desc": "100 total measurements and self-assessments recorded."
+      }
+    }
+  },
+  "settings": {
+    "title": "Settings & Flight Surgeon Report",
+    "profileSection": "Astronaut Profile",
+    "name": "First Name / Call-sign",
+    "age": "Age",
+    "sex": "Sex",
+    "weight": "Weight (kg)",
+    "environment": "Mission Environment",
+    "language": "Interface Language",
+    "glucoseUnit": "Blood Glucose Unit",
+    "commDelay": "Simulated Earth Comm Delay",
+    "minutes": "minutes",
+    "profilePhoto": "Profile Photo (resized locally to 256px)",
+    "demoSection": "Demonstration Mode (Evaluation Jury)",
+    "demoScenario": "Test Scenario",
+    "advanceTime": "Advance Time (+24h)",
+    "reportSection": "Flight Medical Report",
+    "generateReport": "Generate Report",
+    "period7d": "Last 7 days",
+    "period30d": "Last 30 days",
+    "reportStatusQueue": "Telemetry Transmission Queue",
+    "exportJson": "Download JSON",
+    "exportPdf": "Print / Export PDF",
+    "labSection": "Optional Blood Panel (F-12)",
+    "importCsv": "Import CSV file (CMP / Eve)",
+    "saveChanges": "Save Changes"
+  },
+  "measurementModal": {
+    "title": "Guided Measurement",
+    "step1": "1. Select Metric",
+    "step2": "2. Measurement Protocol",
+    "step3": "3. Entry",
+    "step4": "4. Instant Assessment",
+    "glucoseContext": "Glucose Context",
+    "fasting": "Fasting (morning)",
+    "postMeal": "Post-Meal (2 h)",
+    "random": "Other / Random",
+    "enterValue": "Measured value",
+    "confirm": "Save Measurement",
+    "next": "Continue",
+    "back": "Back",
+    "close": "Close"
+  }
+}

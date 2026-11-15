@@ -218,3 +218,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Dependencies & Build
+node_modules/
+dist/
+.vitest-cache/
+

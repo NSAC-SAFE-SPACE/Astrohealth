@@ -1,0 +1,377 @@
+{
+  "app": {
+    "title": "Astrohealth",
+    "subtitle": "Expédition 72 // Suivi de santé en mission autonome",
+    "disclaimer": "Outil éducatif, pas un diagnostic médical.",
+    "missionDay": "Jour de mission",
+    "badgeDoctorAlert": "Contact chirurgien de vol requis",
+    "offlineReady": "Fonctionnement 100% hors ligne garanti"
+  },
+  "nav": {
+    "home": "Accueil",
+    "body": "Mon corps",
+    "mental": "Mental",
+    "history": "Historique",
+    "missions": "Missions",
+    "settings": "Réglages et rapport"
+  },
+  "status": {
+    "normal": "Normal",
+    "watch": "À surveiller",
+    "action": "Action conseillée",
+    "contact_flight_surgeon": "Contact chirurgien de vol"
+  },
+  "home": {
+    "greeting": "Bonjour, {{name}}.",
+    "statusCardTitle": "État général",
+    "globalScore": "Score global",
+    "measureButton": "Faire une mesure",
+    "seeBodyButton": "Voir mon corps",
+    "summaryWords": {
+      "normal": "Stable",
+      "watch": "Surveillance",
+      "action": "Attention",
+      "contact_flight_surgeon": "Alerte"
+    },
+    "adviceSentences": {
+      "normal": "Vos paramètres physiologiques et psychologiques sont parfaitement alignés avec les cibles de vol spatial.",
+      "watch": "Une légère dérive métabolique ou de fatigue est observée. Maintenez vos temps de repos et d’hydratation.",
+      "action": "Plusieurs indicateurs indiquent une charge physiologique élevée. Aménagez vos plages de repos et d’exercice.",
+      "contact_flight_surgeon": "Un résultat critique a été détecté. Un contact médical prioritaire avec la Terre est requis."
+    },
+    "activityTitle": "Votre activité",
+    "activitySubtitle": "Suivi de régularité des auto-évaluations",
+    "activityLegend0": "Aucune consultation",
+    "activityLegend1": "Consultation sans mesure",
+    "activityLegend2": "Au moins une mesure enregistrée",
+    "activityStreak": "{{count}} mesures enregistrées · Série en cours : {{streak}} jours",
+    "quickStats": "Indicateurs prioritaires",
+    "activeAlerts": "Alertes prioritaires",
+    "noAlerts": "Aucune alerte active. Tous les systèmes vitaux sont stables."
+  },
+  "body": {
+    "title": "Modèles physiques & Biomécanique",
+    "viewBody": "Vue corps",
+    "viewList": "Vue liste",
+    "selectZone": "Cliquez sur une zone corporelle pour afficher ses analyses détaillées",
+    "zones": {
+      "heart": "Cœur & Cardiovasculaire",
+      "bone": "Os & Muscles",
+      "belly": "Ventre & Métabolisme (Glycémie)",
+      "skin": "Peau & Thermorégulation",
+      "radiation": "Exposition aux Radiations"
+    },
+    "panel": {
+      "lastMeasure": "Dernière mesure",
+      "forecast7d": "Prévision à 7 jours",
+      "projectionNote": "Projection linéaire simple, pas une prévision clinique.",
+      "whatIsIt": "À quoi ça sert",
+      "spaceEffect": "Effet de l'espace",
+      "influences": "Ce qui l'influence (couplage physiologique)",
+      "whatToDo": "Que faire",
+      "measureNow": "Faire une mesure",
+      "compositeDetails": "Détail des composantes du score",
+      "confidence": "Niveau de complétude des données",
+      "partial": "Calcul partiel (données manquantes)",
+      "complete": "Complet"
+    },
+    "zoneDetails": {
+      "heart": {
+        "whatIsIt": "Surveille la régulation de la pression artérielle et la fréquence cardiaque au repos.",
+        "spaceEffect": "En micropesanteur, les fluides migrent vers la partie supérieure du corps, réduisant le volume plasmatique et augmentant le risque d'intolérance orthostatique.",
+        "whatToDo": [
+          "Maintenir 2h d'exercice cardiorespiratoire et sous charge chaque jour.",
+          "Consommer la ration hydrique et électrolytique prescrite.",
+          "Changer de posture en douceur pour éviter les vertiges."
+        ]
+      },
+      "bone": {
+        "whatIsIt": "Évalue la densité minérale osseuse et la masse musculaire des membres porteurs (rachis, col fémoral, hanche).",
+        "spaceEffect": "L'absence de contrainte mécanique accélère la résorption osseuse par rapport à la formation osseuse (perte de 0,5 à 1% par mois sans protection).",
+        "whatToDo": [
+          "Ne sauter aucune séance d'exercice de musculation sur l'appareil ARED.",
+          "Prendre quotidiennement la dose prescrite de vitamine D3 et respecter l'apport en calcium.",
+          "Consigner tout symptôme ostéo-articulaire ressenti."
+        ]
+      },
+      "belly": {
+        "whatIsIt": "Contrôle la régulation glucidique et la stabilité du métabolisme énergétique en mission.",
+        "spaceEffect": "L'environnement confiné et le stress neuroendocrinien peuvent induire une résistance transitoire à l'insuline et modifier la flore intestinale.",
+        "whatToDo": [
+          "Privilégier les rations à index glycémique modéré.",
+          "Maintenir une hydratation régulière tout au long de la journée.",
+          "Effectuer un contrôle 2 heures après le repas principal en cas de doute."
+        ]
+      },
+      "skin": {
+        "whatIsIt": "Surveille la température corporelle centrale et les réponses immunitaires ou fébriles.",
+        "spaceEffect": "L'absence de convection naturelle en microgravité réduit l'efficacité de la transpiration, entraînant un risque de « fièvre spatiale » pendant et après l'exercice.",
+        "whatToDo": [
+          "Veiller au fonctionnement des ventilateurs de cabine et de la zone d'entraînement.",
+          "Bien s'éponger après chaque séance sportive.",
+          "Signaler sans délai toute température ≥ 38 °C au chirurgien de vol."
+        ]
+      },
+      "radiation": {
+        "whatIsIt": "Mesure la dose cumulée de rayonnements ionisants (rayons cosmiques galactiques et vent solaire).",
+        "spaceEffect": "Au-delà du bouclier magnétique terrestre, les rayonnements traversent le blindage et augmentent les risques cellulaires à long terme.",
+        "whatToDo": [
+          "Relever quotidiennement la dose affichée sur le dosimètre actif.",
+          "En cas d'alerte éruption solaire (SPE), rejoindre immédiatement l'abri anti-radiations.",
+          "Vérifier le voyant d'absence de saturation sur le capteur."
+        ]
+      }
+    }
+  },
+  "mental": {
+    "title": "Bien-être psychologique & Sommeil",
+    "subtitle": "Évaluation autonome du moral, de la vitalité psychologique et de la récupération du sommeil.",
+    "startAssessment": "Commencer le bilan OMS-5",
+    "retakeAssessment": "Refaire le bilan OMS-5",
+    "lastAssessment": "Dernier bilan psychologique",
+    "scoreLabel": "Indice OMS-5 adapté",
+    "historyTitle": "8 derniers bilans",
+    "historySubtitle": "Évolution hebdomadaire et seuils",
+    "questionPrompt": "Ces derniers jours…",
+    "questionProgress": "Question {{current}} sur {{total}}",
+    "prevQuestion": "Précédent",
+    "nextQuestion": "Suivant",
+    "finishAssessment": "Valider le bilan",
+    "saveAndReturn": "Enregistrer et revenir à la vue d'ensemble",
+    "cancelAssessment": "Interrompre le bilan",
+    "newAssessmentTitle": "Bilan de votre auto-évaluation OMS-5",
+    "doctorAlertNotice": "⚠️ Résultat critique : une alerte médicale prioritaire a été automatiquement ajoutée au rapport confidentiel pour le chirurgien de vol.",
+    "questions": [
+      "Je me suis senti(e) bien et de bonne humeur.",
+      "Je me suis senti(e) calme et tranquille.",
+      "Je me suis senti(e) plein(e) d'énergie.",
+      "Je me suis réveillé(e) en me sentant frais et dispos.",
+      "Ma vie quotidienne a été remplie de choses intéressantes."
+    ],
+    "choices": [
+      { "label": "Tout le temps", "points": 5 },
+      { "label": "La plupart du temps", "points": 4 },
+      { "label": "Plus de la moitié du temps", "points": 3 },
+      { "label": "Moins de la moitié du temps", "points": 2 },
+      { "label": "De temps en temps", "points": 1 },
+      { "label": "Jamais", "points": 0 }
+    ],
+    "evaluations": {
+      "normal": {
+        "title": "Bien-être psychologique optimal",
+        "phrase": "Votre niveau de vitalité, de sérénité et d'intérêt pour vos activités quotidiennes est excellent et soutient l'endurance en mission.",
+        "actions": [
+          "Conserver vos routines de détente et d'exercice quotidien.",
+          "Maintenir des moments d'échange et de convivialité avec l'équipage.",
+          "Poursuivre les contacts vidéo réguliers avec vos proches."
+        ]
+      },
+      "watch": {
+        "title": "Vigilance : baisse modérée d'énergie",
+        "phrase": "Une légère diminution de la vitalité ou du calme émotionnel est observée ces derniers jours.",
+        "actions": [
+          "Sanctuariser vos 8 heures de repos dans votre couchette.",
+          "Partager vos ressentis avec un coéquipier de confiance.",
+          "Refaire une évaluation dans 3 à 4 jours."
+        ]
+      },
+      "action": {
+        "title": "Action conseillée : fatigue ou stress marqué",
+        "phrase": "Vos réponses indiquent une charge mentale élevée ou une baisse notable de moral et de motivation.",
+        "actions": [
+          "Aménager des plages d'intimité, de lecture ou de musique relaxante.",
+          "Échanger avec le commandant de bord pour moduler la charge de travail.",
+          "Pratiquer les séances guidées de cohérence cardiaque et de respiration."
+        ]
+      },
+      "contact_flight_surgeon": {
+        "title": "Alerte : contact du médecin de vol requis",
+        "phrase": "Votre niveau d'épuisement ou de détresse psychologique nécessite un échange confidentiel prioritaire avec l'équipe médicale de Terre.",
+        "actions": [
+          "Planifier un point médical avec le chirurgien de vol ou le psychologue de mission.",
+          "Prendre un repos immédiat dans votre cabine.",
+          "Informer le médecin de toute altération du sommeil ou de l'appétit."
+        ]
+      }
+    },
+    "dimensionsTitle": "Dimensions psychométriques de bord",
+    "dimensionsSubtitle": "Suivi vectoriel des 5 piliers de stabilité comportementale en confinement orbital",
+    "logDimensionsButton": "Ajuster les évaluations",
+    "saveDimensions": "Enregistrer les dimensions",
+    "dimensions": {
+      "stressLevel": {
+        "title": "Niveau de stress",
+        "desc": "Activation neurovégétative et tension émotionnelle perçue.",
+        "nominal": "Faible • Zone optimale",
+        "watch": "Modéré • Vigilance",
+        "action": "Élevé • Régulation requise"
+      },
+      "moodScore": {
+        "title": "Score d'humeur",
+        "desc": "Valence affective générale, enthousiasme et sérénité.",
+        "nominal": "Positif & Équilibré",
+        "watch": "Valence neutre / en baisse",
+        "action": "Baisse d'énergie marquée"
+      },
+      "workloadPerception": {
+        "title": "Charge de travail perçue",
+        "desc": "Index NASA-TLX : charge mentale, effort et cadence des tâches de bord.",
+        "nominal": "Maîtrisée • Effort modéré",
+        "watch": "Charge soutenue",
+        "action": "Surcharge cognitive"
+      },
+      "timePerception": {
+        "title": "Perception du temps",
+        "desc": "Défilement temporel subjectif et vigilance contre la monotonie orbitale.",
+        "nominal": "Rythme nominal équilibré",
+        "watch": "Sentiment de temps ralenti",
+        "action": "Distorsion temporelle marquée"
+      },
+      "communicationWithOthers": {
+        "title": "Communication avec autrui",
+        "desc": "Cohésion d'équipage, dynamiques interpersonnelles et contacts avec la Terre.",
+        "nominal": "Fluide & Constructive",
+        "watch": "Contacts réservés",
+        "action": "Tensions ou retrait social"
+      }
+    },
+    "sleepSection": "Qualité du sommeil & Récupération",
+    "sleepLogButton": "Saisir la nuit au réveil",
+    "sleepComponents": "Composantes du score de sommeil (durée, continuité, régularité, ressenti)",
+    "sleepTrend": "Tendance sur 7 nuits",
+    "influencesTitle": "Ce qui influence votre humeur",
+    "influences": [
+      {
+        "title": "Sommeil récupérateur",
+        "text": "Une nuit de plus de 7h avec peu d'éveils stabilise directement l'humeur du lendemain (+12%)."
+      },
+      {
+        "title": "Exercice physique régulier",
+        "text": "Les 2h quotidiennes d'entraînement aérobie et de musculation ARED stimulent les endorphines et protègent contre l'anxiété."
+      },
+      {
+        "title": "Confinement et monotonie",
+        "text": "La privation sensorielle et l'environnement clos accroissent la fatigue mentale : préservez vos rituels d'équipage."
+      }
+    ]
+  },
+  "history": {
+    "title": "Historique & Trajectoires prédictives",
+    "subtitle": "Un seul indicateur à la fois : suivi temporel, baseline glissante sur 14 jours et prévisions avec fourchette d'incertitude.",
+    "selectMetric": "Sélectionner un indicateur",
+    "range7d": "7 jours",
+    "range30d": "30 jours",
+    "range90d": "90 jours",
+    "baselineLegend": "Ligne de base personnelle (14j)",
+    "forecastLegend": "Prévision (intervalle de confiance)",
+    "thresholdNormal": "Zone optimale",
+    "forecastNotice": "Ligne pleine : mesures réelles · Pointillés turquoise : prévision à 7 jours avec fourchette estimée",
+    "metrics": {
+      "heartRate": "Fréquence cardiaque",
+      "bpSys": "Pression artérielle systolique",
+      "temperature": "Température corporelle",
+      "glucose": "Glycémie capillaire",
+      "boneLoss": "Perte osseuse estimée",
+      "sleep": "Durée du sommeil",
+      "mood": "Indice OMS-5 adapté",
+      "stress": "Niveau de stress",
+      "radiation": "Radiations cumulées"
+    }
+  },
+  "missions": {
+    "title": "Missions quotidiennes & Régularité",
+    "subtitle": "Récompenses attribuées uniquement à la régularité des mesures, jamais à la valeur mesurée.",
+    "currentStreak": "Série active",
+    "days": "jours consécutifs",
+    "todayMissions": "Missions du jour (3 max)",
+    "badgesTitle": "Badges d'assiduité orbitale",
+    "environmentReminderTitle": "Consigne opérationnelle selon votre environnement",
+    "environmentReminders": {
+      "spacecraft": {
+        "title": "Protocole de transit en vaisseau spatial",
+        "text": "2 heures d'exercice cardiorespiratoire et sous charge obligatoire par jour pour préserver la fonction orthostatique et limiter l'atrophie musculaire."
+      },
+      "station": {
+        "title": "Protocole de microgravité en station orbitale",
+        "text": "Séance quotidienne sur machine de résistance ARED et tapis roulant T2 indispensable pour contrer la déminéralisation osseuse."
+      },
+      "lunar_base": {
+        "title": "Protocole de base lunaire (gravité 1/6 g)",
+        "text": "Surveillance de la charge mécanique partielle, relevé quotidien du dosimètre de surface et protocole de décontamination anti-poussière de régolithe."
+      },
+      "mars_rover": {
+        "title": "Protocole d'exploration en rover martien (gravité 1/3 g)",
+        "text": "Délai de communication Terre de 15 à 20 minutes : auto-évaluation stricte quotidienne des constantes vitales, inspection dosimétrique et autonomie médicale complète."
+      }
+    },
+    "badges": {
+      "firstContact": {
+        "name": "Premier contact",
+        "desc": "Au moins une première auto-évaluation enregistrée à bord."
+      },
+      "lowOrbit": {
+        "name": "Orbite basse",
+        "desc": "Série active de 7 jours consécutifs de suivi santé."
+      },
+      "orbitalDiscipline": {
+        "name": "Discipline orbitale",
+        "desc": "Série active de 14 jours consécutifs sans interruption."
+      },
+      "lunarTrajectory": {
+        "name": "Cap lunaire",
+        "desc": "Série active de 30 jours consécutifs de régularité exemplaire."
+      },
+      "martianEndurance": {
+        "name": "Endurance martienne",
+        "desc": "Série active de 60 jours consécutifs de protocole complet."
+      },
+      "guardian": {
+        "name": "Sentinelle de bord",
+        "desc": "100 mesures et auto-évaluations enregistrées au total."
+      }
+    }
+  },
+  "settings": {
+    "title": "Réglages & Rapport chirurgien",
+    "profileSection": "Profil de l'astronaute",
+    "name": "Prénom / Identifiant",
+    "age": "Âge",
+    "sex": "Sexe",
+    "weight": "Poids (kg)",
+    "environment": "Environnement de mission",
+    "language": "Langue de l'interface",
+    "glucoseUnit": "Unité de glycémie",
+    "commDelay": "Délai de communication simulé avec la Terre",
+    "minutes": "minutes",
+    "profilePhoto": "Photo de profil (redimensionnée localement à 256px)",
+    "demoSection": "Mode Démonstration (Jury)",
+    "demoScenario": "Scénario de test",
+    "advanceTime": "Avancer le temps (+24h)",
+    "reportSection": "Rapport médical de vol",
+    "generateReport": "Générer le rapport",
+    "period7d": "7 derniers jours",
+    "period30d": "30 derniers jours",
+    "reportStatusQueue": "File d'attente télémétrique",
+    "exportJson": "Télécharger en JSON",
+    "exportPdf": "Imprimer / Exporter en PDF",
+    "labSection": "Bilan sanguin optionnel (F-12)",
+    "importCsv": "Importer un fichier CSV (CMP / Eve)",
+    "saveChanges": "Enregistrer les modifications"
+  },
+  "measurementModal": {
+    "title": "Nouvelle mesure guidée",
+    "step1": "1. Choisir l'indicateur",
+    "step2": "2. Protocole de mesure",
+    "step3": "3. Saisie",
+    "step4": "4. Résultat immédiat",
+    "glucoseContext": "Contexte de mesure glycémique",
+    "fasting": "À jeun (matin)",
+    "postMeal": "Après repas (2 h)",
+    "random": "Autre / Aléatoire",
+    "enterValue": "Valeur mesurée",
+    "confirm": "Enregistrer la mesure",
+    "next": "Continuer",
+    "back": "Retour",
+    "close": "Fermer"
+  }
+}
