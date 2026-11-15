@@ -5,7 +5,9 @@
     "test": "npm --prefix NSAC test",
     "test:watch": "npm --prefix NSAC run test:watch",
     "dev": "npm --prefix NSAC run dev",
+    "seed:demo": "npm --prefix NSAC run seed:demo",
     "build": "npm --prefix NSAC run build",
+    "build:demo": "npm --prefix NSAC run build:demo",
     "preview": "npm --prefix NSAC run preview"
   }
 }

@@ -31,6 +31,7 @@ import { detectPatterns, fuseHealthStatus } from '../engine/fusion';
 
 export interface AstroState {
   astronaut: Astronaut;
+  astronautProfiles: Astronaut[];
   measurements: Measurement[];
   sleepLogs: SleepLog[];
   boneRecords: BoneDensityRecord[];
@@ -65,6 +66,8 @@ export interface AstroState {
   updatePsychMetrics: (metrics: Partial<PsychMetrics>) => Promise<void>;
   logActivityEvent: (type: 'login' | 'view' | 'measurement') => Promise<void>;
   updateAstronautProfile: (updates: Partial<Astronaut>) => Promise<void>;
+  createAstronautProfile: (profile: Pick<Astronaut, 'name' | 'age' | 'sex' | 'weightKg' | 'mission' | 'bloodGlucoseUnit'>) => Promise<void>;
+  selectAstronautProfile: (astronautId: string) => Promise<void>;
   updateAstronautPhoto: (fileOrDataUrl: File | string) => Promise<string>;
   recalculateAll: () => void;
 }
@@ -100,12 +103,8 @@ async function loadProfileData(astronautId: string) {
 }
 
 export const useAstroStore = create<AstroState>((set, get) => ({
-<<<<<<< Updated upstream
-  astronaut: DEFAULT_ASTRONAUT,
-=======
   astronaut: EMPTY_ASTRONAUT,
   astronautProfiles: [],
->>>>>>> Stashed changes
   measurements: [],
   sleepLogs: [],
   boneRecords: [],
@@ -129,12 +128,6 @@ export const useAstroStore = create<AstroState>((set, get) => ({
 
   init: async () => {
     set({ isLoading: true });
-<<<<<<< Updated upstream
-    let astronautProfiles = await db.astronauts.toArray();
-    if (astronautProfiles.length === 0 && !getSessionMatricule() && getSavedProfileId() === DEFAULT_ASTRONAUT.id) {
-      await seedDemoData('healthy');
-      astro = await db.astronauts.toCollection().first();
-=======
     if (typeof window !== 'undefined') window.localStorage.removeItem('astrohealth.activeProfileId');
     // Seed only when enabled and no known demo account is present. A CLI run ID
     // allows an explicit, one-time reset without touching real users.
@@ -143,7 +136,6 @@ export const useAstroStore = create<AstroState>((set, get) => ({
     const alreadyRan = Boolean(runStorageKey && window.localStorage.getItem(runStorageKey));
     if (import.meta.env.DEV || import.meta.env.VITE_LOAD_DEMO_DATA === 'true') {
       (window as Window & { seedAstrohealthDemo?: (options?: { reset?: boolean }) => Promise<unknown> }).seedAstrohealthDemo = seedFictionalCrew;
->>>>>>> Stashed changes
     }
     const existingDemoAccounts = await db.users.where('matricule').anyOf(DEMO_ACCOUNT_IDS).count();
     const forceRun = Boolean(demoRunId && !alreadyRan);
@@ -163,75 +155,39 @@ export const useAstroStore = create<AstroState>((set, get) => ({
       set({ astronautProfiles, astronaut: EMPTY_ASTRONAUT, measurements: [], sleepLogs: [], boneRecords: [], psychAssessments: [], activityEvents: [], isLoading: false });
       return;
     }
-<<<<<<< Updated upstream
-    saveActiveProfileId(astronaut.id);
-
-=======
     const profileData = await loadProfileData(astronaut.id);
->>>>>>> Stashed changes
     // Log current app visit
     const todayStr = new Date().toISOString().split('T')[0];
-    const hasTodayEvent = activityEvents.some((e) => e.date === todayStr);
+    const hasTodayEvent = profileData.activityEvents.some((e) => e.date === todayStr);
     if (!hasTodayEvent) {
       const newEv: ActivityEvent = {
         id: `act-visit-${Date.now()}`,
-        astronautId: astro?.id || DEFAULT_ASTRONAUT.id,
+        astronautId: astronaut.id,
         date: todayStr,
         type: 'view'
       };
       await db.activityEvents.put(newEv);
-      activityEvents.push(newEv);
+      profileData.activityEvents.push(newEv);
     }
 
     set({
-<<<<<<< Updated upstream
-      astronaut: astro || DEFAULT_ASTRONAUT,
-      measurements,
-      sleepLogs,
-      boneRecords,
-      psychAssessments,
-      activityEvents,
-=======
       astronaut,
       astronautProfiles,
       ...profileData,
->>>>>>> Stashed changes
       isLoading: false
     });
 
     get().recalculateAll();
   },
 
-<<<<<<< Updated upstream
-  loadScenario: async (scenario) => {
-    set({ isLoading: true, activeScenario: scenario });
-    await seedDemoData(scenario);
-    await get().init();
-  },
-
-  advanceTime24h: async () => {
-    const { missionDay, activeScenario } = get();
-    await simulateAdvanceTime24h(missionDay, activeScenario);
-    set({ missionDay: missionDay + 1 });
-    await get().init();
-  },
-
-=======
->>>>>>> Stashed changes
   addMeasurement: async (metric, value, unit, context) => {
     const { astronaut, measurements, activityEvents } = get();
     assertAuthenticatedAstronaut(astronaut);
     const now = Date.now();
     const todayStr = new Date().toISOString().split('T')[0];
-    const activityEvent: ActivityEvent = {
-      id: `act-${now}-${Math.random().toString(36).slice(2, 9)}`,
-      astronautId: astronaut.id,
-      date: todayStr,
-      type: 'measurement'
-    };
 
     const newM: Measurement = {
-      id: `m-${now}-${Math.random().toString(36).slice(2, 9)}`,
+      id: createLocalId('m'),
       astronautId: astronaut.id,
       metric,
       value,
@@ -244,13 +200,18 @@ export const useAstroStore = create<AstroState>((set, get) => ({
     await db.measurements.put(newM);
 
     // Register measurement activity event
-    await db.activityEvents.put(activityEvent);
+    await db.activityEvents.put({
+      id: `act-${now}`,
+      astronautId: astronaut.id,
+      date: todayStr,
+      type: 'measurement'
+    });
 
     set({
       measurements: [...measurements, newM],
       activityEvents: [
         ...activityEvents.filter((e) => e.date !== todayStr || e.type !== 'measurement'),
-        activityEvent
+        { id: `act-${now}`, astronautId: astronaut.id, date: todayStr, type: 'measurement' }
       ]
     });
 
@@ -441,7 +402,7 @@ export const useAstroStore = create<AstroState>((set, get) => ({
   },
 
   updateAstronautProfile: async (updates) => {
-    const { astronaut } = get();
+    const { astronaut, astronautProfiles } = get();
     const updated: Astronaut = { ...astronaut, ...updates };
     await db.astronauts.put(updated);
     if (updated.matricule) await db.users.put(updated);
@@ -531,17 +492,14 @@ export const useAstroStore = create<AstroState>((set, get) => ({
     const radList = measurements
       .filter((m) => m.metric === 'radiationDose')
       .sort((a, b) => b.timestamp - a.timestamp);
-    const latestRad = radList[0]?.value || 35.0;
+    const latestRad = radList[0]?.value;
     const radHistory = radList.slice(0, 14).map((r) => ({
       date: new Date(r.timestamp).toISOString().split('T')[0],
       cumulativeDose_mSv: r.value
     }));
-    const radiationProjection = calcRad(
-      latestRad,
-      astronaut.mission,
-      radHistory,
-      astronaut.careerRadiationDose || 0
-    );
+    const radiationProjection = latestRad === undefined
+      ? null
+      : calcRad(latestRad, astronaut.mission, radHistory, astronaut.careerRadiationDose || 0);
 
     // 5. Biometric assessments map
     const latestAssessments = new Map<Metric, Assessment>();

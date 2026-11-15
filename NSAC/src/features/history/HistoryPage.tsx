@@ -83,7 +83,6 @@ export const HistoryPage: React.FC = () => {
       minNorm: number;
       maxNorm: number;
       yDomain: [number, number];
-      forecastable: boolean;
     }
   >> = {
     glucose: {
@@ -92,8 +91,7 @@ export const HistoryPage: React.FC = () => {
       fallbackBaseline: 85,
       minNorm: 70,
       maxNorm: 100,
-      yDomain: [60, 140],
-      forecastable: true
+      yDomain: [60, 140]
     },
     boneLoss: {
       labelKey: 'history.metrics.boneLoss',
@@ -101,8 +99,7 @@ export const HistoryPage: React.FC = () => {
       fallbackBaseline: 2.1,
       minNorm: 0,
       maxNorm: 4.5,
-      yDomain: [0, 8],
-      forecastable: true
+      yDomain: [0, 8]
     },
     sleep: {
       labelKey: 'history.metrics.sleep',
@@ -110,8 +107,7 @@ export const HistoryPage: React.FC = () => {
       fallbackBaseline: 7.5,
       minNorm: 7.0,
       maxNorm: 9.0,
-      yDomain: [4, 11],
-      forecastable: true
+      yDomain: [4, 11]
     },
     mood: {
       labelKey: 'history.metrics.mood',
@@ -119,8 +115,7 @@ export const HistoryPage: React.FC = () => {
       fallbackBaseline: 76,
       minNorm: 68,
       maxNorm: 100,
-      yDomain: [20, 100],
-      forecastable: true
+      yDomain: [20, 100]
     },
     stress: {
       labelKey: 'history.metrics.stress',
@@ -148,11 +143,7 @@ export const HistoryPage: React.FC = () => {
   const currentConfig = METRIC_CONFIGS[selectedMetric]!;
 
   // Build real time series and forecasts
-<<<<<<< Updated upstream
-  const { chartData, personalBaseline, forecastSummary, hasData } = useMemo(() => {
-=======
   const { chartData, personalBaseline, forecastSummary, forecastReason, olderCount, baselineDays } = useMemo(() => {
->>>>>>> Stashed changes
     const now = Date.now();
     const rangeMs = timeRange * 24 * 60 * 60 * 1000;
     const startTs = now - rangeMs;
@@ -345,26 +336,6 @@ export const HistoryPage: React.FC = () => {
       predHigh = Math.round((latestVal + 2.5) * 10) / 10;
     }
 
-<<<<<<< Updated upstream
-    // Connect the last historical point to the forecast trajectory
-    const forecastPoints: any[] = [];
-    const stepCount = 5;
-    for (let step = 1; currentConfig.forecastable && step <= stepCount; step++) {
-      const dayOffset = Math.round((step / stepCount) * 7);
-      const interpVal = Math.round((latestVal + (predVal - latestVal) * (step / stepCount)) * 10) / 10;
-      const interpLow = Math.round((latestVal + (predLow - latestVal) * (step / stepCount)) * 10) / 10;
-      const interpHigh = Math.round((latestVal + (predHigh - latestVal) * (step / stepCount)) * 10) / 10;
-
-      forecastPoints.push({
-        date: `+${dayOffset}j`,
-        valeur: null,
-        baseline: computedBaseline,
-        prevision: interpVal,
-        borneHaute: interpHigh,
-        borneBasse: interpLow
-      });
-    }
-=======
     // The forecast is shown only at its modelled seven-day endpoint; no intermediate values are fabricated.
     historicalData[historicalData.length - 1].prevision = latestVal;
     historicalData[historicalData.length - 1].borneHaute = latestVal;
@@ -377,18 +348,13 @@ export const HistoryPage: React.FC = () => {
       borneHaute: predHigh,
       borneBasse: predLow
     };
->>>>>>> Stashed changes
 
     return {
       chartData: [...historicalData, forecastPoint],
       personalBaseline: computedBaseline,
-<<<<<<< Updated upstream
-      hasData: rawPoints.length > 0,
-=======
       forecastReason: null,
       olderCount: Math.max(0, rawPoints.length - inRangePoints.length),
       baselineDays,
->>>>>>> Stashed changes
       forecastSummary: {
         val: predVal,
         low: predLow,
@@ -502,11 +468,7 @@ export const HistoryPage: React.FC = () => {
               </span>
             </div>
             <p className="text-xs text-slate-muted mt-1">
-<<<<<<< Updated upstream
-              {currentConfig.forecastable ? t('history.forecastNotice') : t('history.cognitiveNotice')}
-=======
               {forecastSummary ? t('history.forecastNotice') : forecastReason}
->>>>>>> Stashed changes
             </p>
           </div>
 
@@ -536,14 +498,12 @@ export const HistoryPage: React.FC = () => {
           <ResponsiveContainer width="100%" height="100%">
             <LineChart key={`${astronaut.id}-${selectedMetric}-${timeRange}-${showAllMeasurements}`} data={chartData} margin={{ top: 12, right: 12, left: -10, bottom: 4 }}>
               {/* Discrete optimal physiological range reference area */}
-              {currentConfig.forecastable && (
-                <ReferenceArea
-                  y1={currentConfig.minNorm}
-                  y2={currentConfig.maxNorm}
-                  fill="#2E9E6B"
-                  fillOpacity={0.07}
-                />
-              )}
+              <ReferenceArea
+                y1={currentConfig.minNorm}
+                y2={currentConfig.maxNorm}
+                fill="#2E9E6B"
+                fillOpacity={0.07}
+              />
 
               <XAxis dataKey="date" stroke="#94A3B8" fontSize={12} tickLine={false} />
               <YAxis domain={currentConfig.yDomain} stroke="#94A3B8" fontSize={12} tickLine={false} />
@@ -606,45 +566,6 @@ export const HistoryPage: React.FC = () => {
               />
 
               {/* Dotted 7-day forecast line */}
-<<<<<<< Updated upstream
-              {currentConfig.forecastable && (
-                <Line
-                  type="monotone"
-                  dataKey="prevision"
-                  stroke="#2A9D8F"
-                  strokeWidth={2.5}
-                  strokeDasharray="5 5"
-                  dot={{ r: 3, fill: '#2A9D8F' }}
-                  connectNulls={false}
-                />
-              )}
-
-              {/* Upper forecast bound */}
-              {currentConfig.forecastable && (
-                <Line
-                  type="monotone"
-                  dataKey="borneHaute"
-                  stroke="#2A9D8F"
-                  strokeWidth={1}
-                  strokeDasharray="2 2"
-                  strokeOpacity={0.4}
-                  dot={false}
-                />
-              )}
-
-              {/* Lower forecast bound */}
-              {currentConfig.forecastable && (
-                <Line
-                  type="monotone"
-                  dataKey="borneBasse"
-                  stroke="#2A9D8F"
-                  strokeWidth={1}
-                  strokeDasharray="2 2"
-                  strokeOpacity={0.4}
-                  dot={false}
-                />
-              )}
-=======
               {forecastSummary && <Line
                 type="monotone"
                 dataKey="prevision"
@@ -676,13 +597,11 @@ export const HistoryPage: React.FC = () => {
                 strokeOpacity={0.4}
                 dot={false}
               />}
->>>>>>> Stashed changes
             </LineChart>
           </ResponsiveContainer>
         </div>
 
         {/* Prediction summary callout under graph */}
-        {currentConfig.forecastable && (
         <div className="p-4 rounded-xl bg-surface border border-slate-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm">
           <div>
             <div className="text-xs font-semibold uppercase tracking-wider text-slate-muted">
@@ -701,11 +620,7 @@ export const HistoryPage: React.FC = () => {
             </p>
           )}
         </div>
-<<<<<<< Updated upstream
-        )}
-=======
         </>}
->>>>>>> Stashed changes
       </section>
     </div>
   );

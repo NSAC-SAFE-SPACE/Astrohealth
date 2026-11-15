@@ -171,122 +171,6 @@ export async function seedFictionalCrew(options: { reset?: boolean } = {}): Prom
       await db.users.put(profile);
       await db.astronauts.put(profile);
     }
-<<<<<<< Updated upstream
-  ];
-
-  await db.measurements.bulkPut(measurements);
-  await db.sleepLogs.bulkPut(sleepLogs);
-  await db.activityEvents.bulkPut(activityEvents);
-  await db.psychAssessments.bulkPut(psychAssessments);
-  await db.boneDensityRecords.bulkPut(boneRecords);
-}
-
-/**
- * Simulates advancing time by 24 hours (1 mission day).
- * Appends new measurements, registers today's activity, and maintains trajectory continuity.
- */
-export async function advanceTime24h(
-  currentMissionDay: number,
-  scenario: DemoScenario = 'healthy'
-): Promise<{ nextMissionDay: number; newDateStr: string }> {
-  const nextMissionDay = currentMissionDay + 1;
-  const now = new Date();
-  const dateStr = now.toISOString().split('T')[0];
-  const timestamp = now.getTime();
-
-  // 1. Record measurement activity for the new day
-  const actId = `act-adv-${nextMissionDay}-${Date.now()}`;
-  await db.activityEvents.put({
-    id: actId,
-    astronautId: 'astro-01',
-    date: dateStr,
-    type: 'measurement'
-  });
-
-  // 2. Generate new day's readings according to the scenario
-  let hr = 70 + (Math.random() - 0.5) * 4;
-  let sys = 118 + (Math.random() - 0.5) * 4;
-  let dia = 76 + (Math.random() - 0.5) * 3;
-  let temp = 36.7 + (Math.random() - 0.5) * 0.2;
-  let glucose = 85 + (Math.random() - 0.5) * 6;
-  let sleepHours = 7.5;
-
-  if (scenario === 'fatigue') {
-    sleepHours = 4.2;
-    hr += 10;
-    sys += 8;
-    dia += 4;
-    temp += 0.3;
-    glucose += 12;
-  } else if (scenario === 'isolation') {
-    hr += 7;
-    sys += 6;
-  }
-
-  const newMeasurements: Measurement[] = [
-    {
-      id: `adv-hr-${nextMissionDay}`,
-      astronautId: 'astro-01',
-      metric: 'heartRate',
-      value: Math.round(hr),
-      unit: 'bpm',
-      timestamp: timestamp + 8 * 3600000,
-      source: 'simulated'
-    },
-    {
-      id: `adv-sys-${nextMissionDay}`,
-      astronautId: 'astro-01',
-      metric: 'bpSys',
-      value: Math.round(sys),
-      unit: 'mmHg',
-      timestamp: timestamp + 8 * 3600000,
-      source: 'simulated'
-    },
-    {
-      id: `adv-dia-${nextMissionDay}`,
-      astronautId: 'astro-01',
-      metric: 'bpDia',
-      value: Math.round(dia),
-      unit: 'mmHg',
-      timestamp: timestamp + 8 * 3600000,
-      source: 'simulated'
-    },
-    {
-      id: `adv-temp-${nextMissionDay}`,
-      astronautId: 'astro-01',
-      metric: 'temperature',
-      value: Math.round(temp * 10) / 10,
-      unit: '°C',
-      timestamp: timestamp + 9 * 3600000,
-      source: 'simulated'
-    },
-    {
-      id: `adv-glu-${nextMissionDay}`,
-      astronautId: 'astro-01',
-      metric: 'glucose',
-      value: Math.round(glucose),
-      unit: 'mg/dL',
-      timestamp: timestamp + 7 * 3600000,
-      source: 'simulated',
-      context: 'fasting'
-    }
-  ];
-
-  await db.measurements.bulkPut(newMeasurements);
-
-  await db.sleepLogs.put({
-    id: `adv-sleep-${nextMissionDay}`,
-    astronautId: 'astro-01',
-    date: dateStr,
-    hours: Math.round(sleepHours * 10) / 10,
-    bedtime: '23:30',
-    latencyBucket: sleepHours < 5 ? '30-60' : '<15',
-    awakenings: sleepHours < 5 ? 2 : 0,
-    restfulness: sleepHours < 5 ? 2 : 4
-  });
-
-  return { nextMissionDay, newDateStr: dateStr };
-=======
     await db.measurements.bulkPut(tables.measurements);
     await db.sleepLogs.bulkPut(tables.sleepLogs);
     await db.psychAssessments.bulkPut(tables.psychAssessments);
@@ -298,6 +182,5 @@ export async function advanceTime24h(
     sleepLogs: tables.sleepLogs.length, assessments: tables.psychAssessments.length,
     activityEvents: tables.activityEvents.length
   };
->>>>>>> Stashed changes
 }
 
