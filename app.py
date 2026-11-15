@@ -2,7 +2,7 @@ import requests
 
 # URL de l'API (Cloud ou Local)
 url_physics = "https://api-259997c9.fastapicloud.dev/predict"
-url_local = "http://127.0.0.1:8000/predict"
+
 
 
 def saisir_valeur(message: str):
@@ -65,22 +65,26 @@ def main():
 
     print(f"\n📡 Transmission de {len(payload)} mesure(s) à l'API de décision...")
 
-    # Envoi des données à l'API de traitement et de décision (Cloud avec repli local)
+    # Envoi des données à l'API de traitement et de décision (Cloud uniquement)
     reponse = None
     try:
-        r = requests.post(url_physics, json=payload, timeout=6)
-        if r.status_code == 200:
-            reponse = r
-        else:
-            # Le cloud a répondu mais avec une erreur (ex: ancienne version) → repli local
-            reponse = requests.post(url_local, json=payload, timeout=5)
-    except requests.exceptions.RequestException:
-        try:
-            reponse = requests.post(url_local, json=payload, timeout=5)
-        except requests.exceptions.RequestException:
-            print("\n[Erreur] Impossible de joindre l'API (Cloud ou Locale sur port 8000).")
-            print("Veuillez lancer l'API locale avec : uvicorn main:app --reload")
-            return
+        reponse = requests.post(url_physics, json=payload, timeout=15)
+        reponse.raise_for_status()
+
+    except requests.exceptions.ConnectionError:
+        print("\n[Erreur] Impossible de joindre l'API en ligne.")
+        print("Vérifiez votre connexion internet.")
+        return
+    except requests.exceptions.Timeout:
+        print("\n[Erreur] L'API n'a pas répondu dans le délai imparti (15s).")
+        return
+    except requests.exceptions.HTTPError as e:
+        print(f"\n[Erreur API] Code HTTP {reponse.status_code}")
+        print(f"Détail : {reponse.text}")
+        return
+    except requests.exceptions.RequestException as e:
+        print(f"\n[Erreur] Problème réseau inattendu : {e}")
+        return
 
     if reponse and reponse.status_code == 200:
         prediction = reponse.json()
