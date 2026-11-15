@@ -20,7 +20,7 @@ import {
   advanceTime24h as simulateAdvanceTime24h,
   DemoScenario
 } from '../services/simulator';
-import { resizeImageToSquare } from '../services/profile';
+import { DEFAULT_AVATAR_SILHOUETTE, ENVIRONMENT_COMM_DELAYS, resizeImageToSquare } from '../services/profile';
 
 // Pure scoring functions
 import { calculateCardioScore as calcCardio } from '../engine/scores/cardio';
@@ -33,6 +33,7 @@ import { detectPatterns, fuseHealthStatus } from '../engine/fusion';
 
 export interface AstroState {
   astronaut: Astronaut;
+  astronautProfiles: Astronaut[];
   measurements: Measurement[];
   sleepLogs: SleepLog[];
   boneRecords: BoneDensityRecord[];
@@ -66,12 +67,45 @@ export interface AstroState {
   updatePsychMetrics: (metrics: Partial<PsychMetrics>) => Promise<void>;
   logActivityEvent: (type: 'login' | 'view' | 'measurement') => Promise<void>;
   updateAstronautProfile: (updates: Partial<Astronaut>) => Promise<void>;
+  createAstronautProfile: (profile: Pick<Astronaut, 'name' | 'age' | 'sex' | 'weightKg' | 'mission' | 'bloodGlucoseUnit'>) => Promise<void>;
+  selectAstronautProfile: (astronautId: string) => Promise<void>;
   updateAstronautPhoto: (fileOrDataUrl: File | string) => Promise<string>;
   recalculateAll: () => void;
 }
 
+const ACTIVE_PROFILE_STORAGE_KEY = 'astrohealth.activeProfileId';
+
+function createLocalId(prefix: string): string {
+  const suffix = typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  return `${prefix}-${suffix}`;
+}
+
+function getSavedProfileId(): string | null {
+  return typeof window === 'undefined' ? null : window.localStorage.getItem(ACTIVE_PROFILE_STORAGE_KEY);
+}
+
+function saveActiveProfileId(astronautId: string): void {
+  if (typeof window !== 'undefined') {
+    window.localStorage.setItem(ACTIVE_PROFILE_STORAGE_KEY, astronautId);
+  }
+}
+
+async function loadProfileData(astronautId: string) {
+  const [measurements, sleepLogs, boneRecords, psychAssessments, activityEvents] = await Promise.all([
+    db.measurements.where('astronautId').equals(astronautId).toArray(),
+    db.sleepLogs.where('astronautId').equals(astronautId).toArray(),
+    db.boneDensityRecords.where('astronautId').equals(astronautId).toArray(),
+    db.psychAssessments.where('astronautId').equals(astronautId).toArray(),
+    db.activityEvents.where('astronautId').equals(astronautId).toArray()
+  ]);
+  return { measurements, sleepLogs, boneRecords, psychAssessments, activityEvents };
+}
+
 export const useAstroStore = create<AstroState>((set, get) => ({
   astronaut: DEFAULT_ASTRONAUT,
+  astronautProfiles: [],
   measurements: [],
   sleepLogs: [],
   boneRecords: [],
@@ -96,41 +130,37 @@ export const useAstroStore = create<AstroState>((set, get) => ({
 
   init: async () => {
     set({ isLoading: true });
-    let astro = await db.astronauts.toCollection().first();
-    const count = await db.measurements.count();
-
-    if (!astro || count === 0) {
+    let astronautProfiles = await db.astronauts.toArray();
+    if (astronautProfiles.length === 0) {
       await seedDemoData('healthy');
-      astro = await db.astronauts.toCollection().first();
+      astronautProfiles = await db.astronauts.toArray();
     }
 
-    const measurements = await db.measurements.orderBy('timestamp').toArray();
-    const sleepLogs = await db.sleepLogs.toArray();
-    const boneRecords = await db.boneDensityRecords.toArray();
-    const psychAssessments = await db.psychAssessments.toArray();
-    const activityEvents = await db.activityEvents.toArray();
+    const savedProfileId = getSavedProfileId();
+    const astronaut = astronautProfiles.find((profile) => profile.id === savedProfileId) ?? astronautProfiles[0];
+    if (!astronaut) throw new Error('Aucun profil Astrohealth disponible après initialisation.');
+    saveActiveProfileId(astronaut.id);
 
+    const profileData = await loadProfileData(astronaut.id);
     // Log current app visit
     const todayStr = new Date().toISOString().split('T')[0];
-    const hasTodayEvent = activityEvents.some((e) => e.date === todayStr);
+    const hasTodayEvent = profileData.activityEvents.some((e) => e.date === todayStr);
     if (!hasTodayEvent) {
       const newEv: ActivityEvent = {
         id: `act-visit-${Date.now()}`,
-        astronautId: astro?.id || DEFAULT_ASTRONAUT.id,
+        astronautId: astronaut.id,
         date: todayStr,
         type: 'view'
       };
       await db.activityEvents.put(newEv);
-      activityEvents.push(newEv);
+      profileData.activityEvents.push(newEv);
     }
 
     set({
-      astronaut: astro || DEFAULT_ASTRONAUT,
-      measurements,
-      sleepLogs,
-      boneRecords,
-      psychAssessments,
-      activityEvents,
+      astronaut,
+      astronautProfiles,
+      ...profileData,
+      missionDay: astronaut.missionDay ?? (astronaut.id === DEFAULT_ASTRONAUT.id ? 142 : 1),
       isLoading: false
     });
 
@@ -144,9 +174,9 @@ export const useAstroStore = create<AstroState>((set, get) => ({
   },
 
   advanceTime24h: async () => {
-    const { missionDay, activeScenario } = get();
-    await simulateAdvanceTime24h(missionDay, activeScenario);
-    set({ missionDay: missionDay + 1 });
+    const { missionDay, activeScenario, astronaut } = get();
+    const { nextMissionDay } = await simulateAdvanceTime24h(missionDay, activeScenario, astronaut.id);
+    await get().updateAstronautProfile({ missionDay: nextMissionDay });
     await get().init();
   },
 
@@ -156,7 +186,7 @@ export const useAstroStore = create<AstroState>((set, get) => ({
     const todayStr = new Date().toISOString().split('T')[0];
 
     const newM: Measurement = {
-      id: `m-${now}`,
+      id: createLocalId('m'),
       astronautId: astronaut.id,
       metric,
       value,
@@ -311,10 +341,55 @@ export const useAstroStore = create<AstroState>((set, get) => ({
   },
 
   updateAstronautProfile: async (updates) => {
-    const { astronaut } = get();
+    const { astronaut, astronautProfiles } = get();
     const updated: Astronaut = { ...astronaut, ...updates };
     await db.astronauts.put(updated);
-    set({ astronaut: updated });
+    set({
+      astronaut: updated,
+      astronautProfiles: astronautProfiles.map((profile) => profile.id === updated.id ? updated : profile)
+    });
+    get().recalculateAll();
+  },
+
+  createAstronautProfile: async (profile) => {
+    const { astronautProfiles } = get();
+    const newAstronaut: Astronaut = {
+      ...profile,
+      id: createLocalId('profile'),
+      photo: DEFAULT_AVATAR_SILHOUETTE,
+      careerRadiationDose: 0,
+      commDelayMinutes: ENVIRONMENT_COMM_DELAYS[profile.mission].nominalMin,
+      missionDay: 1
+    };
+    await db.astronauts.put(newAstronaut);
+    saveActiveProfileId(newAstronaut.id);
+    set({
+      astronaut: newAstronaut,
+      astronautProfiles: [...astronautProfiles, newAstronaut],
+      measurements: [],
+      sleepLogs: [],
+      boneRecords: [],
+      psychAssessments: [],
+      activityEvents: [],
+      missionDay: 1,
+      activeScenario: 'healthy',
+      isLoading: false
+    });
+    get().recalculateAll();
+  },
+
+  selectAstronautProfile: async (astronautId) => {
+    const astronaut = get().astronautProfiles.find((profile) => profile.id === astronautId);
+    if (!astronaut) throw new Error(`Profil Astrohealth introuvable : ${astronautId}`);
+    set({ isLoading: true });
+    saveActiveProfileId(astronaut.id);
+    const profileData = await loadProfileData(astronaut.id);
+    set({
+      astronaut,
+      ...profileData,
+      missionDay: astronaut.missionDay ?? (astronaut.id === DEFAULT_ASTRONAUT.id ? 142 : 1),
+      isLoading: false
+    });
     get().recalculateAll();
   },
 
@@ -357,17 +432,14 @@ export const useAstroStore = create<AstroState>((set, get) => ({
     const radList = measurements
       .filter((m) => m.metric === 'radiationDose')
       .sort((a, b) => b.timestamp - a.timestamp);
-    const latestRad = radList[0]?.value || 35.0;
+    const latestRad = radList[0]?.value;
     const radHistory = radList.slice(0, 14).map((r) => ({
       date: new Date(r.timestamp).toISOString().split('T')[0],
       cumulativeDose_mSv: r.value
     }));
-    const radiationProjection = calcRad(
-      latestRad,
-      astronaut.mission,
-      radHistory,
-      astronaut.careerRadiationDose || 0
-    );
+    const radiationProjection = latestRad === undefined
+      ? null
+      : calcRad(latestRad, astronaut.mission, radHistory, astronaut.careerRadiationDose || 0);
 
     // 5. Biometric assessments map
     const latestAssessments = new Map<Metric, Assessment>();

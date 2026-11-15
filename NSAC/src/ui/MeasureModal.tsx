@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, Check, ArrowRight, ArrowLeft, Heart, Activity, Thermometer, Droplet, Moon, ShieldAlert, Bone } from 'lucide-react';
 import { useAstroStore } from '../store/useAstroStore';
@@ -54,6 +54,23 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
     isAnomaly?: boolean;
     forecast?: ForecastResult | null;
   } | null>(null);
+  const [completedMeasurements, setCompletedMeasurements] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setStep(1);
+    setMetric(initialMetric);
+    setValue('72');
+    setBpDiaValue('80');
+    setGlucoseContext('fasting');
+    setSleepHours(7.5);
+    setSleepBedtime('23:00');
+    setSleepLatency('<15');
+    setSleepAwakenings(0);
+    setSleepRestfulness(4);
+    setResultAssessment(null);
+    setCompletedMeasurements([]);
+  }, [isOpen, initialMetric]);
 
   if (!isOpen) return null;
 
@@ -129,6 +146,7 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
   const currentOption = METRIC_OPTIONS.find((m) => m.id === metric) || METRIC_OPTIONS[0];
 
   const handleSave = async () => {
+    let completedTitle = '';
     if (metric === 'sleepQuality') {
       await addSleepLog({
         date: new Date().toISOString().split('T')[0],
@@ -139,6 +157,7 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
         restfulness: sleepRestfulness
       });
 
+      completedTitle = `Sommeil : ${sleepHours} h`;
       setResultAssessment({
         status: sleepHours >= 7 ? 'normal' : sleepHours >= 5.5 ? 'watch' : 'action',
         title: 'Nuit enregistrée avec succès',
@@ -176,6 +195,7 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
 
       if (metric === 'glucose') {
         const res = assessGlucose(numVal, glucoseContext, undefined, astronaut.bloodGlucoseUnit);
+        completedTitle = `Glycémie : ${numVal} ${currentOption.unit}`;
         setResultAssessment({
           status: res.status,
           title: `Glycémie : ${numVal} ${currentOption.unit}`,
@@ -191,6 +211,7 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
           metric === 'bpSys' && bpDiaValue
             ? `Pression artérielle : ${numVal} / ${bpDiaValue} mmHg`
             : `${currentOption.label} : ${numVal} ${currentOption.unit}`;
+        completedTitle = titleText;
 
         setResultAssessment({
           status: res.status,
@@ -202,7 +223,21 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
         });
       }
     }
+    setCompletedMeasurements((previous) => [...previous, completedTitle]);
     setStep(4);
+  };
+
+  const repeatCurrentMeasurement = () => {
+    setResultAssessment(null);
+    setValue(metric === 'bpSys' ? '120' : metric === 'temperature' ? '36.6' : metric === 'glucose' ? '85' : '72');
+    setBpDiaValue('80');
+    setGlucoseContext('fasting');
+    setSleepHours(7.5);
+    setSleepBedtime('23:00');
+    setSleepLatency('<15');
+    setSleepAwakenings(0);
+    setSleepRestfulness(4);
+    setStep(3);
   };
 
   return (
@@ -518,6 +553,19 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
                   )}
                 </div>
               )}
+
+              {completedMeasurements.length > 1 && (
+                <div className="rounded-xl border border-slate-border p-4 space-y-2">
+                  <h4 className="text-xs uppercase tracking-wider font-semibold text-slate-muted">
+                    Mesures enregistrées dans cette série
+                  </h4>
+                  <ul className="space-y-1 text-sm text-slate-text">
+                    {completedMeasurements.map((measurement, index) => (
+                      <li key={`${index}-${measurement}`}>{measurement}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -557,12 +605,29 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
           )}
 
           {step === 4 && (
-            <button
-              onClick={onClose}
-              className="px-6 py-2.5 rounded-lg bg-primary text-white font-medium text-sm hover:bg-primary-hover shadow-xs"
-            >
-              Terminer et revenir au tableau de bord
-            </button>
+            <div className="flex flex-wrap justify-end gap-2">
+              <button
+                onClick={() => {
+                  setResultAssessment(null);
+                  setStep(1);
+                }}
+                className="px-4 py-2.5 rounded-lg border border-slate-border text-slate-text font-medium text-sm hover:bg-white"
+              >
+                {t('measurementModal.nextMetric')}
+              </button>
+              <button
+                onClick={repeatCurrentMeasurement}
+                className="px-4 py-2.5 rounded-lg bg-primary text-white font-medium text-sm hover:bg-primary-hover shadow-xs"
+              >
+                {t('measurementModal.repeat')}
+              </button>
+              <button
+                onClick={onClose}
+                className="px-4 py-2.5 rounded-lg border border-slate-border text-slate-text font-medium text-sm hover:bg-white"
+              >
+                {t('measurementModal.finish')}
+              </button>
+            </div>
           )}
         </div>
       </div>
