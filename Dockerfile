@@ -1,0 +1,16 @@
+FROM python:3.14
+
+
+WORKDIR /app
+
+
+COPY requirements.txt .
+
+
+RUN pip install --no-cache-dir -r /app/requirements.txt
+
+
+COPY . ./
+
+
+CMD ["fastapi", "run", "app/main.py", "--port", "80"]
