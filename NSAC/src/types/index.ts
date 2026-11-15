@@ -156,6 +156,7 @@ export interface Astronaut {
   baselineBoneDensity?: Partial<Record<BoneSite, number>>;
   bloodGlucoseUnit?: 'mg/dL' | 'mmol/L';
   commDelayMinutes?: number;
+  missionDay?: number;
 }
 
 export interface ThresholdConfigItem {

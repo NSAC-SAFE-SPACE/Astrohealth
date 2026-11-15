@@ -23,19 +23,24 @@ import {
   ChevronDown,
   ChevronUp,
   FlaskConical,
-  Zap
+  Zap,
+  PlusCircle
 } from 'lucide-react';
 import type { MissionEnvironment, LabResult, Status } from '../../types';
+import { ENVIRONMENT_COMM_DELAYS } from '../../services/profile';
 
 export const SettingsPage: React.FC = () => {
   const { t, i18n } = useTranslation();
   const {
     astronaut,
+    astronautProfiles,
     activeScenario,
     missionDay,
     loadScenario,
     advanceTime24h,
     updateAstronautProfile,
+    createAstronautProfile,
+    selectAstronautProfile,
     cardioScore,
     sleepScore,
     boneLossScore,
@@ -59,10 +64,13 @@ export const SettingsPage: React.FC = () => {
   const [glucoseUnit, setGlucoseUnit] = useState<'mg/dL' | 'mmol/L'>(astronaut.bloodGlucoseUnit || 'mg/dL');
   const [commDelay, setCommDelay] = useState(astronaut.commDelayMinutes ?? 5);
   const [reportPeriod, setReportPeriod] = useState<7 | 30>(7);
+  const [isCreatingProfile, setIsCreatingProfile] = useState(false);
+  const [saveSuccessMessage, setSaveSuccessMessage] = useState('');
 
   // Transmission queue simulated state
   const [reportStatus, setReportStatus] = useState<'aucun' | 'en attente' | 'transmis'>('aucun');
   const [countdownSec, setCountdownSec] = useState<number>(0);
+  const [pendingReportId, setPendingReportId] = useState<string | null>(null);
   const [showReportPreview, setShowReportPreview] = useState<boolean>(true);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
@@ -90,14 +98,12 @@ export const SettingsPage: React.FC = () => {
         if (prev <= 1) {
           setReportStatus('transmis');
           // Update DB record
-          db.reports.toCollection().last().then((lastReport) => {
-            if (lastReport?.id) {
-              db.reports.update(lastReport.id, {
-                status: 'transmis',
-                deliveredAt: Date.now()
-              });
-            }
-          });
+          if (pendingReportId) {
+            db.reports.update(pendingReportId, {
+              status: 'transmis',
+              deliveredAt: Date.now()
+            }).then(() => setPendingReportId(null));
+          }
           return 0;
         }
         return prev - 1;
@@ -105,7 +111,7 @@ export const SettingsPage: React.FC = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [reportStatus, countdownSec]);
+  }, [reportStatus, countdownSec, pendingReportId]);
 
   // Handle local client-side image resize to 256px
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -137,17 +143,50 @@ export const SettingsPage: React.FC = () => {
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    await updateAstronautProfile({
+    const creatingProfile = isCreatingProfile;
+    const profile = {
       name,
       age: Number(age),
       sex,
       weightKg: Number(weightKg),
       mission,
-      bloodGlucoseUnit: glucoseUnit,
-      commDelayMinutes: Number(commDelay)
-    });
+      bloodGlucoseUnit: glucoseUnit
+    };
+    if (isCreatingProfile) {
+      await createAstronautProfile(profile);
+      setIsCreatingProfile(false);
+    } else {
+      await updateAstronautProfile({
+        ...profile,
+        commDelayMinutes: Number(commDelay)
+      });
+    }
+    setSaveSuccessMessage(creatingProfile ? t('settings.profileCreated') : t('settings.profileSaved'));
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 2500);
+  };
+
+  const startNewProfile = () => {
+    setName('');
+    setAge(30);
+    setSex('female');
+    setWeightKg(65);
+    setMission('spacecraft');
+    setGlucoseUnit('mg/dL');
+    setCommDelay(ENVIRONMENT_COMM_DELAYS.spacecraft.nominalMin);
+    setIsCreatingProfile(true);
+    setSaveSuccess(false);
+  };
+
+  const cancelNewProfile = () => {
+    setIsCreatingProfile(false);
+    setName(astronaut.name);
+    setAge(astronaut.age);
+    setSex(astronaut.sex);
+    setWeightKg(astronaut.weightKg);
+    setMission(astronaut.mission);
+    setGlucoseUnit(astronaut.bloodGlucoseUnit || 'mg/dL');
+    setCommDelay(astronaut.commDelayMinutes ?? 5);
   };
 
   // Generate Flight Surgeon Report
@@ -167,6 +206,7 @@ export const SettingsPage: React.FC = () => {
     };
 
     await db.reports.put(newRecord);
+    setPendingReportId(newRecord.id ?? null);
 
     if (commDelay > 0) {
       setReportStatus('en attente');
@@ -184,12 +224,12 @@ export const SettingsPage: React.FC = () => {
   const handleForceTransmit = async () => {
     setCountdownSec(0);
     setReportStatus('transmis');
-    const lastReport = await db.reports.toCollection().last();
-    if (lastReport?.id) {
-      await db.reports.update(lastReport.id, {
+    if (pendingReportId) {
+      await db.reports.update(pendingReportId, {
         status: 'transmis',
         deliveredAt: Date.now()
       });
+      setPendingReportId(null);
     }
   };
 
@@ -372,13 +412,47 @@ export const SettingsPage: React.FC = () => {
       </section>
 
       {/* 2. ASTRONAUT PROFILE FORM (NO-PRINT) */}
-      <section className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-border shadow-xs space-y-6 no-print">
-        <h2 className="font-serif text-2xl font-bold text-slate-text">
-          {t('settings.profileSection')}
-        </h2>
+      <section id="profils" className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-border shadow-xs space-y-6 no-print">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <h2 className="font-serif text-2xl font-bold text-slate-text">
+            {t('settings.profileSection')}
+          </h2>
+          <div className="flex flex-wrap items-center gap-2">
+            {!isCreatingProfile && astronautProfiles.length > 1 && (
+              <select
+                aria-label={t('settings.selectProfile')}
+                value={astronaut.id}
+                onChange={(e) => selectAstronautProfile(e.target.value)}
+                className="h-11 px-3 rounded-xl border border-slate-border text-sm font-semibold bg-white"
+              >
+                {astronautProfiles.map((profile) => (
+                  <option key={profile.id} value={profile.id}>{profile.name}</option>
+                ))}
+              </select>
+            )}
+            {isCreatingProfile ? (
+              <button
+                type="button"
+                onClick={cancelNewProfile}
+                className="px-4 py-2.5 rounded-xl border border-slate-border text-sm font-semibold hover:bg-surface min-h-[44px]"
+              >
+                {t('settings.cancelNewProfile')}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={startNewProfile}
+                className="px-4 py-2.5 rounded-xl bg-primary text-white text-sm font-semibold flex items-center gap-2 hover:bg-primary-hover min-h-[44px]"
+              >
+                <PlusCircle className="w-4 h-4" />
+                {t('settings.newProfile')}
+              </button>
+            )}
+          </div>
+        </div>
 
         {/* Profile photo with local 256px crop */}
-        <div className="flex items-center gap-6">
+        {!isCreatingProfile && <div className="flex items-center gap-6">
           <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-primary/20 bg-surface flex items-center justify-center shrink-0">
             {astronaut.photo ? (
               <img src={astronaut.photo} alt="Photo profil" className="w-full h-full object-cover" />
@@ -406,7 +480,7 @@ export const SettingsPage: React.FC = () => {
               Traitée 100% en local dans le navigateur (cadrage 256×256 px), jamais envoyée sur un serveur.
             </p>
           </div>
-        </div>
+        </div>}
 
         <form onSubmit={handleSaveProfile} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -416,6 +490,7 @@ export const SettingsPage: React.FC = () => {
               </label>
               <input
                 type="text"
+                required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full h-11 px-3.5 rounded-xl border border-slate-border text-sm font-semibold"
@@ -444,8 +519,26 @@ export const SettingsPage: React.FC = () => {
               </label>
               <input
                 type="number"
+                min="1"
+                max="120"
+                required
                 value={age}
                 onChange={(e) => setAge(Number(e.target.value))}
+                className="w-full h-11 px-3.5 rounded-xl border border-slate-border text-sm font-semibold"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-muted mb-1">
+                {t('settings.weight')}
+              </label>
+              <input
+                type="number"
+                min="1"
+                step="0.1"
+                required
+                value={weightKg}
+                onChange={(e) => setWeightKg(Number(e.target.value))}
                 className="w-full h-11 px-3.5 rounded-xl border border-slate-border text-sm font-semibold"
               />
             </div>
@@ -503,12 +596,12 @@ export const SettingsPage: React.FC = () => {
               type="submit"
               className="px-6 py-2.5 rounded-xl bg-primary text-white font-semibold text-sm hover:bg-primary-hover shadow-xs transition-colors min-h-[44px]"
             >
-              {t('settings.saveChanges')}
+              {isCreatingProfile ? t('settings.startTracking') : t('settings.saveChanges')}
             </button>
             {saveSuccess && (
               <span className="text-xs font-semibold text-status-normal flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4" />
-                Modifications enregistrées localement
+                {saveSuccessMessage}
               </span>
             )}
           </div>

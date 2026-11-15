@@ -23,6 +23,21 @@ describe('Engine: Generic Status & Baseline Escalation', () => {
     expect(res.status).toBe('contact_flight_surgeon');
   });
 
+  it.each([
+    ['temperature', 37.3, 'watch'],
+    ['temperature', 37.6, 'action'],
+    ['temperature', 38, 'contact_flight_surgeon'],
+    ['sleepHours', 6.5, 'watch'],
+    ['sleepHours', 5, 'action'],
+    ['sleepHours', 4, 'contact_flight_surgeon'],
+    ['spo2', 96, 'normal'],
+    ['spo2', 93, 'watch'],
+    ['spo2', 90, 'action'],
+    ['spo2', 87, 'contact_flight_surgeon']
+  ] as const)('classifies %s=%s as %s', (metric, value, expectedStatus) => {
+    expect(assessMeasurement(metric, value).status).toBe(expectedStatus);
+  });
+
   it('escalates status when baseline divergence exceeds |z| > 2', () => {
     // Normal absolute value (78 bpm), but astronaut baseline is 60 bpm with std 5 bpm (z = +3.6)
     const res = assessMeasurement('heartRate', 78, { mean: 60, std: 5 });
