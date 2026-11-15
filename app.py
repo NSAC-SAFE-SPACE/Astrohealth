@@ -1,63 +1,118 @@
 import requests
 
-url_physics = "http://127.0.0.1:8000/predict"
+# URL de l'API (Cloud ou Local)
+url_physics = "https://api-259997c9.fastapicloud.dev/predict"
+url_local = "http://127.0.0.1:8000/predict"
 
-print("=" * 65)
-print("  PLATEFORME DE SUIVI DE LA SANTÉ PHYSIQUE DE L'ASTRONAUTE")
-print("  Compétition NASA Human Research Program (HRP)")
-print("=" * 65)
-print("\nVeuillez saisir les mesures relevées sur les appareils de bord :\n")
 
-# Saisie des indicateurs par l'astronaute à partir des appareils embarqués
-z_score = float(input("1. Entrer le Z-Score de densité osseuse (DEXA / ultrason) : "))
-perte_force = float(input("2. Entrer la perte de force musculaire en % (dynamomètre) : "))
-freq_cardiaque = float(input("3. Entrer la fréquence cardiaque au repos en bpm (Bio-Monitor) : "))
-pression_syst = float(input("4. Entrer la pression artérielle systolique en mmHg (tensiomètre) : "))
-pression_diast = float(input("5. Entrer la pression artérielle diastolique en mmHg (tensiomètre) : "))
-spo2 = float(input("6. Entrer la saturation en oxygène SpO2 en % (oxymètre Bio-Monitor) : "))
-dose_rad_jour = float(input("7. Entrer la dose journalière de radiation en mSv/jour (spectromètre CANS) : "))
-dose_rad_cumul = float(input("8. Entrer la dose cumulée de radiation en mSv (dosimètre Rad-Silk) : "))
-pio = float(input("9. Entrer la pression intraoculaire en mmHg (tonomètre / SANS) : "))
-temperature = float(input("10. Entrer la température corporelle centrale en °C (Bio-Monitor) : "))
-densite_urinaire = float(input("11. Entrer la densité urinaire USG (réfractomètre / risque calcul rénal) : "))
-co2_cabine = float(input("12. Entrer la pression partielle de CO2 cabine en mmHg (capteur d'ambiance) : "))
-glycemie = float(input("13. Entrer la glycémie à jeun en g/L ou mg/dL (glucomètre / capteur CGM) : "))
+def saisir_valeur(message: str):
+    """
+    Saisit une valeur numérique au clavier.
+    Si l'astronaute appuie simplement sur Entrée (vide), retourne None pour ignorer la variable.
+    """
+    val = input(message).strip()
+    if val == "":
+        return None
+    try:
+        return float(val.replace(",", "."))
+    except ValueError:
+        print("   ⚠️ Valeur non reconnue -> mesure ignorée.")
+        return None
 
-payload = {
-    "Z_Score": z_score,
-    "perte_force_musculaire": perte_force,
-    "frequence_cardiaque": freq_cardiaque,
-    "pression_systolique": pression_syst,
-    "pression_diastolique": pression_diast,
-    "spo2": spo2,
-    "dose_radiation_journaliere": dose_rad_jour,
-    "dose_radiation_cumulee": dose_rad_cumul,
-    "pression_intraoculaire": pio,
-    "temperature_corporelle": temperature,
-    "densite_urinaire": densite_urinaire,
-    "co2_cabine": co2_cabine,
-    "glycemie": glycemie
-}
 
-# Envoi des données à l'API de traitement et de décision
-try:
-    reponse = requests.post(url_physics, json=payload)
-    prediction = reponse.json()
+def main():
+    print("=" * 70)
+    print("  PLATEFORME DE SUIVI DE LA SANTÉ PHYSIQUE DE L'ASTRONAUTE")
+    print("  Compétition NASA Human Research Program (HRP)")
+    print("=" * 70)
+    print("\nVeuillez saisir les mesures relevées sur les appareils de bord.")
+    print("👉 [CONSEIL] Appuyez simplement sur ENTRÉE pour ignorer une mesure non prise.\n")
 
-    print("\n" + "=" * 65)
-    print("  RÉSULTATS DE L'ÉVALUATION ET DÉCISIONS MÉDICALES")
-    print("=" * 65)
+    # Saisie des indicateurs par l'astronaute (tous optionnels)
+    z_score = saisir_valeur("1. Z-Score densité osseuse (DEXA / ultrason) [Entrée = ignorer] : ")
+    perte_force = saisir_valeur("2. Perte de force musculaire en % (dynamomètre) [Entrée = ignorer] : ")
+    freq_cardiaque = saisir_valeur("3. Fréquence cardiaque au repos en bpm (Bio-Monitor) [Entrée = ignorer] : ")
+    pression_syst = saisir_valeur("4. Pression artérielle systolique en mmHg (tensiomètre) [Entrée = ignorer] : ")
+    pression_diast = saisir_valeur("5. Pression artérielle diastolique en mmHg (tensiomètre) [Entrée = ignorer] : ")
+    spo2 = saisir_valeur("6. Saturation en oxygène SpO2 en % (oxymètre Bio-Monitor) [Entrée = ignorer] : ")
+    dose_rad_jour = saisir_valeur("7. Dose journalière de radiation en mSv/jour (spectromètre CANS) [Entrée = ignorer] : ")
+    dose_rad_cumul = saisir_valeur("8. Dose cumulée de radiation en mSv (dosimètre Rad-Silk) [Entrée = ignorer] : ")
+    pio = saisir_valeur("9. Pression intraoculaire en mmHg (tonomètre / SANS) [Entrée = ignorer] : ")
+    temperature = saisir_valeur("10. Température corporelle en °C (Bio-Monitor) [Entrée = ignorer] : ")
+    densite_urinaire = saisir_valeur("11. Densité urinaire USG (réfractomètre / calcul rénal) [Entrée = ignorer] : ")
+    co2_cabine = saisir_valeur("12. Pression partielle CO2 cabine en mmHg (capteur ambiance) [Entrée = ignorer] : ")
+    glycemie = saisir_valeur("13. Glycémie à jeun en g/L ou mg/dL (glucomètre / capteur CGM) [Entrée = ignorer] : ")
 
-    print("\n--- DIAGNOSTICS PHYSIOLOGIQUES ---")
-    for d in prediction.get("diagnostic", []):
-        print(f"• {d}")
+    # Construction dynamique du payload : seules les variables renseignées sont transmises
+    payload = {}
+    if z_score is not None: payload["Z_Score"] = z_score
+    if perte_force is not None: payload["perte_force_musculaire"] = perte_force
+    if freq_cardiaque is not None: payload["frequence_cardiaque"] = freq_cardiaque
+    if pression_syst is not None: payload["pression_systolique"] = pression_syst
+    if pression_diast is not None: payload["pression_diastolique"] = pression_diast
+    if spo2 is not None: payload["spo2"] = spo2
+    if dose_rad_jour is not None: payload["dose_radiation_journaliere"] = dose_rad_jour
+    if dose_rad_cumul is not None: payload["dose_radiation_cumulee"] = dose_rad_cumul
+    if pio is not None: payload["pression_intraoculaire"] = pio
+    if temperature is not None: payload["temperature_corporelle"] = temperature
+    if densite_urinaire is not None: payload["densite_urinaire"] = densite_urinaire
+    if co2_cabine is not None: payload["co2_cabine"] = co2_cabine
+    if glycemie is not None: payload["glycemie"] = glycemie
 
-    print("\n--- DÉCISIONS & CONTRE-MESURES RECOMMANDÉES ---")
-    for dec in prediction.get("decisions_recommandees", []):
-        print(f"➜ {dec}")
+    if not payload:
+        print("\nℹ️ Aucune mesure n'a été saisie. Aucune analyse à effectuer.")
+        return
 
-    print("=" * 65)
+    print(f"\n📡 Transmission de {len(payload)} mesure(s) à l'API de décision...")
 
-except requests.exceptions.ConnectionError:
-    print("\n[Erreur] Impossible de joindre l'API sur http://127.0.0.1:8000.")
-    print("Veuillez d'abord démarrer l'API avec la commande : uvicorn main:app --reload")
+    # Envoi des données à l'API de traitement et de décision (Cloud avec repli local)
+    reponse = None
+    try:
+        r = requests.post(url_physics, json=payload, timeout=6)
+        if r.status_code == 200:
+            reponse = r
+        else:
+            # Le cloud a répondu mais avec une erreur (ex: ancienne version) → repli local
+            reponse = requests.post(url_local, json=payload, timeout=5)
+    except requests.exceptions.RequestException:
+        try:
+            reponse = requests.post(url_local, json=payload, timeout=5)
+        except requests.exceptions.RequestException:
+            print("\n[Erreur] Impossible de joindre l'API (Cloud ou Locale sur port 8000).")
+            print("Veuillez lancer l'API locale avec : uvicorn main:app --reload")
+            return
+
+    if reponse and reponse.status_code == 200:
+        prediction = reponse.json()
+
+        print("\n" + "=" * 70)
+        print("  RÉSULTATS DE L'ÉVALUATION ET DÉCISIONS MÉDICALES")
+        print("=" * 70)
+
+        statut = prediction.get("statut_global")
+        if statut:
+            print(f"\n>>> STATUT : {statut} <<<")
+            print(f"Mesures analysées : {prediction.get('nb_mesures_analysees', 0)} | Anomalies critiques : {prediction.get('nb_anomalies_critiques', 0)} | Vigilance : {prediction.get('nb_anomalies_vigilance', 0)}")
+
+        print("\n--- DIAGNOSTICS PHYSIOLOGIQUES (Variables évaluées) ---")
+        for d in prediction.get("diagnostic", []):
+            print(f"• {d}")
+
+        decisions = prediction.get("decisions_recommandees", [])
+        if decisions:
+            print("\n--- DÉCISIONS & CONTRE-MESURES RECOMMANDÉES ---")
+            for dec in decisions:
+                print(f"➜ {dec}")
+        else:
+            print("\n--- DÉCISIONS & CONTRE-MESURES RECOMMANDÉES ---")
+            print("➜ Aucune contre-mesure nécessaire : les paramètres mesurés sont conformes.")
+
+        print("=" * 70)
+    else:
+        status_code = reponse.status_code if reponse else "Inconnu"
+        text = reponse.text if reponse else "Pas de réponse"
+        print(f"\nErreur reçue de l'API : {status_code} - {text}")
+
+
+if __name__ == "__main__":
+    main()
