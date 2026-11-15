@@ -21,10 +21,7 @@ export const HomePage: React.FC = () => {
     sleepScore,
     missionDay,
     boneLossScore,
-    radiationProjection,
-    latestAssessments,
-    dominantPattern,
-    patterns
+    radiationProjection
   } = useAstroStore();
 
   const [isMeasureModalOpen, setIsMeasureModalOpen] = useState(false);
@@ -34,76 +31,6 @@ export const HomePage: React.FC = () => {
   const adviceSentence = t(`home.adviceSentences.${globalStatus}`, {
     defaultValue: 'Tous les paramètres sont dans les normes orbitales.'
   });
-  const cardioDeduction = cardioScore ? (100 - cardioScore.value) * 0.35 : 0;
-  const sleepDeduction = sleepScore ? (100 - sleepScore.value) * 0.35 : 0;
-  const boneDeduction = boneLossScore && boneLossScore.value > 2
-    ? Math.min(30, boneLossScore.value * 3)
-    : 0;
-  const radiationDeduction = radiationProjection && radiationProjection.status !== 'normal' ? 15 : 0;
-  const scoreDetails = [
-    t('home.scoreStartsAt', { count: 100 }),
-    t('home.cardioScoreDetail', {
-      score: cardioScore?.value ?? t('home.notAvailable'),
-      meanSys: cardioScore?.meanSys ?? t('home.notAvailable'),
-      meanHr: cardioScore?.meanHr ?? t('home.notAvailable'),
-      deduction: cardioDeduction.toFixed(1)
-    }),
-    t('home.sleepScoreDetail', {
-      score: sleepScore?.value ?? t('home.notAvailable'),
-      components: sleepScore?.components.map((component) => `${component.key}: ${component.value}/100`).join(', ') || t('home.notAvailable'),
-      deduction: sleepDeduction.toFixed(1)
-    }),
-    t('home.boneScoreDetail', {
-      loss: boneLossScore?.value ?? t('home.notAvailable'),
-      deduction: boneDeduction.toFixed(1)
-    }),
-    t('home.radiationScoreDetail', {
-      status: radiationProjection ? t(`status.${radiationProjection.status}`) : t('home.notAvailable'),
-      deduction: radiationDeduction
-    }),
-    t('home.patternScoreDetail', {
-      count: patterns.length,
-      deduction: (patterns.length * 8).toFixed(1)
-    }),
-    t('home.scoreClampDetail')
-  ];
-
-  const openMostRelevantStatus = () => {
-    const patternMetric = dominantPattern?.involvedMetrics[0];
-    if (patternMetric === 'sleepHours' || patternMetric === 'mood' || patternMetric === 'stress' || patternMetric === 'workload') {
-      navigate('/mental');
-      return;
-    }
-    if (patternMetric === 'glucose') {
-      navigate('/corps?zone=belly');
-      return;
-    }
-    if (patternMetric === 'temperature') {
-      navigate('/corps?zone=skin');
-      return;
-    }
-    if (patternMetric === 'boneProxy' || patternMetric === 'boneDensity') {
-      navigate('/corps?zone=bone');
-      return;
-    }
-    if (patternMetric === 'radiationDose' || patternMetric === 'radiationRate') {
-      navigate('/corps?zone=radiation');
-      return;
-    }
-
-    const statusRank = { normal: 0, watch: 1, action: 2, contact_flight_surgeon: 3 };
-    const candidates = [
-      { status: cardioScore?.status, path: '/corps?zone=heart' },
-      { status: latestAssessments.get('glucose')?.status, path: '/corps?zone=belly' },
-      { status: latestAssessments.get('temperature')?.status, path: '/corps?zone=skin' },
-      { status: boneLossScore?.status, path: '/corps?zone=bone' },
-      { status: radiationProjection?.status, path: '/corps?zone=radiation' },
-      { status: sleepScore?.status, path: '/mental' }
-    ].filter((candidate): candidate is { status: keyof typeof statusRank; path: string } =>
-      candidate.status !== undefined && candidate.status !== 'normal'
-    ).sort((a, b) => statusRank[b.status] - statusRank[a.status]);
-    navigate(candidates[0]?.path ?? '/corps?zone=heart');
-  };
 
   return (
     <div className="relative isolate space-y-10 sm:space-y-12 max-w-4xl mx-auto">
@@ -111,12 +38,7 @@ export const HomePage: React.FC = () => {
       {/* 1. Header Profile Section */}
       <section className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b border-slate-border">
         <div className="flex items-center gap-5">
-          <button
-            type="button"
-            onClick={() => navigate('/reglages#profils')}
-            aria-label={t('home.openProfiles')}
-            className="relative w-20 h-20 rounded-2xl overflow-hidden border-2 border-primary/20 bg-surface shrink-0 shadow-xs flex items-center justify-center cursor-pointer hover:border-primary focus-visible:outline"
-          >
+          <div className="relative w-20 h-20 rounded-2xl overflow-hidden border-2 border-primary/20 bg-surface shrink-0 shadow-xs flex items-center justify-center">
             {astronaut.photo ? (
               <img
                 src={astronaut.photo}
@@ -126,7 +48,7 @@ export const HomePage: React.FC = () => {
             ) : (
               <User className="w-10 h-10 text-primary/60" />
             )}
-          </button>
+          </div>
           <div className="space-y-1 max-w-prose">
             <div className="text-xs font-semibold uppercase tracking-wider text-slate-muted">
               <span className="block">{astronaut.mission.replace('_', ' ')}</span>
@@ -140,14 +62,7 @@ export const HomePage: React.FC = () => {
 
         {/* Priority Status Callout */}
         <div className="self-start sm:self-center">
-          <button
-            type="button"
-            onClick={openMostRelevantStatus}
-            className="rounded-full focus-visible:outline"
-            aria-label={t('home.openStatusDetails', { status: summaryWord })}
-          >
-            <StatusBadge status={globalStatus} size="lg" />
-          </button>
+          <StatusBadge status={globalStatus} size="lg" />
         </div>
       </section>
 
@@ -166,8 +81,6 @@ export const HomePage: React.FC = () => {
           status={globalStatus}
           summaryWord={summaryWord}
           adviceSentence={adviceSentence}
-          scoreDetails={scoreDetails}
-          onStatusClick={openMostRelevantStatus}
         />
       </section>
 

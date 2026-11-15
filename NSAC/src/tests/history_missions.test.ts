@@ -75,7 +75,18 @@ describe('Étape 7: Historique avec prévisions, Missions et rappels', () => {
   });
 
   it('fournit les traductions des métriques et des seuils d’historique (F-07)', () => {
-    const metrics = ['heartRate', 'bpSys', 'temperature', 'glucose', 'boneLoss', 'sleep', 'mood', 'radiation'];
+    const metrics = [
+      'heartRate',
+      'bpSys',
+      'temperature',
+      'glucose',
+      'boneLoss',
+      'sleep',
+      'mood',
+      'radiation',
+      'reactionTime',
+      'orientationAccuracy'
+    ];
 
     for (const m of metrics) {
       const frName = (frTranslations.history.metrics as any)[m];
@@ -83,5 +94,10 @@ describe('Étape 7: Historique avec prévisions, Missions et rappels', () => {
       expect(frName).toBeDefined();
       expect(enName).toBeDefined();
     }
+
+    expect(frTranslations.measurementModal.cognitive.reactionTitle).toBeDefined();
+    expect(enTranslations.measurementModal.cognitive.reactionTitle).toBeDefined();
+    expect(frTranslations.measurementModal.cognitive.orientationTitle).toBeDefined();
+    expect(enTranslations.measurementModal.cognitive.orientationTitle).toBeDefined();
   });
 });

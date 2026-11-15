@@ -25,17 +25,6 @@
     "greeting": "Bonjour, {{name}}.",
     "statusCardTitle": "État général",
     "globalScore": "Score global",
-    "openProfiles": "Ouvrir la gestion des profils",
-    "openStatusDetails": "Voir le détail de l’état : {{status}}",
-    "scoreDetailsTitle": "Données utilisées pour le score",
-    "scoreStartsAt": "Base : {{count}} points.",
-    "cardioScoreDetail": "Cardio : {{score}}/100 (tension systolique moyenne {{meanSys}} mmHg, fréquence cardiaque moyenne {{meanHr}} bpm) ; pénalité {{deduction}}.",
-    "sleepScoreDetail": "Sommeil : {{score}}/100 (composantes {{components}}) ; pénalité {{deduction}}.",
-    "boneScoreDetail": "Os : perte mesurée {{loss}} % ; pénalité {{deduction}}.",
-    "radiationScoreDetail": "Radiations : statut {{status}} ; pénalité {{deduction}} points.",
-    "patternScoreDetail": "Schémas combinés détectés : {{count}} ; pénalité {{deduction}} points.",
-    "scoreClampDetail": "Score final arrondi et limité à une plage de 20 à 100.",
-    "notAvailable": "indisponible",
     "measureButton": "Faire une mesure",
     "seeBodyButton": "Voir mon corps",
     "summaryWords": {
@@ -268,7 +257,7 @@
   },
   "history": {
     "title": "Historique & Trajectoires prédictives",
-    "subtitle": "Un seul indicateur à la fois : suivi temporel, baseline glissante sur 14 jours et prévisions avec fourchette d'incertitude.",
+    "subtitle": "Évolution des indicateurs de santé et des exercices cognitifs, avec référence personnelle et prévisions lorsque disponibles.",
     "selectMetric": "Sélectionner un indicateur",
     "range7d": "7 jours",
     "range30d": "30 jours",
@@ -277,6 +266,8 @@
     "forecastLegend": "Prévision (intervalle de confiance)",
     "thresholdNormal": "Zone optimale",
     "forecastNotice": "Ligne pleine : mesures réelles · Pointillés turquoise : prévision à 7 jours avec fourchette estimée",
+    "cognitiveNotice": "Ces exercices fournissent des indicateurs de suivi personnels, sans seuil médical ni prévision.",
+    "noData": "Aucun résultat sur cette période. Effectuez le test depuis « Faire une mesure » pour commencer le suivi.",
     "metrics": {
       "heartRate": "Fréquence cardiaque",
       "bpSys": "Pression artérielle systolique",
@@ -286,7 +277,9 @@
       "sleep": "Durée du sommeil",
       "mood": "Indice OMS-5 adapté",
       "stress": "Niveau de stress",
-      "radiation": "Radiations cumulées"
+      "radiation": "Radiations cumulées",
+      "reactionTime": "Temps de réaction médian",
+      "orientationAccuracy": "Orientation spatiale"
     }
   },
   "missions": {
@@ -345,12 +338,6 @@
   "settings": {
     "title": "Réglages & Rapport chirurgien",
     "profileSection": "Profil de l'astronaute",
-    "newProfile": "Nouveau profil",
-    "cancelNewProfile": "Annuler",
-    "selectProfile": "Sélectionner un profil",
-    "startTracking": "Créer le profil et commencer le suivi",
-    "profileCreated": "Nouveau profil créé, suivi démarré",
-    "profileSaved": "Modifications enregistrées localement",
     "name": "Prénom / Identifiant",
     "age": "Âge",
     "sex": "Sexe",
@@ -387,11 +374,47 @@
     "random": "Autre / Aléatoire",
     "enterValue": "Valeur mesurée",
     "confirm": "Enregistrer la mesure",
-    "nextMetric": "Autre indicateur",
-    "repeat": "Reprendre une mesure",
-    "finish": "Terminer",
     "next": "Continuer",
     "back": "Retour",
-    "close": "Fermer"
+    "close": "Fermer",
+    "cognitive": {
+      "reactionMetric": "Test de réactivité",
+      "orientationMetric": "Orientation spatiale",
+      "reactionProtocol1": "Installez-vous confortablement et gardez un doigt prêt à toucher l’écran.",
+      "reactionProtocol2": "Touchez la zone de réponse uniquement lorsqu’elle change de couleur.",
+      "reactionProtocol3": "Après 2 essais d'entraînement, 8 essais sont chronométrés ; attendez le signal et évitez les réponses anticipées.",
+      "orientationProtocol1": "Repérez la flèche affichée au centre du cadran.",
+      "orientationProtocol2": "Choisissez parmi les huit directions celle vers laquelle pointe la flèche.",
+      "orientationProtocol3": "Après un essai d'entraînement, 8 essais sont enregistrés ; prenez votre temps et répondez sans aide extérieure.",
+      "reactionTitle": "Réactivité visuelle",
+      "reactionInstructions": "Deux essais d’entraînement précèdent les 8 essais mesurés. Touchez la zone dès qu’elle apparaît.",
+      "orientationTitle": "Repérage des directions",
+      "orientationInstructions": "Identifiez la direction indiquée par la flèche. La précision et le temps moyen sont enregistrés.",
+      "disclaimer": "Exercice indicatif, non validé pour le diagnostic. Les résultats dépendent aussi de l’écran, du mode de saisie, de la vision et de la fatigue.",
+      "nonDiagnostic": "Résultat enregistré comme indicateur de suivi personnel, sans interprétation ni seuil médical.",
+      "trackingOnly": "Suivi non diagnostique",
+      "start": "Commencer le test",
+      "wait": "Attendez le signal…",
+      "tapNow": "Touchez maintenant",
+      "progress": "Essai {{current}} sur {{total}}",
+      "practice": "Essai d'entraînement",
+      "practiceProgress": "Entraînement {{current}} sur {{total}}",
+      "reactionResult": "Temps de réaction médian : {{median}} ms · Réponses ≥ 500 ms : {{lapses}} sur {{trials}} essais.",
+      "falseStarts": "Réponses anticipées : {{count}}",
+      "orientationResult": "Score : {{correct}}/{{trials}} · Précision : {{accuracy}} % · Temps moyen : {{time}} ms.",
+      "chooseDirection": "Quelle direction indique la flèche ?",
+      "directionArrow": "Flèche indiquant une direction cardinale ou diagonale",
+      "retry": "Recommencer",
+      "directions": {
+        "north": "N",
+        "northEast": "NE",
+        "east": "E",
+        "southEast": "SE",
+        "south": "S",
+        "southWest": "SO",
+        "west": "O",
+        "northWest": "NO"
+      }
+    }
   }
 }
