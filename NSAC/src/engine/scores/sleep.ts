@@ -173,3 +173,13 @@ export function calculateSleepScore(
     explanation
   };
 }
+
+/** Shared sleep score as used by the existing card and all consumers. */
+export function computeSleepQuality(current: SleepLog, historyPast7Days: SleepLog[] = []): number {
+  return calculateSleepScore(current, historyPast7Days).value;
+}
+
+/** Convertit le score sommeil 0–100 sur l’échelle Psyché 0–62.53 par règle de trois. */
+export function computePsychSleepQuality(current: SleepLog, historyPast7Days: SleepLog[] = []): number {
+  return round((computeSleepQuality(current, historyPast7Days) * 62.53) / 100, 2);
+}

@@ -16,10 +16,15 @@ export type Metric =
   | 'exerciseMin'
   | 'boneProxy'
   | 'boneDensity'
+  | 'boneZScore'
+  | 'muscleStrengthLoss'
   | 'radiationDose'
   | 'radiationRate'
-  | 'reactionTime'
-  | 'orientationAccuracy';
+  | 'radiationDoseDaily'
+  | 'intraocularPressure'
+  | 'urineSpecificGravity'
+  | 'co2PartialPressure'
+  | 'fastingGlucose';
 
 export type Status = 'normal' | 'watch' | 'action' | 'contact_flight_surgeon';
 
@@ -86,6 +91,7 @@ export interface SleepLog {
   latencyBucket: LatencyBucket;
   awakenings: number;
   restfulness: number; // 1 to 5
+  calculatedQuality?: number;
 }
 
 export interface BoneDensityRecord {
@@ -110,8 +116,8 @@ export interface PsychAssessment {
   id: string;
   astronautId: string;
   date: string; // ISO string or YYYY-MM-DD
-  answers: number[]; // 5 answers from 0 to 5
-  score: number; // 0-100 (sum * 4)
+  answers: number[];
+  score: number;
   status: Status;
   // 5 Key Spaceflight Behavioral Dimensions
   stressLevel?: number;
@@ -119,6 +125,18 @@ export interface PsychAssessment {
   workloadPerception?: number;
   timePerception?: number;
   communicationWithOthers?: number;
+  mentalStateData?: MentalStateData;
+}
+
+export interface MentalStateData {
+  Stress_level: 'High' | 'Medium' | 'Low';
+  Happiness: number;
+  Mood_Score: 'positive' | 'neutral' | 'negative';
+  Sleep_Quality: number;
+  'Workload Perception': 'impossible' | 'possible' | 'easy';
+  Time_Perception: 'Slow' | 'Normal' | 'Fast';
+  Food: 'Bad' | 'Good' | 'Neutral';
+  Communication_with_Earth_mins: number;
 }
 
 export interface ActivityEvent {
@@ -148,16 +166,21 @@ export interface LabResult {
 
 export interface Astronaut {
   id: string;
+  matricule?: string;
   name: string;
   age: number;
   sex: 'male' | 'female';
   weightKg: number;
+  heightCm?: number;
   mission: MissionEnvironment;
   photo?: string; // Data URL resized to 256px
   careerRadiationDose?: number; // mSv prior to current mission
   baselineBoneDensity?: Partial<Record<BoneSite, number>>;
   bloodGlucoseUnit?: 'mg/dL' | 'mmol/L';
   commDelayMinutes?: number;
+  missionDay?: number;
+  createdAt?: string;
+  profileComplete?: boolean;
 }
 
 export interface ThresholdConfigItem {

@@ -13,6 +13,7 @@ import {
   GlucoseForecaster
 } from '../engine';
 import type { Metric, GlucoseContext, LatencyBucket, BoneSite, BoneMethod, Status, Assessment, ForecastResult } from '../types';
+import { defaultSleepLogValues, SleepLogFields } from './SleepLogFields';
 
 interface MeasureModalProps {
   isOpen: boolean;
@@ -39,11 +40,7 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
   const [glucoseContext, setGlucoseContext] = useState<GlucoseContext>('fasting');
 
   // Sleep dedicated fields
-  const [sleepHours, setSleepHours] = useState<number>(7.5);
-  const [sleepBedtime, setSleepBedtime] = useState<string>('23:00');
-  const [sleepLatency, setSleepLatency] = useState<LatencyBucket>('<15');
-  const [sleepAwakenings, setSleepAwakenings] = useState<number>(0);
-  const [sleepRestfulness, setSleepRestfulness] = useState<number>(4);
+  const [sleepValues, setSleepValues] = useState(defaultSleepLogValues);
 
   // Result state
   const [resultAssessment, setResultAssessment] = useState<{
@@ -66,11 +63,7 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
     setValue('72');
     setBpDiaValue('80');
     setGlucoseContext('fasting');
-    setSleepHours(7.5);
-    setSleepBedtime('23:00');
-    setSleepLatency('<15');
-    setSleepAwakenings(0);
-    setSleepRestfulness(4);
+    setSleepValues(defaultSleepLogValues);
     setResultAssessment(null);
     setCognitiveResult(null);
   }, [isOpen, initialMetric]);
@@ -220,17 +213,15 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
     } else if (metric === 'sleepQuality') {
       await addSleepLog({
         date: new Date().toISOString().split('T')[0],
-        hours: sleepHours,
-        bedtime: sleepBedtime,
-        latencyBucket: sleepLatency,
-        awakenings: sleepAwakenings,
-        restfulness: sleepRestfulness
+        ...sleepValues,
+        latencyBucket: sleepValues.latencyBucket as LatencyBucket
       });
 
+      completedTitle = `Sommeil : ${sleepValues.hours} h`;
       setResultAssessment({
-        status: sleepHours >= 7 ? 'normal' : sleepHours >= 5.5 ? 'watch' : 'action',
+        status: sleepValues.hours >= 7 ? 'normal' : sleepValues.hours >= 5.5 ? 'watch' : 'action',
         title: 'Nuit enregistrée avec succès',
-        phrase1: `${sleepHours} heures de repos enregistrées avec un ressenti de ${sleepRestfulness}/5.`,
+        phrase1: `${sleepValues.hours} heures de repos enregistrées avec un ressenti de ${sleepValues.restfulness}/5.`,
         phrase2: 'La qualité de récupération a été intégrée à vos tendances physiologiques.',
         actions: [
           'Hydratez-vous dès le lever pour compenser la perte insensible.',
@@ -291,6 +282,15 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
       }
     }
     setStep(4);
+  };
+
+  const repeatCurrentMeasurement = () => {
+    setResultAssessment(null);
+    setValue(metric === 'bpSys' ? '120' : metric === 'temperature' ? '36.6' : metric === 'glucose' ? '85' : '72');
+    setBpDiaValue('80');
+    setGlucoseContext('fasting');
+    setSleepValues(defaultSleepLogValues);
+    setStep(3);
   };
 
   return (
@@ -393,99 +393,7 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
               </h3>
 
               {metric === 'sleepQuality' ? (
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-text mb-1">
-                      Heures effectives dormies
-                    </label>
-                    <input
-                      type="number"
-                      step="0.5"
-                      min="1"
-                      max="16"
-                      value={sleepHours}
-                      onChange={(e) => setSleepHours(parseFloat(e.target.value) || 7)}
-                      className="w-full h-12 px-4 rounded-xl border border-slate-border text-lg font-semibold"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-text mb-1">
-                      Heure du coucher
-                    </label>
-                    <input
-                      type="time"
-                      value={sleepBedtime}
-                      onChange={(e) => setSleepBedtime(e.target.value)}
-                      className="w-full h-12 px-4 rounded-xl border border-slate-border text-lg font-semibold"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-text mb-1">
-                      Temps pour s'endormir
-                    </label>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                      {(['<15', '15-30', '30-60', '>60'] as LatencyBucket[]).map((bucket) => (
-                        <button
-                          key={bucket}
-                          type="button"
-                          onClick={() => setSleepLatency(bucket)}
-                          className={`h-11 rounded-lg border text-sm font-medium ${
-                            sleepLatency === bucket
-                              ? 'bg-primary text-white border-primary'
-                              : 'bg-white border-slate-border text-slate-text'
-                          }`}
-                        >
-                          {bucket} min
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-text mb-1">
-                      Nombre de réveils nocturnes : {sleepAwakenings}
-                    </label>
-                    <input
-                      type="range"
-                      min="0"
-                      max="6"
-                      value={sleepAwakenings}
-                      onChange={(e) => setSleepAwakenings(parseInt(e.target.value, 10))}
-                      className="w-full accent-primary"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-text mb-1">
-                      Ressenti d'énergie au réveil (1 = épuisé, 5 = en pleine forme) : {sleepRestfulness} / 5
-                    </label>
-                    <div className="flex gap-2">
-                      {[1, 2, 3, 4, 5].map((val) => (
-                        <button
-                          key={val}
-                          type="button"
-                          onClick={() => setSleepRestfulness(val)}
-                          className={`flex-1 h-12 rounded-lg border font-bold text-base ${
-                            sleepRestfulness === val
-                              ? 'bg-primary text-white border-primary'
-                              : 'bg-white border-slate-border text-slate-text'
-                          }`}
-                        >
-                          {val}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              ) : isCognitiveMetric ? (
-                <CognitiveTestPanel
-                  key={metric}
-                  type={metric === 'reactionTime' ? 'reaction' : 'orientation'}
-                  onComplete={setCognitiveResult}
-                  onReset={() => setCognitiveResult(null)}
-                />
+                <SleepLogFields values={sleepValues} onChange={setSleepValues} />
               ) : (
                 <div className="space-y-4">
                   {metric === 'glucose' && (
