@@ -22,6 +22,17 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.logo-intro {
+  animation: astro-logo-fade 700ms ease-out both;
+}
+@keyframes astro-logo-fade {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .logo-intro { animation: none; }
+}
+
 /* Ensure minimum touch target size */
 button, a, input, select {
   touch-action: manipulation;

@@ -19,18 +19,18 @@ export default defineConfig(({ mode }) => {
         name: 'Astrohealth - Astronaut Health Monitoring',
         short_name: 'Astrohealth',
         description: 'Offline astronaut health self-assessment for deep space exploration',
-        theme_color: '#0B4F8A',
+        theme_color: '#EEF0F3',
         background_color: '#FFFFFF',
         display: 'standalone',
         orientation: 'portrait',
         icons: [
           {
-            src: '/icon-192.png',
-            sizes: '192x192',
+            src: '/astrohealth-favicon-64.png',
+            sizes: '64x64',
             type: 'image/png'
           },
           {
-            src: '/icon-512.png',
+            src: '/astrohealth-logo-512.png',
             sizes: '512x512',
             type: 'image/png'
           }

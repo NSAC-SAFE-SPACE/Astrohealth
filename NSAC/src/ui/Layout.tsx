@@ -15,6 +15,7 @@ import {
 import { useAstroStore } from '../store/useAstroStore';
 import { changeLanguage } from '../i18n';
 import { MeasureModal } from './MeasureModal';
+import { AstrohealthLogo } from './AstrohealthLogo';
 import type { Metric } from '../types';
 
 export const Layout: React.FC = () => {
@@ -48,9 +49,9 @@ export const Layout: React.FC = () => {
       <aside className="hidden md:flex flex-col justify-between w-72 bg-surface border-r border-slate-border p-6 fixed inset-y-0 left-0 z-30 select-none">
         <div className="space-y-8">
           {/* Logo & Call sign */}
-          <div className="flex items-center gap-3">
+          <NavLink to="/" aria-label="Astrohealth — accueil" className="flex items-center gap-3 rounded-lg focus-visible:outline-offset-4">
             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white font-serif font-bold text-xl shadow-xs">
-              A
+              <AstrohealthLogo size={40} />
             </div>
             <div>
               <div className="font-serif font-bold text-lg text-slate-text tracking-tight flex items-center gap-2">
@@ -61,7 +62,7 @@ export const Layout: React.FC = () => {
                 <span className="block">{astronaut.missionName ?? astronaut.mission.replace('_', ' ')}</span>
               </div>
             </div>
-          </div>
+          </NavLink>
 
           {/* Quick measurement button */}
           <button
@@ -131,12 +132,10 @@ export const Layout: React.FC = () => {
         <div className="hidden h-16 items-center justify-end px-8 md:flex"><span className="text-xs font-semibold uppercase tracking-wider text-slate-muted">{astronaut.missionName ?? astronaut.mission.replace('_', ' ')}</span></div>
         {/* Mobile Top Header */}
         <header className="md:hidden flex items-center justify-between p-4 bg-surface border-b border-slate-border sticky top-0 z-20">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white font-serif font-bold text-base">
-              A
-            </div>
+          <NavLink to="/" aria-label="Astrohealth — accueil" className="flex items-center gap-2.5 rounded-lg focus-visible:outline-offset-4">
+            <AstrohealthLogo size={38} />
             <span className="font-serif font-bold text-base text-slate-text">Astrohealth</span>
-          </div>
+          </NavLink>
 
           <div className="flex items-center gap-2">
             <button
