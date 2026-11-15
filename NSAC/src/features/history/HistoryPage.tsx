@@ -20,17 +20,27 @@ import {
   MoodForecaster
 } from '../../engine';
 import { TrendingUp, Activity, HelpCircle, Calendar, ShieldCheck } from 'lucide-react';
+import { BODY_MEASURE_FIELDS } from '../../engine/config/bodyMeasures';
 
 export type HistoryMetricKey =
   | 'heartRate'
   | 'bpSys'
+  | 'bpDia'
   | 'temperature'
   | 'glucose'
   | 'boneLoss'
   | 'sleep'
   | 'mood'
   | 'stress'
-  | 'radiation';
+  | 'radiationDose'
+  | 'boneZScore'
+  | 'muscleStrengthLoss'
+  | 'spo2'
+  | 'radiationDoseDaily'
+  | 'intraocularPressure'
+  | 'urineSpecificGravity'
+  | 'co2PartialPressure'
+  | 'fastingGlucose';
 
 export const HistoryPage: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -41,9 +51,6 @@ export const HistoryPage: React.FC = () => {
     sleepLogs,
     psychAssessments,
     boneRecords,
-    cardioScore,
-    boneLossScore,
-    radiationProjection,
     missionDay,
     logActivityEvent
   } = useAstroStore();
@@ -57,7 +64,7 @@ export const HistoryPage: React.FC = () => {
   }, [logActivityEvent]);
 
   // Metric configurations
-  const METRIC_CONFIGS: Record<
+  const METRIC_CONFIGS: Partial<Record<
     HistoryMetricKey,
     {
       labelKey: string;
@@ -67,31 +74,7 @@ export const HistoryPage: React.FC = () => {
       maxNorm: number;
       yDomain: [number, number];
     }
-  > = {
-    heartRate: {
-      labelKey: 'history.metrics.heartRate',
-      unit: 'bpm',
-      fallbackBaseline: 68,
-      minNorm: 60,
-      maxNorm: 100,
-      yDomain: [45, 125]
-    },
-    bpSys: {
-      labelKey: 'history.metrics.bpSys',
-      unit: 'mmHg',
-      fallbackBaseline: 118,
-      minNorm: 90,
-      maxNorm: 120,
-      yDomain: [80, 160]
-    },
-    temperature: {
-      labelKey: 'history.metrics.temperature',
-      unit: '°C',
-      fallbackBaseline: 36.6,
-      minNorm: 36.1,
-      maxNorm: 37.2,
-      yDomain: [35.5, 38.5]
-    },
+  >> = {
     glucose: {
       labelKey: 'history.metrics.glucose',
       unit: 'mg/dL',
@@ -131,18 +114,23 @@ export const HistoryPage: React.FC = () => {
       minNorm: 0,
       maxNorm: 35,
       yDomain: [0, 100]
-    },
-    radiation: {
-      labelKey: 'history.metrics.radiation',
-      unit: 'mSv',
-      fallbackBaseline: 35.0,
-      minNorm: 0,
-      maxNorm: 60.0,
-      yDomain: [0, 70]
     }
   };
 
-  const currentConfig = METRIC_CONFIGS[selectedMetric];
+  BODY_MEASURE_FIELDS.forEach((field) => {
+    METRIC_CONFIGS[field.metric as HistoryMetricKey] = {
+      labelKey: field.label,
+      unit: field.unit,
+      fallbackBaseline: field.nominal.min !== undefined && field.nominal.max !== undefined
+        ? (field.nominal.min + field.nominal.max) / 2
+        : field.nominal.min ?? field.nominal.max ?? 0,
+      minNorm: field.nominal.min ?? field.plausibility.min,
+      maxNorm: field.nominal.max ?? field.plausibility.max,
+      yDomain: [field.plausibility.min, field.plausibility.max]
+    };
+  });
+
+  const currentConfig = METRIC_CONFIGS[selectedMetric]!;
 
   // Build real time series and forecasts
   const { chartData, personalBaseline, forecastSummary } = useMemo(() => {
@@ -197,10 +185,7 @@ export const HistoryPage: React.FC = () => {
           });
         });
     } else {
-      const metricName =
-        selectedMetric === 'radiation'
-          ? 'radiationDose'
-          : selectedMetric;
+      const metricName = selectedMetric;
 
       measurements
         .filter((m) => m.metric === metricName && m.timestamp >= startTs)
@@ -215,6 +200,9 @@ export const HistoryPage: React.FC = () => {
 
     // Sort chronologically
     rawPoints.sort((a, b) => a.timestamp - b.timestamp);
+    if (rawPoints.length === 0) {
+      return { chartData: [], personalBaseline: null, forecastSummary: null };
+    }
 
     // Compute rolling 14-day baseline
     const fourteenDaysMs = 14 * 24 * 3600 * 1000;
@@ -244,19 +232,6 @@ export const HistoryPage: React.FC = () => {
         borneBasse: null
       });
     });
-
-    // If historical data is sparse, ensure at least some continuous timeline points
-    if (historicalData.length === 0) {
-      const defaultVal = computedBaseline;
-      historicalData.push({
-        date: isFrench ? 'Aujourd’hui' : 'Today',
-        valeur: defaultVal,
-        baseline: computedBaseline,
-        prevision: null,
-        borneHaute: null,
-        borneBasse: null
-      });
-    }
 
     // Calculate 7-day future prediction with forecaster
     const latestVal = historicalData[historicalData.length - 1]?.valeur || computedBaseline;
@@ -307,7 +282,7 @@ export const HistoryPage: React.FC = () => {
       predVal = Math.round(latestVal * 10) / 10;
       predLow = Math.max(0, Math.round((latestVal - 5) * 10) / 10);
       predHigh = Math.min(100, Math.round((latestVal + 6) * 10) / 10);
-    } else if (selectedMetric === 'radiation') {
+    } else if (selectedMetric === 'radiationDose') {
       predVal = Math.round((latestVal + 1.2) * 10) / 10;
       predLow = Math.round(latestVal * 10) / 10;
       predHigh = Math.round((latestVal + 2.5) * 10) / 10;
@@ -344,7 +319,7 @@ export const HistoryPage: React.FC = () => {
     };
   }, [selectedMetric, timeRange, measurements, sleepLogs, psychAssessments, boneRecords, missionDay, currentConfig, isFrench]);
 
-  const METRIC_KEYS: HistoryMetricKey[] = [
+  const METRIC_KEYS: HistoryMetricKey[] = Array.from(new Set<HistoryMetricKey>([
     'heartRate',
     'bpSys',
     'temperature',
@@ -352,8 +327,9 @@ export const HistoryPage: React.FC = () => {
     'boneLoss',
     'sleep',
     'mood',
-    'radiation'
-  ];
+    'stress',
+    ...BODY_MEASURE_FIELDS.map((field) => field.metric as HistoryMetricKey)
+  ]));
 
   return (
     <div className="space-y-8 sm:space-y-10 max-w-5xl mx-auto">
@@ -404,7 +380,7 @@ export const HistoryPage: React.FC = () => {
                     : 'bg-white text-slate-text border-slate-border hover:bg-surface'
                 }`}
               >
-                {t(METRIC_CONFIGS[key].labelKey)}
+                {t(METRIC_CONFIGS[key]!.labelKey)}
               </button>
             );
           })}
@@ -441,7 +417,7 @@ export const HistoryPage: React.FC = () => {
             </span>
             <span className="flex items-center gap-1.5">
               <span className="w-3.5 h-1 bg-slate-400 border-b border-dashed border-slate-500 inline-block" />
-              <span>{t('history.baselineLegend')} ({personalBaseline} {currentConfig.unit})</span>
+              <span>{t('history.baselineLegend')} ({personalBaseline ?? '—'} {currentConfig.unit})</span>
             </span>
             <span className="flex items-center gap-1.5">
               <span className="w-3 h-3 bg-status-normal/15 rounded-xs inline-block" />
@@ -452,6 +428,7 @@ export const HistoryPage: React.FC = () => {
 
         {/* Recharts Container */}
         <div className="w-full h-84 sm:h-96">
+          {!chartData.length && <div className="flex h-full items-center justify-center text-sm text-slate-muted">Aucune mesure enregistrée pour cette période.</div>}
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData} margin={{ top: 12, right: 12, left: -10, bottom: 4 }}>
               {/* Discrete optimal physiological range reference area */}
@@ -499,7 +476,7 @@ export const HistoryPage: React.FC = () => {
               />
 
               {/* 14-day rolling baseline reference line */}
-              <ReferenceLine
+              {personalBaseline !== null && <ReferenceLine
                 y={personalBaseline}
                 stroke="#64748B"
                 strokeDasharray="4 4"
@@ -509,7 +486,7 @@ export const HistoryPage: React.FC = () => {
                   fill: '#64748B',
                   fontSize: 11
                 }}
-              />
+              />}
 
               {/* Actual historical values line */}
               <Line
@@ -565,13 +542,13 @@ export const HistoryPage: React.FC = () => {
               Synthèse prédictive à 7 jours
             </div>
             <div className="font-bold text-slate-text text-base mt-0.5">
-              Valeur attendue : ~{forecastSummary.val} {currentConfig.unit}
+              {forecastSummary ? <>Valeur attendue : ~{forecastSummary.val} {currentConfig.unit}
               <span className="font-normal text-slate-muted ml-2">
                 (fourchette estimée : {forecastSummary.low} à {forecastSummary.high} {currentConfig.unit})
-              </span>
+              </span></> : 'Aucune prévision sans mesures enregistrées.'}
             </div>
           </div>
-          {forecastSummary.driverNote && (
+          {forecastSummary?.driverNote && (
             <p className="text-xs text-slate-muted italic max-w-sm">
               {forecastSummary.driverNote}
             </p>

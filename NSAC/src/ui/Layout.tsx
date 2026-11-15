@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   Home,
@@ -10,17 +10,22 @@ import {
   Settings,
   PlusCircle,
   Globe,
-  Radio
+  Radio,
+  LogOut
 } from 'lucide-react';
 import { useAstroStore } from '../store/useAstroStore';
 import { changeLanguage } from '../i18n';
 import { MeasureModal } from './MeasureModal';
+import { clearSession, getSessionMatricule } from '../features/auth/auth';
 
 export const Layout: React.FC = () => {
   const { t, i18n } = useTranslation();
   const location = useLocation();
-  const { astronaut, missionDay } = useAstroStore();
+  const navigate = useNavigate();
+  const { astronaut, missionDay, mentalDraftActive } = useAstroStore();
   const [isMeasureModalOpen, setIsMeasureModalOpen] = useState(false);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
 
   const toggleLanguage = () => {
     const newLang = i18n.language.startsWith('fr') ? 'en' : 'fr';
@@ -34,6 +39,17 @@ export const Layout: React.FC = () => {
     { to: '/historique', label: t('nav.history'), icon: TrendingUp },
     { to: '/missions', label: t('nav.missions'), icon: Target }
   ];
+
+  const accountControl = <div className="relative">
+    <button type="button" aria-label={`Compte de ${astronaut.name}`} aria-haspopup="menu" aria-expanded={profileMenuOpen} onClick={() => setProfileMenuOpen((open) => !open)} className="flex max-w-[14rem] items-center gap-2 rounded-xl border border-slate-border bg-white px-3 py-2 text-left hover:bg-surface focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/15">
+      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary-light font-semibold text-primary">{astronaut.name.slice(0, 1).toUpperCase() || 'A'}</span>
+      <span className="hidden min-w-0 sm:block"><span className="block truncate text-sm font-semibold">{astronaut.name}</span><span className="block truncate text-xs text-slate-muted">{astronaut.matricule ?? getSessionMatricule()}</span></span>
+    </button>
+    {profileMenuOpen && <div role="menu" className="absolute right-0 top-full z-50 mt-2 w-56 rounded-xl border border-slate-border bg-white p-2 shadow-lg">
+      <div className="border-b border-slate-border px-3 py-2"><p className="truncate text-sm font-semibold">{astronaut.name}</p><p className="truncate text-xs text-slate-muted">Matricule : {astronaut.matricule ?? getSessionMatricule()}</p></div>
+      <button type="button" role="menuitem" onClick={() => { setProfileMenuOpen(false); setLogoutConfirmOpen(true); }} className="mt-1 flex min-h-10 w-full items-center gap-2 rounded-lg px-3 text-left text-sm text-slate-text hover:bg-surface"><LogOut className="h-4 w-4"/>Se déconnecter</button>
+    </div>}
+  </div>;
 
   return (
     <div className="min-h-screen bg-white flex flex-col md:flex-row text-slate-text">
@@ -51,7 +67,8 @@ export const Layout: React.FC = () => {
                 <span className="w-2 h-2 rounded-full bg-status-normal inline-block" />
               </div>
               <div className="text-xs font-semibold uppercase tracking-wider text-slate-muted">
-                {astronaut.mission.replace('_', ' ')} // J+{missionDay}
+                <span className="block">{astronaut.mission.replace('_', ' ')}</span>
+                <span className="block">J+{missionDay}</span>
               </div>
             </div>
           </div>
@@ -121,6 +138,7 @@ export const Layout: React.FC = () => {
 
       {/* Main Container */}
       <div className="flex-1 flex flex-col md:pl-72 min-h-screen">
+        <div className="hidden h-16 items-center justify-end px-8 md:flex">{accountControl}</div>
         {/* Mobile Top Header */}
         <header className="md:hidden flex items-center justify-between p-4 bg-surface border-b border-slate-border sticky top-0 z-20">
           <div className="flex items-center gap-2.5">
@@ -131,6 +149,7 @@ export const Layout: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2">
+            {accountControl}
             <button
               onClick={toggleLanguage}
               className="px-2 py-1 rounded-md border border-slate-border text-xs font-semibold text-primary"
@@ -189,6 +208,12 @@ export const Layout: React.FC = () => {
         isOpen={isMeasureModalOpen}
         onClose={() => setIsMeasureModalOpen(false)}
       />
+      {logoutConfirmOpen && <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/30 p-4" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setLogoutConfirmOpen(false); }}>
+        <section role="dialog" aria-modal="true" aria-labelledby="logout-title" className="w-full max-w-sm space-y-4 rounded-2xl border border-slate-border bg-white p-6 shadow-xl">
+          <div><h2 id="logout-title" className="font-serif text-xl font-bold">Se déconnecter ?</h2><p className="mt-2 text-sm text-slate-muted">Voulez-vous vous déconnecter ?</p>{mentalDraftActive && <p className="mt-2 rounded-lg bg-surface p-3 text-sm text-slate-text">Les réponses non enregistrées seront perdues.</p>}</div>
+          <div className="flex justify-end gap-2"><button type="button" onClick={() => setLogoutConfirmOpen(false)} className="min-h-10 rounded-lg border border-slate-border px-4 text-sm font-semibold">Annuler</button><button type="button" onClick={() => { clearSession(); setLogoutConfirmOpen(false); navigate('/auth', { replace: true }); }} className="min-h-10 rounded-lg bg-primary px-4 text-sm font-semibold text-white">Se déconnecter</button></div>
+        </section>
+      </div>}
     </div>
   );
 };
