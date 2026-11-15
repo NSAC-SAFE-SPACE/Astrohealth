@@ -18,22 +18,22 @@ describe('Engine: Generic Status & Baseline Escalation', () => {
     expect(res.status).toBe('action');
   });
 
-  it('triggers contact_flight_surgeon for fever >= 38.0°C', () => {
-    const res = assessMeasurement('temperature', 38.2);
-    expect(res.status).toBe('contact_flight_surgeon');
+  it('uses the Mon corps temperature alert range from the reference', () => {
+    const res = assessMeasurement('temperature', 38.3);
+    expect(res.status).toBe('action');
   });
 
   it.each([
-    ['temperature', 37.3, 'watch'],
-    ['temperature', 37.6, 'action'],
-    ['temperature', 38, 'contact_flight_surgeon'],
+    ['temperature', 37.3, 'normal'],
+    ['temperature', 37.6, 'watch'],
+    ['temperature', 38, 'watch'],
     ['sleepHours', 6.5, 'watch'],
     ['sleepHours', 5, 'action'],
     ['sleepHours', 4, 'contact_flight_surgeon'],
     ['spo2', 96, 'normal'],
     ['spo2', 93, 'watch'],
     ['spo2', 90, 'action'],
-    ['spo2', 87, 'contact_flight_surgeon']
+    ['spo2', 87, 'action']
   ] as const)('classifies %s=%s as %s', (metric, value, expectedStatus) => {
     expect(assessMeasurement(metric, value).status).toBe(expectedStatus);
   });
