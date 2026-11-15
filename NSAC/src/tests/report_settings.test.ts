@@ -8,7 +8,7 @@ describe('Étape 8 - Rapport de vol, file d’attente & bilan sanguin F-12', () 
     it('doit générer une structure de rapport complète conforme avec le disclaimer obligatoire', () => {
       const astronaut: Astronaut = {
         id: 'astro-test-1',
-        name: 'Thomas Pesquet',
+        name: 'Ariane Solenne',
         age: 46,
         sex: 'male',
         weightKg: 82,
@@ -44,7 +44,7 @@ describe('Étape 8 - Rapport de vol, file d’attente & bilan sanguin F-12', () 
       expect(payload.metadata.periodDays).toBe(7);
 
       // Biometrics
-      expect(payload.astronaut.name).toBe('Thomas Pesquet');
+      expect(payload.astronaut.name).toBe('Ariane Solenne');
       expect(payload.astronaut.age).toBe(46);
       expect(payload.astronaut.sex).toBe('male');
 

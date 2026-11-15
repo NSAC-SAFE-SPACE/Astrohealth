@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "start": "node scripts/serve.mjs",
     "seed:demo": "node scripts/seed-demo.mjs",
     "build": "tsc && vite build",
     "build:demo": "tsc && vite build --mode demo",

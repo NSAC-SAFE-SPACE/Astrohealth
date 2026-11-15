@@ -22,7 +22,7 @@ export const ActivityCalendar: React.FC<ActivityCalendarProps> = ({ events, clas
     const current = eventMap.get(ev.date) || 0;
     if (ev.type === 'measurement') {
       eventMap.set(ev.date, 2);
-    } else if (ev.type === 'view' || ev.type === 'login') {
+    } else if (ev.type === 'view') {
       if (current < 1) eventMap.set(ev.date, 1);
     }
   });

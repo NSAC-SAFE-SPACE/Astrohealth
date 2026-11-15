@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, Check, ArrowRight, ArrowLeft, Heart, Activity, Thermometer, Droplet, Moon, ShieldAlert, Bone } from 'lucide-react';
+import { X, Check, ArrowRight, ArrowLeft, Heart, Activity, Thermometer, Droplet, Moon, ShieldAlert, Bone, Compass } from 'lucide-react';
 import { useAstroStore } from '../store/useAstroStore';
 import { StatusBadge } from './StatusBadge';
+import { CognitiveTestPanel, type CognitiveTestResult } from './CognitiveTestPanel';
 import { assessGlucose } from '../engine/scores/glucose';
 import { assessMeasurement } from '../engine/status';
 import {
@@ -25,7 +26,7 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
   onClose,
   initialMetric = 'heartRate'
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { addMeasurement, addSleepLog, astronaut } = useAstroStore();
 
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
@@ -49,9 +50,11 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
     phrase2: string;
     actions: string[];
     isAnomaly?: boolean;
+    isCognitive?: boolean;
     forecast?: ForecastResult | null;
   } | null>(null);
   const [completedMeasurements, setCompletedMeasurements] = useState<string[]>([]);
+  const [cognitiveResult, setCognitiveResult] = useState<CognitiveTestResult | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -63,6 +66,7 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
     setSleepValues(defaultSleepLogValues);
     setResultAssessment(null);
     setCompletedMeasurements([]);
+    setCognitiveResult(null);
   }, [isOpen, initialMetric]);
 
   if (!isOpen) return null;
@@ -133,14 +137,41 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
         'Lisez la valeur de dose cumulée affichée sur l’écran LCD.',
         'Vérifiez l’absence de voyant de surcharge (flare).'
       ]
+    },
+    {
+      id: 'reactionTime', label: t('measurementModal.cognitive.reactionMetric'), unit: 'ms', icon: Activity,
+      protocol: [t('measurementModal.cognitive.reactionProtocol1'), t('measurementModal.cognitive.reactionProtocol2'), t('measurementModal.cognitive.reactionProtocol3')]
+    },
+    {
+      id: 'orientationAccuracy', label: t('measurementModal.cognitive.orientationMetric'), unit: '%', icon: Compass,
+      protocol: [t('measurementModal.cognitive.orientationProtocol1'), t('measurementModal.cognitive.orientationProtocol2'), t('measurementModal.cognitive.orientationProtocol3')]
     }
   ];
 
   const currentOption = METRIC_OPTIONS.find((m) => m.id === metric) || METRIC_OPTIONS[0];
+  const isCognitiveMetric = metric === 'reactionTime' || metric === 'orientationAccuracy';
 
   const handleSave = async () => {
     let completedTitle = '';
-    if (metric === 'sleepQuality') {
+    if (metric === 'reactionTime' && cognitiveResult?.type === 'reaction') {
+      const { summary, falseStarts } = cognitiveResult;
+      await addMeasurement('reactionTime', summary.medianMs, 'ms', JSON.stringify({ trials: summary.trialCount, lapses: summary.lapses, falseStarts }));
+      completedTitle = `${t('measurementModal.cognitive.reactionMetric')} : ${summary.medianMs} ms`;
+      setResultAssessment({
+        status: 'normal', title: t('measurementModal.cognitive.reactionMetric'),
+        phrase1: t('measurementModal.cognitive.reactionResult', { median: summary.medianMs, lapses: summary.lapses, trials: summary.trialCount }),
+        phrase2: t('measurementModal.cognitive.nonDiagnostic'), actions: [], isCognitive: true
+      });
+    } else if (metric === 'orientationAccuracy' && cognitiveResult?.type === 'orientation') {
+      const { summary } = cognitiveResult;
+      await addMeasurement('orientationAccuracy', summary.accuracy, '%', JSON.stringify({ trials: summary.trialCount, correct: summary.correctCount, meanResponseMs: summary.meanResponseMs }));
+      completedTitle = `${t('measurementModal.cognitive.orientationMetric')} : ${summary.accuracy} %`;
+      setResultAssessment({
+        status: 'normal', title: t('measurementModal.cognitive.orientationMetric'),
+        phrase1: t('measurementModal.cognitive.orientationResult', { correct: summary.correctCount, trials: summary.trialCount, accuracy: summary.accuracy.toLocaleString(i18n.language), time: summary.meanResponseMs }),
+        phrase2: t('measurementModal.cognitive.nonDiagnostic'), actions: [], isCognitive: true
+      });
+    } else if (metric === 'sleepQuality') {
       await addSleepLog({
         date: new Date().toISOString().split('T')[0],
         ...sleepValues,
@@ -265,6 +296,7 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
                       key={opt.id}
                       onClick={() => {
                         setMetric(opt.id);
+                        setCognitiveResult(null);
                         if (opt.id === 'bpSys') setValue('120');
                         else if (opt.id === 'temperature') setValue('36.6');
                         else if (opt.id === 'glucose') setValue('85');
@@ -324,7 +356,14 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
                 {t('measurementModal.step3')} : {currentOption.label}
               </h3>
 
-              {metric === 'sleepQuality' ? (
+              {isCognitiveMetric ? (
+                <CognitiveTestPanel
+                  key={metric}
+                  type={metric === 'reactionTime' ? 'reaction' : 'orientation'}
+                  onComplete={setCognitiveResult}
+                  onReset={() => setCognitiveResult(null)}
+                />
+              ) : metric === 'sleepQuality' ? (
                 <SleepLogFields values={sleepValues} onChange={setSleepValues} />
               ) : (
                 <div className="space-y-4">
@@ -406,7 +445,11 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
                 <h3 className="font-serif text-lg font-bold text-slate-text">
                   {resultAssessment.title}
                 </h3>
-                <StatusBadge status={resultAssessment.status} />
+                {resultAssessment.isCognitive ? (
+                  <span className="rounded-full border border-slate-border bg-surface px-3 py-1 text-xs font-semibold text-slate-muted">
+                    {t('measurementModal.cognitive.trackingOnly')}
+                  </span>
+                ) : <StatusBadge status={resultAssessment.status} />}
               </div>
 
               {resultAssessment.isAnomaly && (
@@ -420,7 +463,9 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
                 <p className="text-slate-muted">{resultAssessment.phrase2}</p>
               </div>
 
-              <div className="space-y-2 pt-2">
+              {resultAssessment.isCognitive ? (
+                <p className="rounded-lg border border-slate-border bg-surface px-3 py-2 text-xs text-slate-muted">{t('measurementModal.cognitive.disclaimer')}</p>
+              ) : <div className="space-y-2 pt-2">
                 <div className="text-xs uppercase tracking-wider font-semibold text-slate-muted">
                   Actions recommandées :
                 </div>
@@ -432,7 +477,7 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
                     </div>
                   ))}
                 </div>
-              </div>
+              </div>}
 
               {resultAssessment.forecast && (
                 <div className="p-4 rounded-xl bg-surface border border-slate-border space-y-1.5">
@@ -498,6 +543,7 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({
           {step === 3 && (
             <button
               onClick={handleSave}
+              disabled={isCognitiveMetric && !cognitiveResult}
               className="px-6 py-2.5 rounded-lg bg-primary text-white font-medium text-sm flex items-center gap-2 hover:bg-primary-hover shadow-xs"
             >
               <Check className="w-4 h-4" />

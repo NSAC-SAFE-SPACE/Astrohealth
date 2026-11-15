@@ -46,7 +46,9 @@ export type HistoryMetricKey =
   | 'intraocularPressure'
   | 'urineSpecificGravity'
   | 'co2PartialPressure'
-  | 'fastingGlucose';
+  | 'fastingGlucose'
+  | 'reactionTime'
+  | 'orientationAccuracy';
 
 export const HistoryPage: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -124,6 +126,14 @@ export const HistoryPage: React.FC = () => {
       minNorm: 0,
       maxNorm: 35,
       yDomain: [0, 100]
+    },
+    reactionTime: {
+      labelKey: 'history.metrics.reactionTime', unit: 'ms', fallbackBaseline: 0,
+      minNorm: 0, maxNorm: 0, yDomain: [0, 1500]
+    },
+    orientationAccuracy: {
+      labelKey: 'history.metrics.orientationAccuracy', unit: '%', fallbackBaseline: 0,
+      minNorm: 0, maxNorm: 0, yDomain: [0, 100]
     }
   };
 
@@ -383,6 +393,8 @@ export const HistoryPage: React.FC = () => {
     'sleep',
     'mood',
     'stress',
+    'reactionTime',
+    'orientationAccuracy',
     ...BODY_MEASURE_FIELDS.map((field) => field.metric as HistoryMetricKey)
   ]));
 
@@ -468,7 +480,7 @@ export const HistoryPage: React.FC = () => {
               </span>
             </div>
             <p className="text-xs text-slate-muted mt-1">
-              {forecastSummary ? t('history.forecastNotice') : forecastReason}
+              {forecastSummary ? t('history.forecastNotice') : selectedMetric === 'reactionTime' || selectedMetric === 'orientationAccuracy' ? t('history.cognitiveNotice') : forecastReason}
             </p>
           </div>
 
@@ -486,10 +498,10 @@ export const HistoryPage: React.FC = () => {
               <span className="w-3.5 h-1 bg-slate-400 border-b border-dashed border-slate-500 inline-block" />
               <span>{t('history.baselineLegend')} ({personalBaseline} {currentConfig.unit})</span>
             </span> : <span>{`Ligne de base indisponible (${baselineDays} sur ${MIN_BASELINE_DAYS} jours requis)`}</span>}
-            <span className="flex items-center gap-1.5">
+            {selectedMetric !== 'reactionTime' && selectedMetric !== 'orientationAccuracy' && <span className="flex items-center gap-1.5">
               <span className="w-3 h-3 bg-status-normal/15 rounded-xs inline-block" />
               <span>{t('history.thresholdNormal')}</span>
-            </span>
+            </span>}
           </div>
         </div>
 
@@ -498,12 +510,12 @@ export const HistoryPage: React.FC = () => {
           <ResponsiveContainer width="100%" height="100%">
             <LineChart key={`${astronaut.id}-${selectedMetric}-${timeRange}-${showAllMeasurements}`} data={chartData} margin={{ top: 12, right: 12, left: -10, bottom: 4 }}>
               {/* Discrete optimal physiological range reference area */}
-              <ReferenceArea
+              {selectedMetric !== 'reactionTime' && selectedMetric !== 'orientationAccuracy' && <ReferenceArea
                 y1={currentConfig.minNorm}
                 y2={currentConfig.maxNorm}
                 fill="#2E9E6B"
                 fillOpacity={0.07}
-              />
+              />}
 
               <XAxis dataKey="date" stroke="#94A3B8" fontSize={12} tickLine={false} />
               <YAxis domain={currentConfig.yDomain} stroke="#94A3B8" fontSize={12} tickLine={false} />

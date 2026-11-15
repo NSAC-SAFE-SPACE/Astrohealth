@@ -50,7 +50,7 @@ export const HomePage: React.FC = () => {
           </div>
           <div className="space-y-1 max-w-prose">
             <div className="text-xs font-semibold uppercase tracking-wider text-slate-muted">
-              <span className="block">{astronaut.mission.replace('_', ' ')}</span>
+              <span className="block">{astronaut.missionName ?? astronaut.mission.replace('_', ' ')}</span>
             </div>
             <h1 className="font-serif text-3xl sm:text-4xl font-bold text-slate-text">
               {t('home.greeting', { name: astronaut.name })}

@@ -14,11 +14,11 @@ import type {
   Metric,
   Pattern
 } from '../types';
-import { DEMO_ACCOUNT_IDS, seedFictionalCrew, shouldAutoSeedFictionalCrew } from '../services/simulator';
-import { DEFAULT_AVATAR_SILHOUETTE, ENVIRONMENT_COMM_DELAYS, resizeImageToSquare } from '../services/profile';
-import { getSessionMatricule } from '../features/auth/auth';
+import { isLegacyFictionalProfile, seedFictionalCrew, shouldAutoSeedFictionalCrew } from '../services/simulator';
+import { resizeImageToSquare } from '../services/profile';
 import { validate_mental_state } from '../features/mental/mentalState';
 import { BODY_MEASURE_FIELD_BY_KEY, validateBodyMeasureValues, type BodyMeasureKey } from '../engine/config/bodyMeasures';
+import { CURRENT_USER_ID } from '../config/currentUser';
 
 // Pure scoring functions
 import { calculateCardioScore as calcCardio } from '../engine/scores/cardio';
@@ -31,14 +31,12 @@ import { detectPatterns, fuseHealthStatus } from '../engine/fusion';
 
 export interface AstroState {
   astronaut: Astronaut;
-  astronautProfiles: Astronaut[];
   measurements: Measurement[];
   sleepLogs: SleepLog[];
   boneRecords: BoneDensityRecord[];
   psychAssessments: PsychAssessment[];
   activityEvents: ActivityEvent[];
   isLoading: boolean;
-  mentalDraftActive: boolean;
 
   // Real-time computed states, scores & fusion patterns
   cardioScore: ReturnType<typeof calcCardio> | null;
@@ -61,19 +59,15 @@ export interface AstroState {
   addSleepLog: (log: Omit<SleepLog, 'id' | 'astronautId'>) => Promise<void>;
   addPsychAssessment: (mentalStateData: import('../types').MentalStateData) => Promise<void>;
   addMentalAssessment: (mentalStateData: import('../types').MentalStateData, log: Omit<SleepLog, 'id' | 'astronautId'>) => Promise<void>;
-  setMentalDraftActive: (active: boolean) => void;
-  resetForLogout: () => void;
   updatePsychMetrics: (metrics: Partial<PsychMetrics>) => Promise<void>;
-  logActivityEvent: (type: 'login' | 'view' | 'measurement') => Promise<void>;
+  logActivityEvent: (type: 'view' | 'measurement') => Promise<void>;
   updateAstronautProfile: (updates: Partial<Astronaut>) => Promise<void>;
-  createAstronautProfile: (profile: Pick<Astronaut, 'name' | 'age' | 'sex' | 'weightKg' | 'mission' | 'bloodGlucoseUnit'>) => Promise<void>;
-  selectAstronautProfile: (astronautId: string) => Promise<void>;
   updateAstronautPhoto: (fileOrDataUrl: File | string) => Promise<string>;
   recalculateAll: () => void;
 }
 
 const EMPTY_ASTRONAUT: Astronaut = {
-  id: '', name: '', age: 0, sex: 'male', weightKg: 0, mission: 'station'
+  id: CURRENT_USER_ID, matricule: CURRENT_USER_ID, name: 'Ariane Solenne', age: 36, sex: 'female', weightKg: 64, heightCm: 171, mission: 'station', missionName: 'Aurora-7', missionDay: 60, demo: true
 };
 
 function createLocalId(prefix: string): string {
@@ -83,12 +77,8 @@ function createLocalId(prefix: string): string {
   return `${prefix}-${suffix}`;
 }
 
-function assertAuthenticatedAstronaut(astronaut: Astronaut): void {
-  const sessionMatricule = getSessionMatricule();
-  const profileMatricule = astronaut.matricule ?? astronaut.id;
-  if (!astronaut.id || (sessionMatricule && profileMatricule !== sessionMatricule)) {
-    throw new Error('Aucun astronaute authentifié pour ce matricule. Reconnectez-vous puis réessayez.');
-  }
+function assertCurrentAstronaut(astronaut: Astronaut): void {
+  if (astronaut.id !== CURRENT_USER_ID) throw new Error(`Le profil actif doit être ${CURRENT_USER_ID}.`);
 }
 
 async function loadProfileData(astronautId: string) {
@@ -104,14 +94,12 @@ async function loadProfileData(astronautId: string) {
 
 export const useAstroStore = create<AstroState>((set, get) => ({
   astronaut: EMPTY_ASTRONAUT,
-  astronautProfiles: [],
   measurements: [],
   sleepLogs: [],
   boneRecords: [],
   psychAssessments: [],
   activityEvents: [],
   isLoading: true,
-  mentalDraftActive: false,
 
   cardioScore: null,
   sleepScore: null,
@@ -128,31 +116,21 @@ export const useAstroStore = create<AstroState>((set, get) => ({
 
   init: async () => {
     set({ isLoading: true });
-    if (typeof window !== 'undefined') window.localStorage.removeItem('astrohealth.activeProfileId');
-    // Seed only when enabled and no known demo account is present. A CLI run ID
-    // allows an explicit, one-time reset without touching real users.
-    const demoRunId = import.meta.env.VITE_DEMO_SEED_RUN;
-    const runStorageKey = demoRunId ? `astrohealth.demo-seed-run.${demoRunId}` : undefined;
-    const alreadyRan = Boolean(runStorageKey && window.localStorage.getItem(runStorageKey));
     if (import.meta.env.DEV || import.meta.env.VITE_LOAD_DEMO_DATA === 'true') {
       (window as Window & { seedAstrohealthDemo?: (options?: { reset?: boolean }) => Promise<unknown> }).seedAstrohealthDemo = seedFictionalCrew;
     }
-    const existingDemoAccounts = await db.users.where('matricule').anyOf(DEMO_ACCOUNT_IDS).count();
-    const forceRun = Boolean(demoRunId && !alreadyRan);
-    if (shouldAutoSeedFictionalCrew(import.meta.env.VITE_LOAD_DEMO_DATA === 'true', existingDemoAccounts, forceRun)) {
-      await seedFictionalCrew({ reset: forceRun && import.meta.env.VITE_DEMO_SEED_RESET === 'true' });
-      if (forceRun && runStorageKey) window.localStorage.setItem(runStorageKey, 'done');
+    const demoEnabled = import.meta.env.DEV || import.meta.env.VITE_LOAD_DEMO_DATA === 'true';
+    const savedProfile = await db.astronauts.get(CURRENT_USER_ID);
+    const markedRows = await db.measurements.where('astronautId').equals(CURRENT_USER_ID).filter((row) => row.demo === true).toArray();
+    const newestDemoTimestamp = markedRows.reduce<number | undefined>((latest, row) => latest === undefined || row.timestamp > latest ? row.timestamp : latest, undefined);
+    const forceSeed = import.meta.env.VITE_DEMO_SEED_FORCE === 'true';
+    const seedableProfile = !savedProfile || savedProfile.demo === true || isLegacyFictionalProfile(savedProfile);
+    if (shouldAutoSeedFictionalCrew(demoEnabled && seedableProfile, Boolean(savedProfile?.demo) || isLegacyFictionalProfile(savedProfile), newestDemoTimestamp, Date.now(), forceSeed)) {
+      await seedFictionalCrew();
     }
-    const astronautProfiles = await db.astronauts.toArray();
-
-    const sessionMatricule = getSessionMatricule();
-    if (!sessionMatricule) {
-      get().resetForLogout();
-      return;
-    }
-    const astronaut = astronautProfiles.find((profile) => profile.id === sessionMatricule || profile.matricule === sessionMatricule);
+    const astronaut = await db.astronauts.get(CURRENT_USER_ID);
     if (!astronaut) {
-      set({ astronautProfiles, astronaut: EMPTY_ASTRONAUT, measurements: [], sleepLogs: [], boneRecords: [], psychAssessments: [], activityEvents: [], isLoading: false });
+      set({ astronaut: EMPTY_ASTRONAUT, measurements: [], sleepLogs: [], boneRecords: [], psychAssessments: [], activityEvents: [], isLoading: false });
       return;
     }
     const profileData = await loadProfileData(astronaut.id);
@@ -172,7 +150,6 @@ export const useAstroStore = create<AstroState>((set, get) => ({
 
     set({
       astronaut,
-      astronautProfiles,
       ...profileData,
       isLoading: false
     });
@@ -182,7 +159,7 @@ export const useAstroStore = create<AstroState>((set, get) => ({
 
   addMeasurement: async (metric, value, unit, context) => {
     const { astronaut, measurements, activityEvents } = get();
-    assertAuthenticatedAstronaut(astronaut);
+    assertCurrentAstronaut(astronaut);
     const now = Date.now();
     const todayStr = new Date().toISOString().split('T')[0];
 
@@ -221,7 +198,7 @@ export const useAstroStore = create<AstroState>((set, get) => ({
   addBodyMeasurements: async (values) => {
     validateBodyMeasureValues(values);
     const { astronaut, measurements, activityEvents } = get();
-    assertAuthenticatedAstronaut(astronaut);
+    assertCurrentAstronaut(astronaut);
     const now = Date.now();
     const todayStr = new Date().toISOString().split('T')[0];
     const newMeasurements = Object.entries(values).map(([key, value]) => {
@@ -248,7 +225,7 @@ export const useAstroStore = create<AstroState>((set, get) => ({
 
   addSleepLog: async (logData) => {
     const { astronaut, sleepLogs, activityEvents } = get();
-    assertAuthenticatedAstronaut(astronaut);
+    assertCurrentAstronaut(astronaut);
     const now = Date.now();
     const todayStr = new Date().toISOString().split('T')[0];
     const newLog: SleepLog = {
@@ -281,7 +258,7 @@ export const useAstroStore = create<AstroState>((set, get) => ({
   addPsychAssessment: async (mentalStateData) => {
     const { astronaut, psychAssessments, activityEvents } = get();
     validate_mental_state(mentalStateData, { sleepQualityCalculated: true });
-    assertAuthenticatedAstronaut(astronaut);
+    assertCurrentAstronaut(astronaut);
     const now = Date.now();
     const todayStr = new Date().toISOString().split('T')[0];
     const score = Math.round((mentalStateData.Happiness / 10) * 100);
@@ -319,7 +296,7 @@ export const useAstroStore = create<AstroState>((set, get) => ({
 
   addMentalAssessment: async (mentalStateData, logData) => {
     const { astronaut, sleepLogs, psychAssessments, activityEvents } = get();
-    assertAuthenticatedAstronaut(astronaut);
+    assertCurrentAstronaut(astronaut);
     validate_mental_state(mentalStateData, { sleepQualityCalculated: true });
     const now = Date.now();
     const todayStr = new Date().toISOString().split('T')[0];
@@ -344,19 +321,6 @@ export const useAstroStore = create<AstroState>((set, get) => ({
     get().recalculateAll();
   },
 
-  setMentalDraftActive: (active) => set({ mentalDraftActive: active }),
-
-  resetForLogout: () => {
-    set({
-      astronaut: EMPTY_ASTRONAUT,
-      astronautProfiles: [], measurements: [], sleepLogs: [], boneRecords: [], psychAssessments: [], activityEvents: [],
-      mentalDraftActive: false, isLoading: false,
-      cardioScore: null, sleepScore: null, boneLossScore: null, radiationProjection: null,
-      latestAssessments: new Map(), patterns: [], dominantPattern: undefined,
-      summaryFr: '', summaryEn: '', globalStatus: 'normal', globalScore: 0, activeAlertsCount: 0
-    });
-  },
-
   updatePsychMetrics: async (metrics) => {
     const { psychAssessments } = get();
     if (psychAssessments.length === 0) return;
@@ -378,13 +342,6 @@ export const useAstroStore = create<AstroState>((set, get) => ({
     const { astronaut, activityEvents } = get();
     const now = Date.now();
     const todayStr = new Date().toISOString().split('T')[0];
-    const existingForToday = activityEvents.filter((e) => e.date === todayStr);
-
-    // If already has a measurement, do not downgrade it
-    if (existingForToday.some((e) => e.type === 'measurement') && type !== 'measurement') {
-      return;
-    }
-
     const newEv: ActivityEvent = {
       id: `act-${type}-${now}`,
       astronautId: astronaut.id,
@@ -402,53 +359,13 @@ export const useAstroStore = create<AstroState>((set, get) => ({
   },
 
   updateAstronautProfile: async (updates) => {
-    const { astronaut, astronautProfiles } = get();
+    const { astronaut } = get();
+    assertCurrentAstronaut(astronaut);
     const updated: Astronaut = { ...astronaut, ...updates };
     await db.astronauts.put(updated);
     if (updated.matricule) await db.users.put(updated);
     set({
-      astronaut: updated,
-      astronautProfiles: astronautProfiles.map((profile) => profile.id === updated.id ? updated : profile)
-    });
-    get().recalculateAll();
-  },
-
-  createAstronautProfile: async (profile) => {
-    const { astronautProfiles } = get();
-    const newAstronaut: Astronaut = {
-      ...profile,
-      id: createLocalId('profile'),
-      photo: DEFAULT_AVATAR_SILHOUETTE,
-      careerRadiationDose: 0,
-      commDelayMinutes: ENVIRONMENT_COMM_DELAYS[profile.mission].nominalMin,
-    };
-    await db.astronauts.put(newAstronaut);
-    set({
-      astronaut: newAstronaut,
-      astronautProfiles: [...astronautProfiles, newAstronaut],
-      measurements: [],
-      sleepLogs: [],
-      boneRecords: [],
-      psychAssessments: [],
-      activityEvents: [],
-      isLoading: false
-    });
-    get().recalculateAll();
-  },
-
-  selectAstronautProfile: async (astronautId) => {
-    const astronaut = get().astronautProfiles.find((profile) => profile.id === astronautId || profile.matricule === astronautId)
-      ?? await db.astronauts.get(astronautId)
-      ?? await db.astronauts.where('matricule').equals(astronautId).first();
-    if (!astronaut) throw new Error(`Profil Astrohealth introuvable : ${astronautId}`);
-    set({ isLoading: true, measurements: [], sleepLogs: [], boneRecords: [], psychAssessments: [], activityEvents: [], cardioScore: null, sleepScore: null, boneLossScore: null, radiationProjection: null, latestAssessments: new Map(), patterns: [], dominantPattern: undefined, activeAlertsCount: 0, astronaut });
-    const profileData = await loadProfileData(astronaut.id);
-    const isolatedProfiles = [...get().astronautProfiles.filter((profile) => profile.id !== astronaut.id), astronaut];
-    set({
-      astronaut,
-      astronautProfiles: isolatedProfiles,
-      ...profileData,
-      isLoading: false
+      astronaut: updated
     });
     get().recalculateAll();
   },
@@ -550,7 +467,7 @@ export const useAstroStore = create<AstroState>((set, get) => ({
       ? Math.round((psychAssessments[psychAssessments.length - 1].mentalStateData!.Happiness / 10) * 100)
       : psychAssessments[psychAssessments.length - 1]?.score;
 
-    const missionStartDate = boneRecords
+    const missionStartDate = astronaut.missionStartDate ?? boneRecords
       .filter((record) => record.isBaseline)
       .map((record) => record.date)
       .sort()[0];

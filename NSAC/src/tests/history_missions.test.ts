@@ -40,7 +40,7 @@ describe('Étape 7: Historique avec prévisions, Missions et rappels', () => {
   });
 
   it('calcule la série active sans récompenser les valeurs médicales', () => {
-    // 5 days of events: 4 days with measurement/login, 1 day inactive
+    // 5 days of events: 4 days with measurement or view, 1 day inactive
     const today = new Date().toISOString().split('T')[0];
     const d1 = new Date(Date.now() - 24 * 3600 * 1000).toISOString().split('T')[0];
     const d2 = new Date(Date.now() - 48 * 3600 * 1000).toISOString().split('T')[0];
