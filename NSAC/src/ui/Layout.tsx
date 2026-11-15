@@ -50,9 +50,7 @@ export const Layout: React.FC = () => {
         <div className="space-y-8">
           {/* Logo & Call sign */}
           <NavLink to="/" aria-label="Astrohealth — accueil" className="flex items-center gap-3 rounded-lg focus-visible:outline-offset-4">
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white font-serif font-bold text-xl shadow-xs">
-              <AstrohealthLogo size={40} />
-            </div>
+            <AstrohealthLogo size={40} />
             <div>
               <div className="font-serif font-bold text-lg text-slate-text tracking-tight flex items-center gap-2">
                 Astrohealth
