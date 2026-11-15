@@ -17,19 +17,26 @@ import { useAstroStore } from '../store/useAstroStore';
 import { changeLanguage } from '../i18n';
 import { MeasureModal } from './MeasureModal';
 import { clearSession, getSessionMatricule } from '../features/auth/auth';
+import type { Metric } from '../types';
 
 export const Layout: React.FC = () => {
   const { t, i18n } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
-  const { astronaut, missionDay, mentalDraftActive } = useAstroStore();
+  const { astronaut, mentalDraftActive } = useAstroStore();
   const [isMeasureModalOpen, setIsMeasureModalOpen] = useState(false);
+  const [initialMeasureMetric, setInitialMeasureMetric] = useState<Metric>('heartRate');
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
 
   const toggleLanguage = () => {
     const newLang = i18n.language.startsWith('fr') ? 'en' : 'fr';
     changeLanguage(newLang);
+  };
+
+  const openMeasure = (metric: Metric = 'heartRate') => {
+    setInitialMeasureMetric(metric);
+    setIsMeasureModalOpen(true);
   };
 
   const navItems = [
@@ -68,14 +75,13 @@ export const Layout: React.FC = () => {
               </div>
               <div className="text-xs font-semibold uppercase tracking-wider text-slate-muted">
                 <span className="block">{astronaut.mission.replace('_', ' ')}</span>
-                <span className="block">J+{missionDay}</span>
               </div>
             </div>
           </div>
 
           {/* Quick measurement button */}
           <button
-            onClick={() => setIsMeasureModalOpen(true)}
+            onClick={() => openMeasure()}
             className="w-full h-12 px-4 rounded-xl bg-primary text-white font-semibold text-sm flex items-center justify-center gap-2 hover:bg-primary-hover transition-colors shadow-xs"
           >
             <PlusCircle className="w-5 h-5" />
@@ -157,7 +163,7 @@ export const Layout: React.FC = () => {
               {i18n.language.startsWith('fr') ? 'EN' : 'FR'}
             </button>
             <button
-              onClick={() => setIsMeasureModalOpen(true)}
+              onClick={() => openMeasure()}
               className="p-2 rounded-lg bg-primary text-white"
               aria-label={t('home.measureButton')}
             >
@@ -168,7 +174,7 @@ export const Layout: React.FC = () => {
 
         {/* Content Outlet */}
         <main className="flex-1 p-4 sm:p-8 md:p-12 max-w-6xl w-full mx-auto pb-24 md:pb-12">
-          <Outlet />
+      <Outlet context={{ openMeasure }} />
         </main>
 
         {/* Permanent Educational Disclaimer Footer */}
@@ -207,6 +213,7 @@ export const Layout: React.FC = () => {
       <MeasureModal
         isOpen={isMeasureModalOpen}
         onClose={() => setIsMeasureModalOpen(false)}
+        initialMetric={initialMeasureMetric}
       />
       {logoutConfirmOpen && <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/30 p-4" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setLogoutConfirmOpen(false); }}>
         <section role="dialog" aria-modal="true" aria-labelledby="logout-title" className="w-full max-w-sm space-y-4 rounded-2xl border border-slate-border bg-white p-6 shadow-xl">

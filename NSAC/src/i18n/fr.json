@@ -3,7 +3,6 @@
     "title": "Astrohealth",
     "subtitle": "Expédition 72 // Suivi de santé en mission autonome",
     "disclaimer": "Outil éducatif, pas un diagnostic médical.",
-    "missionDay": "Jour de mission",
     "badgeDoctorAlert": "Contact chirurgien de vol requis",
     "offlineReady": "Fonctionnement 100% hors ligne garanti"
   },
@@ -348,9 +347,6 @@
     "commDelay": "Délai de communication simulé avec la Terre",
     "minutes": "minutes",
     "profilePhoto": "Photo de profil (redimensionnée localement à 256px)",
-    "demoSection": "Mode Démonstration (Jury)",
-    "demoScenario": "Scénario de test",
-    "advanceTime": "Avancer le temps (+24h)",
     "reportSection": "Rapport médical de vol",
     "generateReport": "Générer le rapport",
     "period7d": "7 derniers jours",

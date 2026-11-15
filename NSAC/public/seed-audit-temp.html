@@ -1,0 +1,24 @@
+<!doctype html><meta charset="utf-8"><title>Lecture de la base locale</title><pre id="out">Lecture en cours…</pre><script>
+window.onerror = (message, source, line, column) => { document.querySelector('#out').textContent = `Script error: ${message} @ ${line}:${column}`; };
+try {
+  const request = window.indexedDB.open('AstrohealthDB');
+  request.onerror = () => { document.querySelector('#out').textContent = `Open error: ${request.error}`; };
+  request.onblocked = () => { document.querySelector('#out').textContent = 'Database open blocked'; };
+  request.onsuccess = () => {
+    const database = request.result;
+    const tableNames = [...database.objectStoreNames];
+    const transaction = database.transaction(tableNames, 'readonly');
+    const reads = Object.fromEntries(tableNames.map(name => [name, transaction.objectStore(name).getAll()]));
+    transaction.oncomplete = () => {
+      const astProfiles = (reads.astronauts?.result ?? []).filter(item => /^AST-\d{4}$/.test(item.id ?? item.matricule ?? ''));
+      const accounts = astProfiles.map(profile => {
+        const id = profile.id;
+        const related = name => (reads[name]?.result ?? []).filter(item => item.astronautId === id).length;
+        return { id, matricule: profile.matricule, name: profile.name, measurements: related('measurements'), sleepLogs: related('sleepLogs'), psychAssessments: related('psychAssessments'), activityEvents: related('activityEvents'), boneDensityRecords: related('boneDensityRecords'), labResults: related('labResults'), reports: related('reports') };
+      });
+      document.querySelector('#out').textContent = JSON.stringify({ database: database.name, version: database.version, tables: Object.fromEntries(tableNames.map(name => [name, reads[name].result.length])), accounts }, null, 2);
+    };
+    transaction.onerror = () => { document.querySelector('#out').textContent = `Read error: ${transaction.error}`; };
+  };
+} catch (error) { document.querySelector('#out').textContent = `Exception: ${error}`; }
+</script>

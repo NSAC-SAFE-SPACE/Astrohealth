@@ -3,7 +3,6 @@
     "title": "Astrohealth",
     "subtitle": "Expedition 72 // Autonomous Mission Health Monitoring",
     "disclaimer": "Educational tool, not a medical diagnosis.",
-    "missionDay": "Mission Day",
     "badgeDoctorAlert": "Flight surgeon contact required",
     "offlineReady": "100% Offline functionality guaranteed"
   },
@@ -366,9 +365,6 @@
     "commDelay": "Simulated Earth Comm Delay",
     "minutes": "minutes",
     "profilePhoto": "Profile Photo (resized locally to 256px)",
-    "demoSection": "Demonstration Mode (Evaluation Jury)",
-    "demoScenario": "Test Scenario",
-    "advanceTime": "Advance Time (+24h)",
     "reportSection": "Flight Medical Report",
     "generateReport": "Generate Report",
     "period7d": "Last 7 days",

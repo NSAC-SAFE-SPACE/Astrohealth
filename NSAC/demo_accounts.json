@@ -1,0 +1,79 @@
+{
+  "description": "Comptes de démonstration Astrohealth — données entièrement fictives. Connexion par nom, matricule et environnement de mission; aucun mot de passe.",
+  "accounts": [
+    {
+      "name": "Maëlys Virelande",
+      "matricule": "AST-0001",
+      "mission": "Aurora-7",
+      "mission_departure": "2026-10-01",
+      "mission_environment": "station"
+    },
+    {
+      "name": "Idriss Solmaren",
+      "matricule": "AST-0002",
+      "mission": "Aurora-7",
+      "mission_departure": "2026-10-01",
+      "mission_environment": "station"
+    },
+    {
+      "name": "Noura Cendrelune",
+      "matricule": "AST-0003",
+      "mission": "Boréal-3",
+      "mission_departure": "2026-10-18",
+      "mission_environment": "spacecraft"
+    },
+    {
+      "name": "Sacha Orvélis",
+      "matricule": "AST-0004",
+      "mission": "Boréal-3",
+      "mission_departure": "2026-10-18",
+      "mission_environment": "spacecraft"
+    },
+    {
+      "name": "Elian Brumeciel",
+      "matricule": "AST-0005",
+      "mission": "Cassiopée-1",
+      "mission_departure": "2026-10-28",
+      "mission_environment": "lunar_base"
+    },
+    {
+      "name": "Yuna Valombre",
+      "matricule": "AST-0006",
+      "mission": "Cassiopée-1",
+      "mission_departure": "2026-10-28",
+      "mission_environment": "lunar_base"
+    },
+    {
+      "name": "Téo Mirastel",
+      "matricule": "AST-0007",
+      "mission": "Périgée-2",
+      "mission_departure": "2026-11-04",
+      "mission_environment": "mars_rover"
+    },
+    {
+      "name": "Liora Destenac",
+      "matricule": "AST-0008",
+      "mission": "Périgée-2",
+      "mission_departure": "2026-11-04",
+      "mission_environment": "mars_rover"
+    },
+    {
+      "name": "Kamil Asterive",
+      "matricule": "AST-0009",
+      "mission": "Sillage-5",
+      "mission_departure": "2026-11-12",
+      "mission_environment": "spacecraft",
+      "usage_days": 1,
+      "measurement_count": 1
+    },
+    {
+      "name": "Ilyana Rovelune",
+      "matricule": "AST-0010",
+      "mission": "Nébuleuse-4",
+      "mission_departure": "2026-11-15",
+      "mission_environment": "station",
+      "usage_days": 5,
+      "profileComplete": false
+    }
+  ]
+}

@@ -14,12 +14,7 @@ import type {
   Metric,
   Pattern
 } from '../types';
-import {
-  DEFAULT_ASTRONAUT,
-  seedDemoData,
-  advanceTime24h as simulateAdvanceTime24h,
-  DemoScenario
-} from '../services/simulator';
+import { DEMO_ACCOUNT_IDS, seedFictionalCrew, shouldAutoSeedFictionalCrew } from '../services/simulator';
 import { DEFAULT_AVATAR_SILHOUETTE, ENVIRONMENT_COMM_DELAYS, resizeImageToSquare } from '../services/profile';
 import { getSessionMatricule } from '../features/auth/auth';
 import { validate_mental_state } from '../features/mental/mentalState';
@@ -43,8 +38,6 @@ export interface AstroState {
   activityEvents: ActivityEvent[];
   isLoading: boolean;
   mentalDraftActive: boolean;
-  activeScenario: DemoScenario;
-  missionDay: number;
 
   // Real-time computed states, scores & fusion patterns
   cardioScore: ReturnType<typeof calcCardio> | null;
@@ -62,8 +55,6 @@ export interface AstroState {
 
   // Actions
   init: () => Promise<void>;
-  loadScenario: (scenario: DemoScenario) => Promise<void>;
-  advanceTime24h: () => Promise<void>;
   addMeasurement: (metric: Metric, value: number, unit: string, context?: string) => Promise<void>;
   addBodyMeasurements: (values: Partial<Record<BodyMeasureKey, number>>) => Promise<void>;
   addSleepLog: (log: Omit<SleepLog, 'id' | 'astronautId'>) => Promise<void>;
@@ -78,23 +69,15 @@ export interface AstroState {
   recalculateAll: () => void;
 }
 
-const ACTIVE_PROFILE_STORAGE_KEY = 'astrohealth.activeProfileId';
+const EMPTY_ASTRONAUT: Astronaut = {
+  id: '', name: '', age: 0, sex: 'male', weightKg: 0, mission: 'station'
+};
 
 function createLocalId(prefix: string): string {
   const suffix = typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
     ? crypto.randomUUID()
     : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
   return `${prefix}-${suffix}`;
-}
-
-function getSavedProfileId(): string | null {
-  return typeof window === 'undefined' ? null : window.localStorage.getItem(ACTIVE_PROFILE_STORAGE_KEY);
-}
-
-function saveActiveProfileId(astronautId: string): void {
-  if (typeof window !== 'undefined') {
-    window.localStorage.setItem(ACTIVE_PROFILE_STORAGE_KEY, astronautId);
-  }
 }
 
 function assertAuthenticatedAstronaut(astronaut: Astronaut): void {
@@ -117,7 +100,12 @@ async function loadProfileData(astronautId: string) {
 }
 
 export const useAstroStore = create<AstroState>((set, get) => ({
+<<<<<<< Updated upstream
   astronaut: DEFAULT_ASTRONAUT,
+=======
+  astronaut: EMPTY_ASTRONAUT,
+  astronautProfiles: [],
+>>>>>>> Stashed changes
   measurements: [],
   sleepLogs: [],
   boneRecords: [],
@@ -125,8 +113,6 @@ export const useAstroStore = create<AstroState>((set, get) => ({
   activityEvents: [],
   isLoading: true,
   mentalDraftActive: false,
-  activeScenario: 'healthy',
-  missionDay: 142,
 
   cardioScore: null,
   sleepScore: null,
@@ -143,11 +129,29 @@ export const useAstroStore = create<AstroState>((set, get) => ({
 
   init: async () => {
     set({ isLoading: true });
+<<<<<<< Updated upstream
     let astronautProfiles = await db.astronauts.toArray();
     if (astronautProfiles.length === 0 && !getSessionMatricule() && getSavedProfileId() === DEFAULT_ASTRONAUT.id) {
       await seedDemoData('healthy');
       astro = await db.astronauts.toCollection().first();
+=======
+    if (typeof window !== 'undefined') window.localStorage.removeItem('astrohealth.activeProfileId');
+    // Seed only when enabled and no known demo account is present. A CLI run ID
+    // allows an explicit, one-time reset without touching real users.
+    const demoRunId = import.meta.env.VITE_DEMO_SEED_RUN;
+    const runStorageKey = demoRunId ? `astrohealth.demo-seed-run.${demoRunId}` : undefined;
+    const alreadyRan = Boolean(runStorageKey && window.localStorage.getItem(runStorageKey));
+    if (import.meta.env.DEV || import.meta.env.VITE_LOAD_DEMO_DATA === 'true') {
+      (window as Window & { seedAstrohealthDemo?: (options?: { reset?: boolean }) => Promise<unknown> }).seedAstrohealthDemo = seedFictionalCrew;
+>>>>>>> Stashed changes
     }
+    const existingDemoAccounts = await db.users.where('matricule').anyOf(DEMO_ACCOUNT_IDS).count();
+    const forceRun = Boolean(demoRunId && !alreadyRan);
+    if (shouldAutoSeedFictionalCrew(import.meta.env.VITE_LOAD_DEMO_DATA === 'true', existingDemoAccounts, forceRun)) {
+      await seedFictionalCrew({ reset: forceRun && import.meta.env.VITE_DEMO_SEED_RESET === 'true' });
+      if (forceRun && runStorageKey) window.localStorage.setItem(runStorageKey, 'done');
+    }
+    const astronautProfiles = await db.astronauts.toArray();
 
     const sessionMatricule = getSessionMatricule();
     if (!sessionMatricule) {
@@ -156,11 +160,15 @@ export const useAstroStore = create<AstroState>((set, get) => ({
     }
     const astronaut = astronautProfiles.find((profile) => profile.id === sessionMatricule || profile.matricule === sessionMatricule);
     if (!astronaut) {
-      set({ astronautProfiles, astronaut: { id: '', name: '', age: 0, sex: 'male', weightKg: 0, mission: 'station' }, measurements: [], sleepLogs: [], boneRecords: [], psychAssessments: [], activityEvents: [], missionDay: 1, isLoading: false });
+      set({ astronautProfiles, astronaut: EMPTY_ASTRONAUT, measurements: [], sleepLogs: [], boneRecords: [], psychAssessments: [], activityEvents: [], isLoading: false });
       return;
     }
+<<<<<<< Updated upstream
     saveActiveProfileId(astronaut.id);
 
+=======
+    const profileData = await loadProfileData(astronaut.id);
+>>>>>>> Stashed changes
     // Log current app visit
     const todayStr = new Date().toISOString().split('T')[0];
     const hasTodayEvent = activityEvents.some((e) => e.date === todayStr);
@@ -176,18 +184,25 @@ export const useAstroStore = create<AstroState>((set, get) => ({
     }
 
     set({
+<<<<<<< Updated upstream
       astronaut: astro || DEFAULT_ASTRONAUT,
       measurements,
       sleepLogs,
       boneRecords,
       psychAssessments,
       activityEvents,
+=======
+      astronaut,
+      astronautProfiles,
+      ...profileData,
+>>>>>>> Stashed changes
       isLoading: false
     });
 
     get().recalculateAll();
   },
 
+<<<<<<< Updated upstream
   loadScenario: async (scenario) => {
     set({ isLoading: true, activeScenario: scenario });
     await seedDemoData(scenario);
@@ -201,6 +216,8 @@ export const useAstroStore = create<AstroState>((set, get) => ({
     await get().init();
   },
 
+=======
+>>>>>>> Stashed changes
   addMeasurement: async (metric, value, unit, context) => {
     const { astronaut, measurements, activityEvents } = get();
     assertAuthenticatedAstronaut(astronaut);
@@ -369,11 +386,10 @@ export const useAstroStore = create<AstroState>((set, get) => ({
   setMentalDraftActive: (active) => set({ mentalDraftActive: active }),
 
   resetForLogout: () => {
-    if (typeof window !== 'undefined') window.localStorage.removeItem(ACTIVE_PROFILE_STORAGE_KEY);
     set({
-      astronaut: { id: '', name: '', age: 0, sex: 'male', weightKg: 0, mission: 'station' },
+      astronaut: EMPTY_ASTRONAUT,
       astronautProfiles: [], measurements: [], sleepLogs: [], boneRecords: [], psychAssessments: [], activityEvents: [],
-      mentalDraftActive: false, missionDay: 1, activeScenario: 'healthy', isLoading: false,
+      mentalDraftActive: false, isLoading: false,
       cardioScore: null, sleepScore: null, boneLossScore: null, radiationProjection: null,
       latestAssessments: new Map(), patterns: [], dominantPattern: undefined,
       summaryFr: '', summaryEn: '', globalStatus: 'normal', globalScore: 0, activeAlertsCount: 0
@@ -444,10 +460,8 @@ export const useAstroStore = create<AstroState>((set, get) => ({
       photo: DEFAULT_AVATAR_SILHOUETTE,
       careerRadiationDose: 0,
       commDelayMinutes: ENVIRONMENT_COMM_DELAYS[profile.mission].nominalMin,
-      missionDay: 1
     };
     await db.astronauts.put(newAstronaut);
-    saveActiveProfileId(newAstronaut.id);
     set({
       astronaut: newAstronaut,
       astronautProfiles: [...astronautProfiles, newAstronaut],
@@ -456,8 +470,6 @@ export const useAstroStore = create<AstroState>((set, get) => ({
       boneRecords: [],
       psychAssessments: [],
       activityEvents: [],
-      missionDay: 1,
-      activeScenario: 'healthy',
       isLoading: false
     });
     get().recalculateAll();
@@ -469,14 +481,12 @@ export const useAstroStore = create<AstroState>((set, get) => ({
       ?? await db.astronauts.where('matricule').equals(astronautId).first();
     if (!astronaut) throw new Error(`Profil Astrohealth introuvable : ${astronautId}`);
     set({ isLoading: true, measurements: [], sleepLogs: [], boneRecords: [], psychAssessments: [], activityEvents: [], cardioScore: null, sleepScore: null, boneLossScore: null, radiationProjection: null, latestAssessments: new Map(), patterns: [], dominantPattern: undefined, activeAlertsCount: 0, astronaut });
-    saveActiveProfileId(astronaut.id);
     const profileData = await loadProfileData(astronaut.id);
     const isolatedProfiles = [...get().astronautProfiles.filter((profile) => profile.id !== astronaut.id), astronaut];
     set({
       astronaut,
       astronautProfiles: isolatedProfiles,
       ...profileData,
-      missionDay: astronaut.missionDay ?? (astronaut.id === DEFAULT_ASTRONAUT.id ? 142 : 1),
       isLoading: false
     });
     get().recalculateAll();
@@ -582,6 +592,11 @@ export const useAstroStore = create<AstroState>((set, get) => ({
       ? Math.round((psychAssessments[psychAssessments.length - 1].mentalStateData!.Happiness / 10) * 100)
       : psychAssessments[psychAssessments.length - 1]?.score;
 
+    const missionStartDate = boneRecords
+      .filter((record) => record.isBaseline)
+      .map((record) => record.date)
+      .sort()[0];
+
     const detectedPatterns = detectPatterns({
       heartRate: latestHr,
       bpSys: latestSys,
@@ -592,7 +607,7 @@ export const useAstroStore = create<AstroState>((set, get) => ({
       mood: latestMood,
       exerciseMin: 50,
       boneLossPercent: boneLossScore?.value,
-      missionDays: get().missionDay
+      missionStartDate
     });
 
     const allIndividualStatuses: Status[] = [];

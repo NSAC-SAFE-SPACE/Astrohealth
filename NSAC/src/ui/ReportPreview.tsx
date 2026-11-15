@@ -18,7 +18,6 @@ import type { Astronaut, Status, ScoreResult, Pattern } from '../types';
 
 interface ReportPreviewProps {
   astronaut: Astronaut;
-  missionDay: number;
   reportPeriod: 7 | 30;
   reportStatus: 'aucun' | 'en attente' | 'transmis';
   commDelayMinutes: number;
@@ -45,7 +44,6 @@ interface ReportPreviewProps {
 
 export const ReportPreview: React.FC<ReportPreviewProps> = ({
   astronaut,
-  missionDay,
   reportPeriod,
   reportStatus,
   commDelayMinutes,
@@ -64,11 +62,13 @@ export const ReportPreview: React.FC<ReportPreviewProps> = ({
   latestGlucose
 }) => {
   const { t } = useTranslation();
-  const nowStr = new Date().toLocaleDateString('fr-FR', {
+  const now = new Date();
+  const nowStr = now.toLocaleDateString('fr-FR', {
     day: 'numeric',
     month: 'long',
     year: 'numeric'
   });
+  const referenceDate = now.toISOString().slice(0, 10).replace(/-/g, '');
 
   return (
     <div
@@ -83,7 +83,7 @@ export const ReportPreview: React.FC<ReportPreviewProps> = ({
             <span>NASA HUMAN RESEARCH PROGRAM // EXPÉDITION 72</span>
           </div>
           <div className="text-xs text-slate-muted font-mono">
-            REF-MED-{missionDay}-{astronaut.name.toUpperCase().slice(0, 3)}
+            REF-MED-{referenceDate}-{astronaut.name.toUpperCase().slice(0, 3)}
           </div>
         </div>
 
@@ -93,7 +93,7 @@ export const ReportPreview: React.FC<ReportPreviewProps> = ({
               Rapport médical du chirurgien de vol
             </h1>
             <p className="text-xs text-slate-muted">
-              Période d'analyse : <strong>{reportPeriod} derniers jours</strong> (Jour de mission J+{missionDay}) · Date : {nowStr}
+              Période d'analyse : <strong>{reportPeriod} derniers jours</strong> · Date : {nowStr}
             </p>
           </div>
 

@@ -1,4 +1,5 @@
 import React, { Suspense, lazy, useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { BodyMeasuresPanel } from './BodyMeasuresPanel';
 import { BodyZonesPanel } from './BodyZonesPanel';
@@ -10,11 +11,21 @@ const BodyModelViewer = lazy(() => import('./BodyModelViewer'));
 
 export const BodyPage: React.FC = () => {
   const { t } = useTranslation();
+  const location = useLocation();
+  const navigate = useNavigate();
   const logActivityEvent = useAstroStore((state) => state.logActivityEvent);
   const [focusFieldKey, setFocusFieldKey] = useState<BodyMeasureKey | null>(null);
   const [selectedZone, setSelectedZone] = useState<BodyZoneId>('thorax');
 
   useEffect(() => { logActivityEvent('view'); }, [logActivityEvent]);
+
+  useEffect(() => {
+    const requestedField = (location.state as { focusFieldKey?: BodyMeasureKey } | null)?.focusFieldKey;
+    if (!requestedField) return;
+    setFocusFieldKey(requestedField);
+    window.setTimeout(() => document.getElementById('body-measures')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0);
+    navigate(location.pathname, { replace: true, state: null });
+  }, [location.pathname, location.state, navigate]);
 
   const requestMeasure = (key: BodyMeasureKey) => {
     setFocusFieldKey(key);

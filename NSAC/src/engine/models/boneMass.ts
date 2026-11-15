@@ -2,7 +2,6 @@ import type { Forecaster, ForecastHorizon, ForecastResult, Measurement } from '.
 import { calculateDrivers, ParentContextMap } from '../coupling';
 
 export interface BoneModelContext {
-  missionDaysElapsed?: number;
   resistanceExerciseMinPerDay?: number; // Target 60 min/day
   nutritionAdequacy?: number; // 0.0 to 1.0 (calcium + vit D sufficiency)
 }
@@ -16,14 +15,12 @@ export class BoneMassForecaster implements Forecaster {
   private readonly targetExerciseMin: number = 60; // minutes/day
 
   private currentBoneDensityPercent: number = 100.0; // % of pre-flight ground baseline
-  private lastUpdateMissionDay: number = 0;
   private resistanceExerciseMin: number = 45;
   private nutritionAdequacy: number = 1.0;
   private hasPointMeasurement: boolean = false;
 
-  constructor(initialPercent: number = 100.0, missionDay: number = 0) {
+  constructor(initialPercent: number = 100.0) {
     this.currentBoneDensityPercent = initialPercent;
-    this.lastUpdateMissionDay = missionDay;
   }
 
   public update(
@@ -31,9 +28,6 @@ export class BoneMassForecaster implements Forecaster {
     context?: BoneModelContext
   ): void {
     if (context) {
-      if (context.missionDaysElapsed !== undefined) {
-        this.lastUpdateMissionDay = context.missionDaysElapsed;
-      }
       if (context.resistanceExerciseMinPerDay !== undefined) {
         this.resistanceExerciseMin = context.resistanceExerciseMinPerDay;
       }

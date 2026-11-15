@@ -3,7 +3,7 @@ import { processNasaCsvData } from '../services/nasaData';
 import { SAMPLE_NASA_CMP_CSV } from '../services/sampleCmpData';
 import type { Status, Astronaut } from '../types';
 
-describe('Étape 8 - Rapport de vol, File d’attente, Mode démo & Bilan sanguin F-12', () => {
+describe('Étape 8 - Rapport de vol, file d’attente & bilan sanguin F-12', () => {
   describe('1. Génération du rapport médical du chirurgien de vol', () => {
     it('doit générer une structure de rapport complète conforme avec le disclaimer obligatoire', () => {
       const astronaut: Astronaut = {
@@ -23,7 +23,6 @@ describe('Étape 8 - Rapport de vol, File d’attente, Mode démo & Bilan sangui
           environment: astronaut.mission,
           generatedAt: new Date().toISOString(),
           periodDays: 7,
-          missionDay: 142,
           disclaimer: 'Outil éducatif, pas un diagnostic médical.'
         },
         astronaut,
@@ -58,7 +57,7 @@ describe('Étape 8 - Rapport de vol, File d’attente, Mode démo & Bilan sangui
 
     it('doit formater le résumé et l’export JSON valide et sérialisable', () => {
       const reportData = {
-        missionDay: 142,
+        generatedAt: new Date().toISOString(),
         periodDays: 30,
         globalStatus: 'normal' as Status,
         score: 92,
@@ -69,7 +68,7 @@ describe('Étape 8 - Rapport de vol, File d’attente, Mode démo & Bilan sangui
       expect(typeof jsonString).toBe('string');
 
       const parsed = JSON.parse(jsonString);
-      expect(parsed.missionDay).toBe(142);
+      expect(Number.isNaN(Date.parse(parsed.generatedAt))).toBe(false);
       expect(parsed.score).toBe(92);
       expect(parsed.globalStatus).toBe('normal');
     });
