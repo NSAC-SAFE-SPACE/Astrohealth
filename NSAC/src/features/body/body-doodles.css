@@ -1,0 +1,49 @@
+.doodle-eye svg > g > ellipse:first-child {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: body-eye-blink 8s ease-in-out infinite;
+}
+.doodle-heart-ecg .ecg-path,
+.doodle-kidney .kidney-ripple,
+.doodle-thermometer .thermometer-mercury {
+  stroke-dasharray: 90;
+  stroke-dashoffset: 18;
+  animation: body-line-drift 7s ease-in-out infinite;
+}
+.doodle-heart-ecg .ecg-path { animation-duration: 4s; }
+.doodle-lungs .lung-left,
+.doodle-lungs .lung-right {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: body-breathe 7s ease-in-out infinite;
+}
+.doodle-lungs .lung-right { animation-delay: -3.5s; }
+.doodle-blood-pressure .bp-needle {
+  transform-box: view-box;
+  transform-origin: 104px 61px;
+  animation: body-needle 5s ease-in-out infinite;
+}
+.doodle-spine circle,
+.doodle-atom circle { animation: body-star 5s ease-in-out infinite; }
+.doodle-spine circle:nth-of-type(2n),
+.doodle-atom circle:nth-of-type(2n) { animation-delay: -2.5s; }
+.doodle-muscle .muscle-fiber { animation: body-muscle 4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.doodle-atom .atom-orbit { animation: body-orbit 24s linear infinite; transform-box: view-box; transform-origin: center; }
+.doodle-co2 .co2-bubble { animation: body-bubble 5s ease-in-out infinite; }
+.doodle-co2 .co2-bubble:last-child { animation-delay: -2.5s; }
+
+.decorative-doodle-layer.is-hidden .decorative-doodle-art *,
+.decorative-doodle-layer.is-suspended .decorative-doodle-art * { animation-play-state: paused !important; }
+
+@keyframes body-eye-blink { 0%, 42%, 48%, 100% { transform: scaleY(1); } 45% { transform: scaleY(.96); } }
+@keyframes body-line-drift { 0%, 100% { stroke-dashoffset: 18; } 50% { stroke-dashoffset: 0; } }
+@keyframes body-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.025); } }
+@keyframes body-needle { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
+@keyframes body-star { 0%, 100% { opacity: .75; } 50% { opacity: 1; } }
+@keyframes body-muscle { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(1.025); } }
+@keyframes body-orbit { to { transform: rotate(360deg); } }
+@keyframes body-bubble { 0%, 100% { transform: translateY(1px); opacity: .75; } 50% { transform: translateY(-2px); opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .decorative-doodle-art *, .decorative-doodle-art *::before, .decorative-doodle-art *::after { animation: none !important; }
+}

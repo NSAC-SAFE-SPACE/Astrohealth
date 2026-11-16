@@ -14,6 +14,7 @@ import type {
   Metric,
   Pattern
 } from '../types';
+import type { StressAssessment, WellBeingAssessment } from '../types';
 import { isLegacyFictionalProfile, seedFictionalCrew, shouldAutoSeedFictionalCrew } from '../services/simulator';
 import { resizeImageToSquare } from '../services/profile';
 import { validate_mental_state } from '../features/mental/mentalState';
@@ -35,6 +36,8 @@ export interface AstroState {
   sleepLogs: SleepLog[];
   boneRecords: BoneDensityRecord[];
   psychAssessments: PsychAssessment[];
+  stressAssessments: StressAssessment[];
+  wellBeingAssessments: WellBeingAssessment[];
   activityEvents: ActivityEvent[];
   isLoading: boolean;
 
@@ -59,6 +62,8 @@ export interface AstroState {
   addSleepLog: (log: Omit<SleepLog, 'id' | 'astronautId'>) => Promise<void>;
   addPsychAssessment: (mentalStateData: import('../types').MentalStateData) => Promise<void>;
   addMentalAssessment: (mentalStateData: import('../types').MentalStateData, log: Omit<SleepLog, 'id' | 'astronautId'>) => Promise<void>;
+  addStressAssessment: (assessment: Omit<StressAssessment, 'id' | 'astronautId' | 'completedAt'>) => Promise<void>;
+  addWellBeingAssessment: (assessment: Omit<WellBeingAssessment, 'id' | 'astronautId' | 'completedAt'>) => Promise<void>;
   updatePsychMetrics: (metrics: Partial<PsychMetrics>) => Promise<void>;
   logActivityEvent: (type: 'view' | 'measurement') => Promise<void>;
   updateAstronautProfile: (updates: Partial<Astronaut>) => Promise<void>;
@@ -82,14 +87,16 @@ function assertCurrentAstronaut(astronaut: Astronaut): void {
 }
 
 async function loadProfileData(astronautId: string) {
-  const [measurements, sleepLogs, boneRecords, psychAssessments, activityEvents] = await Promise.all([
+  const [measurements, sleepLogs, boneRecords, psychAssessments, activityEvents, stressAssessments, wellBeingAssessments] = await Promise.all([
     db.measurements.where('astronautId').equals(astronautId).toArray(),
     db.sleepLogs.where('astronautId').equals(astronautId).toArray(),
     db.boneDensityRecords.where('astronautId').equals(astronautId).toArray(),
     db.psychAssessments.where('astronautId').equals(astronautId).toArray(),
-    db.activityEvents.where('astronautId').equals(astronautId).toArray()
+    db.activityEvents.where('astronautId').equals(astronautId).toArray(),
+    db.stressAssessments.where('astronautId').equals(astronautId).toArray(),
+    db.wellBeingAssessments.where('astronautId').equals(astronautId).toArray()
   ]);
-  return { measurements, sleepLogs, boneRecords, psychAssessments, activityEvents };
+  return { measurements, sleepLogs, boneRecords, psychAssessments, activityEvents, stressAssessments, wellBeingAssessments };
 }
 
 export const useAstroStore = create<AstroState>((set, get) => ({
@@ -98,6 +105,8 @@ export const useAstroStore = create<AstroState>((set, get) => ({
   sleepLogs: [],
   boneRecords: [],
   psychAssessments: [],
+  stressAssessments: [],
+  wellBeingAssessments: [],
   activityEvents: [],
   isLoading: true,
 
@@ -130,7 +139,7 @@ export const useAstroStore = create<AstroState>((set, get) => ({
     }
     const astronaut = await db.astronauts.get(CURRENT_USER_ID);
     if (!astronaut) {
-      set({ astronaut: EMPTY_ASTRONAUT, measurements: [], sleepLogs: [], boneRecords: [], psychAssessments: [], activityEvents: [], isLoading: false });
+      set({ astronaut: EMPTY_ASTRONAUT, measurements: [], sleepLogs: [], boneRecords: [], psychAssessments: [], stressAssessments: [], wellBeingAssessments: [], activityEvents: [], isLoading: false });
       return;
     }
     const profileData = await loadProfileData(astronaut.id);
@@ -319,6 +328,22 @@ export const useAstroStore = create<AstroState>((set, get) => ({
       activityEvents: [...activityEvents.filter((entry) => entry.date !== todayStr || entry.type !== 'measurement'), assessmentEvent]
     });
     get().recalculateAll();
+  },
+
+  addStressAssessment: async (assessment) => {
+    const astronaut = get().astronaut;
+    assertCurrentAstronaut(astronaut);
+    const record: StressAssessment = { ...assessment, id: createLocalId('stress'), astronautId: astronaut.id, completedAt: new Date().toISOString() };
+    await db.stressAssessments.put(record);
+    set((state) => ({ stressAssessments: [...state.stressAssessments, record] }));
+  },
+
+  addWellBeingAssessment: async (assessment) => {
+    const astronaut = get().astronaut;
+    assertCurrentAstronaut(astronaut);
+    const record: WellBeingAssessment = { ...assessment, id: createLocalId('wellbeing'), astronautId: astronaut.id, completedAt: new Date().toISOString() };
+    await db.wellBeingAssessments.put(record);
+    set((state) => ({ wellBeingAssessments: [...state.wellBeingAssessments, record] }));
   },
 
   updatePsychMetrics: async (metrics) => {

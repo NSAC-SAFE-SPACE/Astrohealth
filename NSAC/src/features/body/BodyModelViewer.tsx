@@ -164,13 +164,22 @@ function CanvasFallback() {
   return <div className="flex h-full min-h-80 items-center justify-center p-6 text-center text-sm text-slate-muted">Le modèle 3D ne peut pas être rendu dans ce navigateur. Utilisez la liste des zones pour consulter les mesures.</div>;
 }
 
-export default function BodyModelViewer({ selectedZone, onZoneSelect }: { selectedZone: BodyZoneId; onZoneSelect: (zone: BodyZoneId) => void }) {
+export default function BodyModelViewer({ selectedZone, onZoneSelect, onInteracting }: { selectedZone: BodyZoneId; onZoneSelect: (zone: BodyZoneId) => void; onInteracting?: (active: boolean) => void }) {
   const { astronaut, measurements } = useAstroStore();
   const matricule = astronaut.matricule ?? astronaut.id;
   const [values, setValues] = useState<BodyMeasuresData | null>(null);
   const [webglAvailable, setWebglAvailable] = useState<boolean | null>(null);
   const [debug, setDebug] = useState(false);
   const [sceneError, setSceneError] = useState(false);
+  const interactionTimer = useRef<number | undefined>(undefined);
+
+  const pauseDecorations = () => {
+    onInteracting?.(true);
+    window.clearTimeout(interactionTimer.current);
+    interactionTimer.current = window.setTimeout(() => onInteracting?.(false), 1000);
+  };
+
+  useEffect(() => () => window.clearTimeout(interactionTimer.current), []);
 
   useEffect(() => {
     const probe = document.createElement('canvas');
@@ -187,7 +196,7 @@ export default function BodyModelViewer({ selectedZone, onZoneSelect }: { select
     return () => { active = false; };
   }, [matricule, measurements]);
 
-  return <section className="overflow-hidden rounded-2xl border border-slate-border bg-white" aria-label="Modèle 3D interactif du corps humain">
+  return <section data-decor-avoid className="overflow-hidden rounded-2xl border border-slate-border bg-white" aria-label="Modèle 3D interactif du corps humain" onPointerDown={pauseDecorations} onPointerMove={pauseDecorations} onPointerUp={pauseDecorations} onPointerCancel={pauseDecorations} onWheel={pauseDecorations}>
     <header className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-border px-4 py-4 sm:px-5">
       <div><p className="text-sm font-semibold text-primary">Modèle corporel</p><h2 className="font-serif text-xl font-bold">Tourner et sélectionner</h2><p className="mt-1 text-xs text-slate-muted">Glissez pour tourner · molette ou pincement pour zoomer</p></div>
       <button type="button" onClick={() => setDebug((current) => !current)} aria-pressed={debug} className="min-h-10 rounded-lg border border-slate-border px-3 py-2 text-xs font-semibold text-slate-muted hover:bg-surface">{debug ? 'Masquer les zones' : 'Voir les zones debug'}</button>

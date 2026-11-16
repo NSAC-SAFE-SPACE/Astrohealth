@@ -1,0 +1,78 @@
+.decorative-doodle-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  contain: layout paint;
+}
+
+.decorative-doodle {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  color: #3e444c;
+  pointer-events: none;
+  animation: decorative-doodle-cycle 12s ease-in-out 1 both;
+}
+
+.decorative-doodle-art,
+.decorative-doodle-art svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.decorative-doodle-layer.is-focused .decorative-doodle,
+.decorative-doodle-layer.is-suspended .decorative-doodle {
+  opacity: var(--focused-opacity) !important;
+  transition: opacity 500ms ease-out;
+}
+
+.decorative-doodle-layer.is-suspended .decorative-doodle { animation-play-state: paused; }
+.decorative-doodle-layer.is-hidden .decorative-doodle { animation-play-state: paused; }
+.decorative-doodle.is-dimmed { opacity: .025 !important; transition: opacity 600ms ease-out; }
+
+.decorative-doodle-layer.is-reduced .decorative-doodle {
+  animation: none;
+  opacity: var(--reduced-opacity) !important;
+  transform: none !important;
+}
+
+.decorative-doodle-debug-zone {
+  position: absolute;
+  z-index: 1;
+  border: 1px dashed #16803c;
+  background: rgb(22 128 60 / 7%);
+  pointer-events: none;
+}
+
+.decorative-doodle-debug-zone.is-rejected { border-color: #d12f2f; background: rgb(209 47 47 / 7%); }
+
+.decorative-doodle-debug-status {
+  position: fixed;
+  z-index: 9999;
+  right: 1rem;
+  bottom: 6rem;
+  max-width: min(24rem, calc(100vw - 2rem));
+  border-radius: .5rem;
+  background: #17212b;
+  color: white;
+  padding: .5rem .75rem;
+  font: 12px/1.4 sans-serif;
+  overflow-wrap: anywhere;
+  pointer-events: none;
+}
+
+@keyframes decorative-doodle-cycle {
+  0% { opacity: 0; transform: translate3d(0, 4px, 0) scale(.96); }
+  18% { opacity: var(--peak-opacity); transform: translate3d(0, 0, 0) scale(1); }
+  66% { opacity: var(--resting-opacity); transform: translate3d(0, -1px, 0) scale(1); }
+  82% { opacity: var(--peak-opacity); transform: translate3d(0, 0, 0) scale(1); }
+  100% { opacity: 0; transform: translate3d(0, -3px, 0) scale(.99); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .decorative-doodle { animation: none !important; opacity: var(--reduced-opacity) !important; transform: none !important; }
+}

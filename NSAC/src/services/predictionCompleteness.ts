@@ -1,4 +1,4 @@
-import type { Measurement, MentalStateData, PsychAssessment, SleepLog } from '../types';
+import type { Measurement, MentalStateData, PsychAssessment, SleepLog, StressAssessment, WellBeingAssessment } from '../types';
 import { BODY_MEASURE_FIELD_BY_KEY, BODY_MEASURE_FIELDS, validateBodyMeasureValues, type BodyMeasureKey } from '../engine/config/bodyMeasures';
 import { MENTAL_STATE_KEYS, validate_mental_state } from '../features/mental/mentalState';
 import { computePsychSleepQuality } from '../engine/scores/sleep';
@@ -142,4 +142,29 @@ export function buildMentalPrediction(assessments: readonly PsychAssessment[], s
   const payload = adaptMentalPayload(latest.mentalStateData);
   const missing = getMissingMentalFields(payload);
   return { payload, missing, complete: missing.length === 0 && isMentalComplete(payload), assessment: latest };
+}
+
+/** Uses dedicated questionnaires for stress/well-being while retaining the API's established 8-field contract. */
+export function buildMentalPredictionFromAssessments(
+  assessments: readonly PsychAssessment[], sleepLogs: readonly SleepLog[], stressRecords: readonly StressAssessment[],
+  wellBeingRecords: readonly WellBeingAssessment[], astronautId: string, now = Date.now(), maxAgeHours = MAX_MEASURE_AGE_HOURS
+) {
+  const base = buildMentalPrediction(assessments, sleepLogs, astronautId, now, maxAgeHours);
+  const payload = { ...base.payload } as Record<string, unknown>;
+  const latestStress = stressRecords.filter((item) => item.astronautId === astronautId).sort((a, b) => b.completedAt.localeCompare(a.completedAt))[0];
+  const latestWellBeing = wellBeingRecords.filter((item) => item.astronautId === astronautId).sort((a, b) => b.completedAt.localeCompare(a.completedAt))[0];
+  const fresh = (value?: string) => {
+    const time = value ? Date.parse(value) : NaN;
+    return Number.isFinite(time) && isFresh(time, now, maxAgeHours);
+  };
+  if (latestStress && fresh(latestStress.completedAt)) payload.Stress_Level = latestStress.stressLevel === 'HIGH' ? 'High' : latestStress.stressLevel === 'MEDIUM' ? 'Medium' : 'Low';
+  else delete payload.Stress_Level;
+  if (latestWellBeing && fresh(latestWellBeing.completedAt)) payload.Happiness = Math.round(latestWellBeing.wellBeingScore);
+  else delete payload.Happiness;
+  const missing = getMissingMentalFields(payload).filter((item) => item.key !== 'payload');
+  if (!latestStress && !missing.some((item) => item.key === 'Stress_Level')) missing.push({ key: 'Stress_Level', label: 'Évaluation du stress requise' });
+  if (!latestWellBeing && !missing.some((item) => item.key === 'Happiness')) missing.push({ key: 'Happiness', label: 'Évaluation du bien-être requise' });
+  if (latestStress && !fresh(latestStress.completedAt)) missing.push({ key: 'Stress_Level', label: 'Évaluation du stress à actualiser', stale: true });
+  if (latestWellBeing && !fresh(latestWellBeing.completedAt)) missing.push({ key: 'Happiness', label: 'Évaluation du bien-être à actualiser', stale: true });
+  return { payload, missing, complete: missing.length === 0 && isMentalComplete(payload), assessment: base.assessment, stressAssessment: latestStress, wellBeingAssessment: latestWellBeing };
 }

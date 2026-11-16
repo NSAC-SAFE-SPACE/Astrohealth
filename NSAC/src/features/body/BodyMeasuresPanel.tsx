@@ -71,7 +71,7 @@ export const BodyMeasuresPanel: React.FC<{ focusFieldKey?: BodyMeasureKey | null
     }
   };
 
-  return <section id="body-measures" className="space-y-5 rounded-2xl border border-slate-border bg-white p-5 sm:p-7">
+  return <section data-decor-avoid id="body-measures" className="space-y-5 rounded-2xl border border-slate-border bg-white p-5 sm:p-7">
     <header className="space-y-1">
       <p className="text-sm font-semibold text-primary">Suivi des indicateurs de bord</p>
       <h2 className="font-serif text-2xl font-bold">Mesures corporelles</h2>

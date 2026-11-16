@@ -133,6 +133,27 @@ export interface PsychAssessment {
   demo?: boolean;
 }
 
+export interface StressAssessment {
+  id: string;
+  astronautId: string;
+  completedAt: string;
+  answers: Record<import('../features/mental/assessments/stress').StressQuestionId, import('../features/mental/assessments/stress').StressAnswerScore>;
+  totalScore: number;
+  stressLevel: import('../features/mental/assessments/stress').StressLevel;
+  questionnaireVersion: string;
+}
+
+export interface WellBeingAssessment {
+  id: string;
+  astronautId: string;
+  completedAt: string;
+  answers: Record<import('../features/mental/assessments/wellbeing').WellBeingQuestionId, import('../features/mental/assessments/wellbeing').WellBeingAnswerScore>;
+  rawScore: number;
+  wellBeingScore: number;
+  classification: import('../features/mental/assessments/wellbeing').WellBeingLevel;
+  questionnaireVersion: string;
+}
+
 export interface MentalStateData {
   Stress_level: 'High' | 'Medium' | 'Low';
   Happiness: number;

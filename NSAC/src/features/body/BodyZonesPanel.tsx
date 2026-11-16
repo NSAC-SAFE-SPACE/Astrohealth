@@ -68,8 +68,8 @@ export const BodyZonesPanel: React.FC<{ onRequestMeasure: (key: BodyMeasureKey) 
       });
   };
 
-  return <section className="grid gap-5 lg:grid-cols-[minmax(15rem,0.8fr)_minmax(0,1.4fr)]" aria-label="Exploration des indicateurs corporels">
-    <nav className="space-y-3 rounded-2xl border border-slate-border bg-white p-5" aria-label="Zones du corps">
+  return <section className="grid gap-5 2xl:grid-cols-[minmax(15rem,0.8fr)_minmax(0,1.4fr)]" aria-label="Exploration des indicateurs corporels">
+    <nav data-decor-avoid className="space-y-3 rounded-2xl border border-slate-border bg-white p-5" aria-label="Zones du corps">
       <div><p className="text-sm font-semibold text-primary">Exploration corporelle</p><h2 className="font-serif text-2xl font-bold">Choisir une zone</h2><p className="mt-1 text-sm text-slate-muted">Sélectionnez une zone pour consulter les indicateurs et leur historique.</p></div>
       <div className="space-y-2">
         {BODY_ZONE_CONFIG.filter((zone) => zone.access === 'model').map((zone) => <button key={zone.id} type="button" onClick={() => onSelectZone(zone.id)} aria-pressed={selectedZone === zone.id} className={`flex min-h-12 w-full items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left text-sm font-semibold ${selectedZone === zone.id ? 'border-primary bg-primary/5 text-primary' : 'border-slate-border bg-white text-slate-text hover:bg-surface'}`}>
@@ -82,7 +82,7 @@ export const BodyZonesPanel: React.FC<{ onRequestMeasure: (key: BodyMeasureKey) 
       <p className="text-xs text-slate-muted">Vert : nominal · orange : à surveiller · rouge : alerte · gris : aucune mesure.</p>
     </nav>
 
-    <div className="space-y-4 rounded-2xl border border-slate-border bg-white p-5 sm:p-6" aria-live="polite">
+    <div data-decor-avoid className="space-y-4 rounded-2xl border border-slate-border bg-white p-5 sm:p-6" aria-live="polite">
       <header><p className="text-sm font-semibold text-primary">Indicateurs associés</p><h2 className="font-serif text-2xl font-bold">{selected.label}</h2></header>
       {error && <p role="alert" className="rounded-lg bg-rose-50 p-3 text-sm text-rose-800">{error}</p>}
       {indicators.flatMap((indicator) => indicator.fields.map((field) => {

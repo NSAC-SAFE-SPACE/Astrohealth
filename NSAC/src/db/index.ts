@@ -7,7 +7,9 @@ import type {
   ActivityEvent,
   LabResult,
   Astronaut,
-  MentalStateData
+  MentalStateData,
+  StressAssessment,
+  WellBeingAssessment
 } from '../types';
 import { migrateLegacyMentalStateData } from '../features/mental/mentalState';
 
@@ -43,6 +45,8 @@ export class AstrohealthDatabase extends Dexie {
   users!: Table<Astronaut, string>;
   reports!: Table<MedicalReportRecord, string>;
   predictionRecords!: Table<PredictionRecord, string>;
+  stressAssessments!: Table<StressAssessment, string>;
+  wellBeingAssessments!: Table<WellBeingAssessment, string>;
 
   constructor() {
     super('AstrohealthDB');
@@ -99,6 +103,14 @@ export class AstrohealthDatabase extends Dexie {
       activityEvents: 'id, astronautId, date, type', labResults: 'id, astronautId, analyte, date',
       astronauts: 'id, matricule', users: '&matricule, id, name', reports: 'id, astronautId, generatedAt, status',
       predictionRecords: 'id, astronautId, kind, createdAt'
+    });
+    this.version(6).stores({
+      measurements: 'id, astronautId, metric, timestamp, source', sleepLogs: 'id, astronautId, date',
+      boneDensityRecords: 'id, astronautId, date, site, method, isBaseline', psychAssessments: 'id, astronautId, date, status',
+      activityEvents: 'id, astronautId, date, type', labResults: 'id, astronautId, analyte, date',
+      astronauts: 'id, matricule', users: '&matricule, id, name', reports: 'id, astronautId, generatedAt, status',
+      predictionRecords: 'id, astronautId, kind, createdAt',
+      stressAssessments: 'id, astronautId, completedAt', wellBeingAssessments: 'id, astronautId, completedAt'
     });
   }
 }
