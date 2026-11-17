@@ -1,4 +1,5 @@
 import type { MentalStateData } from '../../types';
+import type { StressLevel } from './assessments/stress';
 
 export const MENTAL_STATE_KEYS = [
   'Stress_level', 'Happiness', 'Mood_Score', 'Sleep_Quality',
@@ -27,6 +28,22 @@ export function createMentalStateData(
   const data = Object.fromEntries(MENTAL_STATE_KEYS.map((key) => [key, key === 'Sleep_Quality' ? sleepQuality : answers[key as keyof typeof answers]])) as unknown as MentalStateData;
   validate_mental_state(data, { sleepQualityCalculated: true });
   return data;
+}
+
+/** Maps questionnaire outcomes to the legacy model fields without adding questionnaire-only fields. */
+export function createMentalStateFromQuestionnaires(
+  stressLevel: StressLevel,
+  preciseWellBeingScore: number,
+  otherAnswers: Omit<MentalStateData, 'Stress_level' | 'Happiness' | 'Sleep_Quality'>,
+  sleepQuality: number
+): MentalStateData {
+  if (!Number.isFinite(preciseWellBeingScore) || preciseWellBeingScore < 0 || preciseWellBeingScore > 10) {
+    throw new Error('Le score de bien-être doit être compris entre 0 et 10.');
+  }
+  // The model contract requires an integer. Keep the precise questionnaire score in its
+  // own history record and use conventional nearest-integer rounding for this model field.
+  const stressValue = stressLevel === 'LOW' ? 'Low' : stressLevel === 'MEDIUM' ? 'Medium' : 'High';
+  return createMentalStateData({ ...otherAnswers, Stress_level: stressValue, Happiness: Math.round(preciseWellBeingScore) }, sleepQuality);
 }
 
 export function validate_mental_state(data: unknown, options: { sleepQualityCalculated?: boolean } = {}): data is MentalStateData {

@@ -22,7 +22,7 @@ function MiniHistory({ points, label }: { points: number[]; label: string }) {
   </svg>;
 }
 
-export const BodyZonesPanel: React.FC<{ onRequestMeasure: (key: BodyMeasureKey) => void; selectedZone: BodyZoneId; onSelectZone: (zone: BodyZoneId) => void }> = ({ onRequestMeasure, selectedZone, onSelectZone }) => {
+export const BodyZonesPanel: React.FC<{ onRequestMeasure: (key: BodyMeasureKey) => void; selectedZone: BodyZoneId | null; onSelectZone: (zone: BodyZoneId | null) => void }> = ({ onRequestMeasure, selectedZone, onSelectZone }) => {
   const { astronaut, measurements } = useAstroStore();
   const matricule = astronaut.matricule ?? astronaut.id;
   const [values, setValues] = useState<BodyMeasuresData | null>(null);
@@ -37,8 +37,8 @@ export const BodyZonesPanel: React.FC<{ onRequestMeasure: (key: BodyMeasureKey) 
     return () => { active = false; };
   }, [matricule, measurements]);
 
-  const selected = BODY_ZONE_CONFIG.find((zone) => zone.id === selectedZone)!;
-  const indicators = useMemo(() => BODY_MEASURE_CONFIG.indicators.filter((indicator) => selected.indicatorIds.includes(indicator.id)), [selected]);
+  const selected = useMemo(() => BODY_ZONE_CONFIG.find((zone) => zone.id === selectedZone), [selectedZone]);
+  const indicators = useMemo(() => selected ? BODY_MEASURE_CONFIG.indicators.filter((indicator) => selected.indicatorIds.includes(indicator.id)) : [], [selected]);
 
   const statusForZone = (zone: typeof BODY_ZONE_CONFIG[number]): BodyMeasureStatus | 'missing' => {
     if (!values) return 'missing';
@@ -82,7 +82,7 @@ export const BodyZonesPanel: React.FC<{ onRequestMeasure: (key: BodyMeasureKey) 
       <p className="text-xs text-slate-muted">Vert : nominal · orange : à surveiller · rouge : alerte · gris : aucune mesure.</p>
     </nav>
 
-    <div data-decor-avoid className="space-y-4 rounded-2xl border border-slate-border bg-white p-5 sm:p-6" aria-live="polite">
+    {selected ? <div data-decor-avoid className="space-y-4 rounded-2xl border border-slate-border bg-white p-5 sm:p-6" aria-live="polite">
       <header><p className="text-sm font-semibold text-primary">Indicateurs associés</p><h2 className="font-serif text-2xl font-bold">{selected.label}</h2></header>
       {error && <p role="alert" className="rounded-lg bg-rose-50 p-3 text-sm text-rose-800">{error}</p>}
       {indicators.flatMap((indicator) => indicator.fields.map((field) => {
@@ -101,6 +101,6 @@ export const BodyZonesPanel: React.FC<{ onRequestMeasure: (key: BodyMeasureKey) 
           <a href={indicator.referenceUrl} target="_blank" rel="noreferrer" className="text-xs text-primary underline underline-offset-2">Référence : {indicator.reference}</a>
         </article>;
       }))}
-    </div>
+    </div> : <div data-decor-avoid className="flex min-h-36 items-center rounded-2xl border border-dashed border-slate-border bg-white p-5 text-sm text-slate-muted" aria-live="polite">Sélectionnez un point vert du modèle, ou choisissez une zone dans la liste, pour afficher ses indicateurs.</div>}
   </section>;
 };

@@ -14,12 +14,14 @@ import {
 } from 'lucide-react';
 import { useAstroStore } from '../store/useAstroStore';
 import { changeLanguage } from '../i18n';
+import { localizedText } from '../i18n/text';
 import { MeasureModal } from './MeasureModal';
 import { AstrohealthLogo } from './AstrohealthLogo';
 import type { Metric } from '../types';
 
 export const Layout: React.FC = () => {
   const { t, i18n } = useTranslation();
+  const tr = (fr: string, en: string) => localizedText(i18n.language, fr, en);
   const location = useLocation();
   const { astronaut } = useAstroStore();
   const [isMeasureModalOpen, setIsMeasureModalOpen] = useState(false);
@@ -49,7 +51,7 @@ export const Layout: React.FC = () => {
       <aside className="hidden md:flex flex-col justify-between w-72 bg-surface border-r border-slate-border p-6 fixed inset-y-0 left-0 z-30 select-none">
         <div className="space-y-8">
           {/* Logo & Call sign */}
-          <NavLink to="/" aria-label="Astrohealth — accueil" className="flex items-center gap-3 rounded-lg focus-visible:outline-offset-4">
+          <NavLink to="/" aria-label={tr('Astrohealth — accueil', 'Astrohealth — home')} className="flex items-center gap-3 rounded-lg focus-visible:outline-offset-4">
             <AstrohealthLogo size={40} />
             <div>
               <div className="font-serif font-bold text-lg text-slate-text tracking-tight flex items-center gap-2">
@@ -72,7 +74,7 @@ export const Layout: React.FC = () => {
           </button>
 
           {/* Navigation Links (5 entries) */}
-          <nav className="space-y-1.5" aria-label="Menu principal">
+          <nav className="space-y-1.5" aria-label={tr('Menu principal', 'Main menu')}>
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.to;
@@ -99,12 +101,12 @@ export const Layout: React.FC = () => {
           <div className="flex items-center justify-between text-xs text-slate-muted px-2">
             <div className="flex items-center gap-1.5">
               <Radio className="w-3.5 h-3.5 text-accent" />
-              <span>Délai Terre : {astronaut.commDelayMinutes || 0} min</span>
+              <span>{tr('Délai Terre', 'Earth delay')} : {astronaut.commDelayMinutes || 0} {tr('min', 'min')}</span>
             </div>
             <button
               onClick={toggleLanguage}
               className="px-2.5 py-1 rounded-md border border-slate-border hover:bg-white font-semibold text-primary flex items-center gap-1"
-              title="Changer de langue / Switch language"
+              title={tr('Passer en anglais', 'Switch to French')}
             >
               <Globe className="w-3 h-3" />
               <span>{i18n.language.startsWith('fr') ? 'EN' : 'FR'}</span>
@@ -130,7 +132,7 @@ export const Layout: React.FC = () => {
         <div className="hidden h-16 items-center justify-end px-8 md:flex"><span className="text-xs font-semibold uppercase tracking-wider text-slate-muted">{astronaut.missionName ?? astronaut.mission.replace('_', ' ')}</span></div>
         {/* Mobile Top Header */}
         <header className="md:hidden flex items-center justify-between p-4 bg-surface border-b border-slate-border sticky top-0 z-20">
-          <NavLink to="/" aria-label="Astrohealth — accueil" className="flex items-center gap-2.5 rounded-lg focus-visible:outline-offset-4">
+          <NavLink to="/" aria-label={tr('Astrohealth — accueil', 'Astrohealth — home')} className="flex items-center gap-2.5 rounded-lg focus-visible:outline-offset-4">
             <AstrohealthLogo size={38} />
             <span className="font-serif font-bold text-base text-slate-text">Astrohealth</span>
           </NavLink>
@@ -161,7 +163,7 @@ export const Layout: React.FC = () => {
         <footer className="px-6 py-4 border-t border-slate-border bg-surface text-center text-xs text-slate-muted select-none">
           <div className="max-w-prose mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
             <span>{t('app.disclaimer')}</span>
-            <span className="text-slate-400">Expédition 72 // NASA Hackathon Challenge</span>
+            <span className="text-slate-400">{tr('Expédition 72 // Défi hackathon NASA', 'Expedition 72 // NASA Hackathon Challenge')}</span>
           </div>
         </footer>
       </div>
@@ -169,7 +171,7 @@ export const Layout: React.FC = () => {
       {/* Mobile Bottom Navigation Bar (Horizontal 5 items) */}
       <nav
         className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-border flex items-center justify-around p-2 z-30 shadow-md"
-        aria-label="Menu mobile"
+        aria-label={tr('Menu mobile', 'Mobile menu')}
       >
         {navItems.map((item) => {
           const Icon = item.icon;

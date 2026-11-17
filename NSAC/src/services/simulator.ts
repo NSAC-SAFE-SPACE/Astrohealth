@@ -1,16 +1,19 @@
 import { db } from '../db';
-import type { ActivityEvent, Astronaut, Measurement, PsychAssessment, SleepLog } from '../types';
+import type { ActivityEvent, Astronaut, Measurement, PsychAssessment, SleepLog, StressAssessment, WellBeingAssessment } from '../types';
 import { BODY_MEASURE_FIELDS, validateBodyMeasureValues, type BodyMeasureKey } from '../engine/config/bodyMeasures';
 import { calculatePsychScore, evaluatePsychStatus } from '../engine/scores/psych';
 import { computePsychSleepQuality } from '../engine/scores/sleep';
 import { createMentalStateData, validate_mental_state } from '../features/mental/mentalState';
+import { calculateStressAssessment, STRESS_QUESTIONNAIRE_VERSION } from '../features/mental/assessments/stress';
+import { calculateWellBeingAssessment, WELLBEING_QUESTIONNAIRE_VERSION } from '../features/mental/assessments/wellbeing';
 import { CURRENT_USER_ID } from '../config/currentUser';
 import { DEFAULT_AVATAR_SILHOUETTE, ENVIRONMENT_COMM_DELAYS } from './profile';
 
 const KNOWN_LEGACY_SEED_IDS = Array.from({ length: 10 }, (_, index) => `AST-${String(index + 1).padStart(4, '0')}`);
 const LEGACY_DEMO_NAMES = new Set(['Maëlys Virelande', 'Idriss Solmaren', 'Noura Cendrelune', 'Sacha Orvélis', 'Elian Brumeciel', 'Yuna Valombre', 'Téo Mirastel', 'Liora Destenac', 'Kamil Asterive', 'Ilyana Rovelune']);
 const DAY_MS = 24 * 60 * 60 * 1000;
-export const DEMO_HISTORY_DAYS = 60;
+export const DEMO_HISTORY_DAYS = 138;
+export const DEMO_PROFILE_NAME = 'Nélio Vassombre';
 export const DEMO_REFRESH_AGE_HOURS = 24;
 
 export function isLegacyFictionalProfile(profile: Astronaut | undefined): boolean {
@@ -37,7 +40,7 @@ function deleteByIds<T extends { id: string }>(table: { bulkDelete(keys: string[
 }
 
 /** Replace only generated rows; manually entered measurements and tests stay untouched. */
-export async function seedFictionalCrew(options: { now?: Date; reset?: boolean } = {}): Promise<{ astronauts: number; measurements: number; sleepLogs: number; assessments: number; activityEvents: number; startDate: string; endDate: string }> {
+export async function seedFictionalCrew(options: { now?: Date; reset?: boolean } = {}): Promise<{ astronauts: number; measurements: number; sleepLogs: number; assessments: number; stressAssessments: number; wellBeingAssessments: number; activityEvents: number; startDate: string; endDate: string; missionDay: number }> {
   const now = options.now ?? new Date();
   const nowMs = now.getTime();
   const todayEpoch = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
@@ -55,31 +58,37 @@ export async function seedFictionalCrew(options: { now?: Date; reset?: boolean }
   if (currentIsLegacySeed) legacyProfileIds.add(CURRENT_USER_ID);
   const legacyUserIds = new Set(oldUsers.filter((user) => knownDemoIds.has(user.matricule ?? user.id) && (user.demo === true || LEGACY_DEMO_NAMES.has(user.name))).map((user) => user.matricule ?? user.id));
 
-  const [oldMeasurements, oldSleeps, oldAssessments, oldEvents] = await Promise.all([
-    db.measurements.toArray(), db.sleepLogs.toArray(), db.psychAssessments.toArray(), db.activityEvents.toArray()
+  const [oldMeasurements, oldSleeps, oldAssessments, oldEvents, oldStress, oldWellBeing] = await Promise.all([
+    db.measurements.toArray(), db.sleepLogs.toArray(), db.psychAssessments.toArray(), db.activityEvents.toArray(),
+    db.stressAssessments.toArray(), db.wellBeingAssessments.toArray()
   ]);
   const unitByMetric = new Map(BODY_MEASURE_FIELDS.map((field) => [field.metric, field.unit]));
   const measurements: Measurement[] = [];
   const sleepLogs: SleepLog[] = [];
   const psychAssessments: PsychAssessment[] = [];
   const activityEvents: ActivityEvent[] = [];
+  const stressAssessments: StressAssessment[] = [];
+  const wellBeingAssessments: WellBeingAssessment[] = [];
   const previousNights: SleepLog[] = [];
   let cumulativeDose = 0;
 
-  const missionStartDate = current?.missionStartDate ?? startDate;
+  // The mission clock follows the real calendar, beginning at day 1 of this history.
+  const missionStartDate = current?.name === DEMO_PROFILE_NAME && current.missionStartDate
+    ? current.missionStartDate
+    : startDate;
   const missionStartEpoch = Date.parse(`${missionStartDate}T00:00:00Z`);
   const profile: Astronaut = {
     ...(current ?? {} as Astronaut),
     id: CURRENT_USER_ID, matricule: CURRENT_USER_ID,
-    name: current?.name ?? 'Ariane Solenne', age: current?.age ?? 36, sex: current?.sex ?? 'female',
-    heightCm: current?.heightCm ?? 171, weightKg: current?.weightKg ?? 64,
-    mission: current?.mission ?? 'station', missionName: 'Aurora-7',
+    name: DEMO_PROFILE_NAME, age: 39, sex: 'male',
+    heightCm: 178, weightKg: 76,
+    mission: 'station', missionName: 'Orbite-Delta 4',
     missionStartDate, missionDay: Math.max(1, Math.floor((todayEpoch - missionStartEpoch) / DAY_MS) + 1),
     photo: current?.photo ?? DEFAULT_AVATAR_SILHOUETTE,
-    careerRadiationDose: current?.careerRadiationDose ?? 52,
-    baselineBoneDensity: current?.baselineBoneDensity ?? { total_hip: 1.02, lumbar_spine: 1.12, femoral_neck: 0.96 },
-    bloodGlucoseUnit: current?.bloodGlucoseUnit ?? 'mg/dL',
-    commDelayMinutes: current?.commDelayMinutes ?? ENVIRONMENT_COMM_DELAYS.station.nominalMin,
+    careerRadiationDose: 47.6,
+    baselineBoneDensity: { total_hip: 1.08, lumbar_spine: 1.16, femoral_neck: 1.01 },
+    bloodGlucoseUnit: 'mg/dL',
+    commDelayMinutes: ENVIRONMENT_COMM_DELAYS.station.nominalMin,
     demo: true,
     createdAt: current?.createdAt ?? new Date(missionStartEpoch).toISOString()
   };
@@ -103,7 +112,7 @@ export async function seedFictionalCrew(options: { now?: Date; reset?: boolean }
     sleepLogs.push(sleep);
     previousNights.push(sleep);
 
-    const dailyDose = Number((0.3 + (seededNoise(day, 1) + 1) * 0.3).toFixed(2));
+    const dailyDose = Number((0.15 + (seededNoise(day, 1) + 1) * 0.15).toFixed(2));
     cumulativeDose = Number((cumulativeDose + dailyDose).toFixed(2));
     const dehydrated = day === 39;
     const body: Partial<Record<BodyMeasureKey, number>> = {
@@ -146,7 +155,11 @@ export async function seedFictionalCrew(options: { now?: Date; reset?: boolean }
       measurements.push({ id: `demo-measure-${CURRENT_USER_ID}-j${String(day).padStart(2, '0')}-${metric}`, astronautId: CURRENT_USER_ID, metric, value, unit, timestamp, source: 'simulated', demo: true });
     });
 
-    activityEvents.push({ id: `demo-activity-${CURRENT_USER_ID}-j${String(day).padStart(2, '0')}`, astronautId: CURRENT_USER_ID, date, type: 'measurement', demo: true });
+    const activeDay = (day >= 0 && day <= 19) || (day >= 25 && day <= 43) ||
+      (day >= 48 && day <= 65) || (day >= 73 && day <= 81) ||
+      (day >= 85 && day <= 101) || (day >= 110 && day <= 117) ||
+      (day >= 122 && day <= DEMO_HISTORY_DAYS - 1);
+    if (activeDay) activityEvents.push({ id: `demo-activity-${CURRENT_USER_ID}-j${String(day).padStart(3, '0')}`, astronautId: CURRENT_USER_ID, date, type: 'measurement', demo: true });
 
     if (day % 3 === 0 || day === DEMO_HISTORY_DAYS - 1) {
       const previousNight = day > 0 ? sleepLogs[day - 1] : sleep;
@@ -164,6 +177,13 @@ export async function seedFictionalCrew(options: { now?: Date; reset?: boolean }
         }, sleep.calculatedQuality!);
       validate_mental_state(mental, { sleepQualityCalculated: true });
       psychAssessments.push({ id: `demo-psych-${CURRENT_USER_ID}-j${String(day).padStart(2, '0')}`, astronautId: CURRENT_USER_ID, date, answers, score, status: evaluatePsychStatus(score).status, mentalStateData: mental, demo: true });
+      const completedAt = new Date(dateEpoch + 17 * 60 * 60 * 1000).toISOString();
+      const stressAnswers = Object.fromEntries(Array.from({ length: 10 }, (_, index) => [`q${index + 1}`, strained ? (index < 6 ? 3 : 1) : (index < 4 ? 1 : 2)]));
+      const stressResult = calculateStressAssessment(stressAnswers);
+      stressAssessments.push({ id: `demo-stress-${CURRENT_USER_ID}-j${String(day).padStart(3, '0')}`, astronautId: CURRENT_USER_ID, completedAt, answers: stressAnswers as StressAssessment['answers'], ...stressResult, questionnaireVersion: STRESS_QUESTIONNAIRE_VERSION, psychAssessmentId: `demo-psych-${CURRENT_USER_ID}-j${String(day).padStart(2, '0')}` });
+      const wellbeingAnswers = Object.fromEntries(Array.from({ length: 5 }, (_, index) => [`q${index + 1}`, strained ? (index < 2 ? 2 : 3) : [4, 3, 4, 4, 3][index]]));
+      const wellbeingResult = calculateWellBeingAssessment(wellbeingAnswers);
+      wellBeingAssessments.push({ id: `demo-wellbeing-${CURRENT_USER_ID}-j${String(day).padStart(3, '0')}`, astronautId: CURRENT_USER_ID, completedAt, answers: wellbeingAnswers as WellBeingAssessment['answers'], ...wellbeingResult, questionnaireVersion: WELLBEING_QUESTIONNAIRE_VERSION, psychAssessmentId: `demo-psych-${CURRENT_USER_ID}-j${String(day).padStart(2, '0')}` });
     }
   }
 
@@ -171,7 +191,9 @@ export async function seedFictionalCrew(options: { now?: Date; reset?: boolean }
   const legacySleeps = oldSleeps.filter((row) => knownDemoIds.has(row.astronautId));
   const legacyAssessments = oldAssessments.filter((row) => knownDemoIds.has(row.astronautId));
   const legacyEvents = oldEvents.filter((row) => knownDemoIds.has(row.astronautId));
-  await db.transaction('rw', [db.users, db.astronauts, db.measurements, db.sleepLogs, db.psychAssessments, db.activityEvents], async () => {
+  const legacyStress = oldStress.filter((row) => knownDemoIds.has(row.astronautId));
+  const legacyWellBeing = oldWellBeing.filter((row) => knownDemoIds.has(row.astronautId));
+  await db.transaction('rw', [db.users, db.astronauts, db.measurements, db.sleepLogs, db.psychAssessments, db.activityEvents, db.stressAssessments, db.wellBeingAssessments], async () => {
     // Legacy fictional accounts were generated by the previous known AST-0001…AST-0010 seed.
     await db.users.bulkDelete([...legacyUserIds]);
     await db.astronauts.bulkDelete([...legacyProfileIds]);
@@ -179,21 +201,27 @@ export async function seedFictionalCrew(options: { now?: Date; reset?: boolean }
     await deleteByIds(db.sleepLogs, legacySleeps, (row) => row.demo === true || (legacyProfileIds.has(row.astronautId) && row.id.startsWith('sleep-AST-') && row.calculatedQuality !== undefined));
     await deleteByIds(db.psychAssessments, legacyAssessments, (row) => row.demo === true || (legacyProfileIds.has(row.astronautId) && row.id.startsWith('psych-AST-')));
     await deleteByIds(db.activityEvents, legacyEvents, (row) => row.demo === true || (legacyProfileIds.has(row.astronautId) && row.id.startsWith('act-AST-')));
+    await deleteByIds(db.stressAssessments, legacyStress, (row) => row.id.startsWith('demo-stress-') && legacyProfileIds.has(row.astronautId));
+    await deleteByIds(db.wellBeingAssessments, legacyWellBeing, (row) => row.id.startsWith('demo-wellbeing-') && legacyProfileIds.has(row.astronautId));
 
     // Refresh this demo profile only. Manual records are outside these marker queries.
     await db.measurements.where('astronautId').equals(CURRENT_USER_ID).filter((row) => row.demo === true).delete();
     await db.sleepLogs.where('astronautId').equals(CURRENT_USER_ID).filter((row) => row.demo === true).delete();
     await db.psychAssessments.where('astronautId').equals(CURRENT_USER_ID).filter((row) => row.demo === true).delete();
     await db.activityEvents.where('astronautId').equals(CURRENT_USER_ID).filter((row) => row.demo === true).delete();
+    await db.stressAssessments.where('astronautId').equals(CURRENT_USER_ID).filter((row) => row.id.startsWith('demo-stress-')).delete();
+    await db.wellBeingAssessments.where('astronautId').equals(CURRENT_USER_ID).filter((row) => row.id.startsWith('demo-wellbeing-')).delete();
     await db.astronauts.put(profile);
     await db.users.put(profile);
     await db.measurements.bulkPut(measurements);
     await db.sleepLogs.bulkPut(sleepLogs);
     await db.psychAssessments.bulkPut(psychAssessments);
     await db.activityEvents.bulkPut(activityEvents);
+    await db.stressAssessments.bulkPut(stressAssessments);
+    await db.wellBeingAssessments.bulkPut(wellBeingAssessments);
   });
 
-  return { astronauts: 1, measurements: measurements.length, sleepLogs: sleepLogs.length, assessments: psychAssessments.length, activityEvents: activityEvents.length, startDate, endDate };
+  return { astronauts: 1, measurements: measurements.length, sleepLogs: sleepLogs.length, assessments: psychAssessments.length, stressAssessments: stressAssessments.length, wellBeingAssessments: wellBeingAssessments.length, activityEvents: activityEvents.length, startDate, endDate, missionDay: profile.missionDay ?? 1 };
 }
 
 export const seedLambdaData = seedFictionalCrew;

@@ -7,7 +7,7 @@ export type DoodleVariant = string;
 type Rect = { left: number; top: number; right: number; bottom: number };
 export type DoodlePlacement = { x: number; y: number; width: number; height: number; zone: string };
 export type PlacementRejection = DoodlePlacement & { reason: string };
-export type PlacementDiagnostics = { placements: DoodlePlacement[]; rejected: PlacementRejection[]; safetyMargin: number | null; reason?: string };
+export type PlacementDiagnostics = { placements: DoodlePlacement[]; rejected: PlacementRejection[]; safetyMargin: number | null; reason?: string; freeSpaceCount?: number };
 export type BrainPlacement = DoodlePlacement;
 export type BrainPlacementDiagnostics = PlacementDiagnostics;
 
@@ -130,9 +130,9 @@ export function findFreeSpacePlacements(page: Rect, protectedRects: Rect[], requ
     for (const [index, cell] of cells.entries()) {
       const freeWidth = cell.rect.right - cell.rect.left;
       const freeHeight = cell.rect.bottom - cell.rect.top;
-      const width = Math.min(config.maxSize, freeWidth * 0.8, (freeHeight / 0.75) * 0.8);
+      const width = Math.min(config.maxSize, freeWidth * 0.88, (freeHeight / 0.75) * 0.88);
       const height = width * 0.75;
-      if (width < config.minZoneSize || height > freeHeight * 0.8) {
+      if (width < config.minZoneSize || height > freeHeight * 0.88) {
         rejected.push({ x: cell.rect.left, y: cell.rect.top, width, height, zone: cell.key, reason: 'zone trop petite après la marge de sécurité' });
         continue;
       }
@@ -143,9 +143,10 @@ export function findFreeSpacePlacements(page: Rect, protectedRects: Rect[], requ
       placements.push({ x, y, width, height, zone: cell.key });
       if (placements.length >= requested) break;
     }
-    if (placements.length) return { placements, rejected, safetyMargin: margin };
+    if (placements.length) return { placements, rejected, safetyMargin: margin, freeSpaceCount: cells.length };
+    if (margin === SAFETY_MARGINS[SAFETY_MARGINS.length - 1]) return { placements: [], rejected, safetyMargin: margin, freeSpaceCount: cells.length, reason: `Aucun emplacement utilisable parmi ${cells.length} zones libres.` };
   }
-  return { placements: [], rejected, safetyMargin: null, reason: `Aucun espace libre d’au moins ${config.minFreeSpace}px.` };
+  return { placements: [], rejected, safetyMargin: null, freeSpaceCount: 0, reason: `Aucun espace libre d’au moins ${config.minFreeSpace}px.` };
 }
 
 function expand(rect: Rect, amount: number): Rect {

@@ -24,7 +24,8 @@ function isFormControl(target: EventTarget | null): boolean {
   return target instanceof Element && Boolean(target.closest('input, textarea, select, [contenteditable="true"]'));
 }
 
-function isRelated(doodle: DecorativeDoodle | undefined, zone?: string, indicator?: string): boolean {
+function isRelated(doodle: DecorativeDoodle | undefined, zone?: string, indicator?: string, items?: DecorativeDoodle[]): boolean {
+  if (indicator && items?.some((item) => item.indicators?.includes(indicator))) return Boolean(doodle?.indicators?.includes(indicator));
   return Boolean(doodle && ((zone && doodle.zones?.includes(zone)) || (indicator && doodle.indicators?.includes(indicator))));
 }
 
@@ -32,11 +33,15 @@ function overlaps(a: DoodlePlacement, b: DoodlePlacement, gap = 0): boolean {
   return a.x < b.x + b.width + gap && a.x + a.width + gap > b.x && a.y < b.y + b.height + gap && a.y + a.height + gap > b.y;
 }
 
-function chooseDoodle(items: DecorativeDoodle[], previous: { zone: string; doodleId: string }[], placement: DoodlePlacement, zone: string | undefined, indicator: string | undefined, bias: number): DecorativeDoodle {
-  const related = items.filter((item) => isRelated(item, zone, indicator));
-  const preferred = related.length && Math.random() < bias ? related : items;
-  const notRepeated = preferred.filter((item) => !previous.some((old) => old.zone === placement.zone && old.doodleId === item.id));
-  const pool = notRepeated.length ? notRepeated : preferred;
+function chooseDoodle(items: DecorativeDoodle[], previous: { zone: string; doodleId: string }[], placement: DoodlePlacement, zone: string | undefined, indicator: string | undefined, reservedIds: string[] = []): DecorativeDoodle {
+  const indicatorRelated = indicator ? items.filter((item) => item.indicators?.includes(indicator)) : [];
+  const zoneRelated = zone ? items.filter((item) => item.zones?.includes(zone)) : [];
+  const related = indicatorRelated.length ? indicatorRelated : zoneRelated;
+  const relatedUnused = related.filter((item) => !reservedIds.includes(item.id));
+  const preferred = related.length && relatedUnused.length ? relatedUnused : items.filter((item) => !reservedIds.includes(item.id));
+  const uniquePool = preferred.length ? preferred : (related.length ? related : items);
+  const notRepeated = uniquePool.filter((item) => !previous.some((old) => old.zone === placement.zone && old.doodleId === item.id));
+  const pool = notRepeated.length ? notRepeated : uniquePool;
   return pool[Math.floor(Math.random() * pool.length)] ?? items[0];
 }
 
@@ -46,6 +51,7 @@ export function DecorativeDoodleLayer({
   strategy,
   selectedZone,
   selectedIndicator,
+  persistentVisibility = false,
   suspended = false
 }: {
   items: DecorativeDoodle[];
@@ -53,6 +59,7 @@ export function DecorativeDoodleLayer({
   strategy: 'rails' | 'free';
   selectedZone?: string;
   selectedIndicator?: string;
+  persistentVisibility?: boolean;
   suspended?: boolean;
 }) {
   const layerRef = useRef<HTMLDivElement>(null);
@@ -66,7 +73,7 @@ export function DecorativeDoodleLayer({
   const selectionRef = useRef<string | null>(null);
   const holdUntilRef = useRef(0);
   const itemsById = useMemo(() => new Map(items.map((item) => [item.id, item])), [items]);
-  const debug = new URLSearchParams(`${window.location.search}&${window.location.hash.split('?')[1] ?? ''}`).get('decorDebug') === '1';
+  const debug = import.meta.env.DEV && new URLSearchParams(`${window.location.search}&${window.location.hash.split('?')[1] ?? ''}`).get('decorDebug') === '1';
   slotsRef.current = slots;
 
   useEffect(() => {
@@ -112,10 +119,12 @@ export function DecorativeDoodleLayer({
           rejected: result.rejected, safetyMargin: result.safetyMargin, reason: result.reason
         });
         setSlots((current) => {
+          const usedIds: string[] = [];
           const next = local.map((placement, index) => {
             const old = current[index];
-            const item = chooseDoodle(items, previousRef.current, placement, selectedZone, selectedIndicator, config.selectionBias);
-            const dimmed = Boolean((selectedZone || selectedIndicator) && !isRelated(item, selectedZone, selectedIndicator));
+            const item = chooseDoodle(items, previousRef.current, placement, selectedZone, selectedIndicator, usedIds);
+            usedIds.push(item.id);
+            const dimmed = Boolean((selectedZone || selectedIndicator) && !isRelated(item, selectedZone, selectedIndicator, items));
             const same = old?.zone === placement.zone && old.doodleId === item.id && Math.abs(old.x - placement.x) < 1 && Math.abs(old.y - placement.y) < 1;
             return same ? { ...placement, ...old, dimmed, delay: reduced ? 0 : index * 1600 } : {
               ...placement, doodleId: item.id, key: Date.now() + Math.floor(Math.random() * 1_000_000),
@@ -130,7 +139,7 @@ export function DecorativeDoodleLayer({
 
     if (selectionChanged && slotsRef.current.length) {
       holdUntilRef.current = performance.now() + 600;
-      setSlots((current) => current.map((slot) => ({ ...slot, dimmed: !isRelated(itemsById.get(slot.doodleId), selectedZone, selectedIndicator) })));
+      setSlots((current) => current.map((slot) => ({ ...slot, dimmed: !isRelated(itemsById.get(slot.doodleId), selectedZone, selectedIndicator, items) })));
       selectionTimer = window.setTimeout(() => { holdUntilRef.current = 0; measure(true); }, 600);
     } else {
       holdUntilRef.current = 0;
@@ -213,8 +222,8 @@ export function DecorativeDoodleLayer({
         const next: Slot[] = [];
         for (const candidate of (newZones.length ? newZones : alternatives)) {
           if (next.some((other) => overlaps(candidate, other, OVERLAP_GAP))) continue;
-          const item = chooseDoodle(items, previousRef.current, candidate, selectedZone, selectedIndicator, config.selectionBias);
-          next.push({ ...candidate, doodleId: item.id, key: Date.now() + Math.floor(Math.random() * 1_000_000), duration: config.durationMs[Math.floor(Math.random() * config.durationMs.length)], delay: next.length * 1600, dimmed: Boolean((selectedZone || selectedIndicator) && !isRelated(item, selectedZone, selectedIndicator)) });
+          const item = chooseDoodle(items, previousRef.current, candidate, selectedZone, selectedIndicator, next.map((slot) => slot.doodleId));
+          next.push({ ...candidate, doodleId: item.id, key: Date.now() + Math.floor(Math.random() * 1_000_000), duration: config.durationMs[Math.floor(Math.random() * config.durationMs.length)], delay: next.length * 1600, dimmed: Boolean((selectedZone || selectedIndicator) && !isRelated(item, selectedZone, selectedIndicator, items)) });
           if (next.length >= count) break;
         }
         previousRef.current = next.map((slot) => ({ zone: slot.zone, doodleId: slot.doodleId }));
@@ -231,16 +240,16 @@ export function DecorativeDoodleLayer({
   }, [config, items, selectedIndicator, selectedZone, slots, reduced, strategy, suspended]);
 
   return <>
-    <div ref={layerRef} aria-hidden="true" className={`decorative-doodle-layer${focused ? ' is-focused' : ''}${hidden ? ' is-hidden' : ''}${reduced ? ' is-reduced' : ''}${suspended ? ' is-suspended' : ''}${debug ? ' is-debug' : ''}`} data-active-count={slots.length}>
+    <div ref={layerRef} aria-hidden="true" className={`decorative-doodle-layer${focused ? ' is-focused' : ''}${hidden ? ' is-hidden' : ''}${reduced ? ' is-reduced' : ''}${suspended ? ' is-suspended' : ''}${persistentVisibility ? ' is-looping' : ''}${debug ? ' is-debug' : ''}`} data-active-count={slots.length} data-engine-active={String(config.enabled)} data-free-space-count={diagnostics.freeSpaceCount ?? diagnostics.placements.length + diagnostics.rejected.length} data-valid-placement-count={diagnostics.placements.length} data-rejected-placement-count={diagnostics.rejected.length} data-selected-zone={selectedZone ?? ''} data-selected-indicator={selectedIndicator ?? ''}>
       {debug && <>
         {diagnostics.placements.map((zone) => <div key={`debug-${zone.zone}`} className="decorative-doodle-debug-zone" style={{ left: zone.x, top: zone.y, width: zone.width, height: zone.height }} title={`zone libre : ${zone.zone}`} />)}
         {diagnostics.rejected.slice(0, 40).map((zone, index) => <div key={`reject-${zone.zone}-${index}`} className="decorative-doodle-debug-zone is-rejected" style={{ left: zone.x, top: zone.y, width: zone.width, height: zone.height }} title={zone.reason} />)}
       </>}
-      {slots.map((slot) => <div key={slot.key} className={`decorative-doodle${slot.dimmed ? ' is-dimmed' : ''}`} style={{ left: slot.x, top: slot.y, width: slot.width, height: slot.height, animationDuration: `${slot.duration}ms`, animationDelay: `${slot.delay}ms`, '--peak-opacity': config.maxOpacity, '--resting-opacity': config.restingOpacity, '--focused-opacity': config.focusedOpacity, '--reduced-opacity': config.reducedOpacity } as React.CSSProperties}>
+      {slots.map((slot) => <div key={slot.key} data-doodle-id={slot.doodleId} data-placement-zone={slot.zone} className={`decorative-doodle${slot.dimmed ? ' is-dimmed' : ''}`} style={{ left: slot.x, top: slot.y, width: slot.width, height: slot.height, animationDuration: `${slot.duration}ms`, animationDelay: `${slot.delay}ms`, '--peak-opacity': config.maxOpacity, '--resting-opacity': config.restingOpacity, '--focused-opacity': config.focusedOpacity, '--reduced-opacity': config.reducedOpacity } as React.CSSProperties}>
         <div className={`decorative-doodle-art doodle-${slot.doodleId}`}>{itemsById.get(slot.doodleId)?.render}</div>
       </div>)}
     </div>
-    {debug && <span className="decorative-doodle-debug-status" title={diagnostics.reason}>{slots.length} dessin(s) · {reduced ? 'statique' : hidden ? 'pause' : suspended ? 'pause · interaction 3D' : 'cycle'}{diagnostics.reason ? ` · ${diagnostics.reason}` : ''}</span>}
+    {debug && <span className="decorative-doodle-debug-status" title={diagnostics.reason}>{`Moteur ${config.enabled ? 'actif' : 'arrêté'} · zones libres ${diagnostics.freeSpaceCount ?? diagnostics.placements.length + diagnostics.rejected.length} · valides ${diagnostics.placements.length} · refusés ${diagnostics.rejected.length} · affichés ${slots.length} · sélection ${selectedZone ?? 'aucune'} / ${selectedIndicator ?? 'aucun'} · ${reduced ? 'mouvement réduit' : hidden ? 'onglet masqué · pause' : suspended ? 'interaction 3D · pause' : 'cycle animé'}`} · {slots.map((slot) => `${slot.doodleId}@${Math.round(slot.x)},${Math.round(slot.y)} ${slot.width}×${slot.height}`).join(' ; ')}{diagnostics.reason ? ` · ${diagnostics.reason}` : ''}</span>}
   </>;
 }
 

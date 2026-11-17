@@ -17,6 +17,11 @@ i18n.use(initReactI18next).init({
   }
 });
 
+if (typeof document !== 'undefined') document.documentElement.lang = savedLang;
+i18n.on('languageChanged', (lang) => {
+  if (typeof document !== 'undefined') document.documentElement.lang = lang.startsWith('fr') ? 'fr' : 'en';
+});
+
 export function changeLanguage(lang: 'fr' | 'en') {
   i18n.changeLanguage(lang);
   if (typeof window !== 'undefined') {

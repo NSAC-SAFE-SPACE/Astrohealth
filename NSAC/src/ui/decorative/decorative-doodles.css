@@ -32,7 +32,11 @@
 
 .decorative-doodle-layer.is-suspended .decorative-doodle { animation-play-state: paused; }
 .decorative-doodle-layer.is-hidden .decorative-doodle { animation-play-state: paused; }
-.decorative-doodle.is-dimmed { opacity: .025 !important; transition: opacity 600ms ease-out; }
+.decorative-doodle-layer.is-looping .decorative-doodle {
+  animation-name: decorative-doodle-persistent;
+  animation-iteration-count: infinite;
+}
+.decorative-doodle.is-dimmed { opacity: var(--focused-opacity) !important; transition: opacity 600ms ease-out; }
 
 .decorative-doodle-layer.is-reduced .decorative-doodle {
   animation: none;
@@ -71,6 +75,14 @@
   66% { opacity: var(--resting-opacity); transform: translate3d(0, -1px, 0) scale(1); }
   82% { opacity: var(--peak-opacity); transform: translate3d(0, 0, 0) scale(1); }
   100% { opacity: 0; transform: translate3d(0, -3px, 0) scale(.99); }
+}
+
+@keyframes decorative-doodle-persistent {
+  0% { opacity: 0; transform: translate3d(0, 4px, 0) scale(.96); }
+  14% { opacity: var(--peak-opacity); transform: translate3d(0, 0, 0) scale(1); }
+  66% { opacity: var(--resting-opacity); transform: translate3d(0, -1px, 0) scale(1); }
+  82% { opacity: var(--peak-opacity); transform: translate3d(0, 0, 0) scale(1); }
+  100% { opacity: var(--resting-opacity); transform: translate3d(0, -1px, 0) scale(1); }
 }
 
 @media (prefers-reduced-motion: reduce) {

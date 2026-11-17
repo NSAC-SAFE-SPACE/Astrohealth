@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { calculateStressAssessment, classifyStressScore, STRESS_QUESTION_IDS, type StressAnswers } from '../features/mental/assessments/stress';
 import { calculateWellBeingAssessment, classifyWellBeingScore, WELLBEING_QUESTION_IDS, type WellBeingAnswers } from '../features/mental/assessments/wellbeing';
-import { buildMentalPredictionFromAssessments } from '../services/predictionCompleteness';
+import { adaptMentalPayload } from '../services/predictionCompleteness';
+import { buildMentalPrediction } from '../services/predictionCompleteness';
+import { computePsychSleepQuality } from '../engine/scores/sleep';
+import { createMentalStateFromQuestionnaires, EXAMPLE_MENTAL_STATE, MENTAL_STATE_FIELDS, MENTAL_STATE_KEYS } from '../features/mental/mentalState';
 
 describe('AstroHealth stress assessment scoring', () => {
   it('reverse scores the two positive questions and reports the expected minimum', () => {
@@ -38,20 +41,49 @@ describe('AstroHealth well-being assessment scoring', () => {
 });
 
 describe('mental prediction adapter', () => {
-  it('maps the distinct questionnaire outputs into the existing API fields', () => {
-    const now = new Date().toISOString();
-    const result = buildMentalPredictionFromAssessments([], [], [{
-      id: 'stress-1', astronautId: 'crew-1', completedAt: now,
-      answers: Object.fromEntries(STRESS_QUESTION_IDS.map((id) => [id, 2])) as StressAnswers,
-      totalScore: 20, stressLevel: 'MEDIUM', questionnaireVersion: 'astrohealth-stress-v1'
-    }], [{
-      id: 'wellbeing-1', astronautId: 'crew-1', completedAt: now,
-      answers: { q1: 4, q2: 4, q3: 4, q4: 4, q5: 4 }, rawScore: 20,
-      wellBeingScore: 8, classification: 'HIGH', questionnaireVersion: 'astrohealth-wellbeing-v1'
-    }], 'crew-1', Date.now());
-    expect(result.payload).toMatchObject({ Stress_Level: 'Medium', Happiness: 8 });
-    expect(result.missing.map((item) => item.key)).not.toContain('Stress_Level');
-    expect(result.missing.map((item) => item.key)).not.toContain('Happiness');
-    expect(result.complete).toBe(false); // Other AI context and sleep inputs are still required.
+  it('retains every original model field and its existing scale', () => {
+    expect(MENTAL_STATE_KEYS).toEqual(['Stress_level', 'Happiness', 'Mood_Score', 'Sleep_Quality', 'Workload Perception', 'Time_Perception', 'Food', 'Communication_with_Earth_mins']);
+    expect(MENTAL_STATE_FIELDS.find((field) => field.key === 'Stress_level')).toMatchObject({ options: ['High', 'Medium', 'Low'] });
+    expect(MENTAL_STATE_FIELDS.find((field) => field.key === 'Happiness')).toMatchObject({ min: 0, max: 10, integer: true });
+    expect(MENTAL_STATE_FIELDS.find((field) => field.key === 'Communication_with_Earth_mins')).toMatchObject({ min: 0, unit: 'hours' });
+  });
+
+  it('maps both questionnaire results into the exact eight-field model contract', () => {
+    const { Stress_level: _stress, Happiness: _happiness, Sleep_Quality: _sleep, ...otherAnswers } = EXAMPLE_MENTAL_STATE;
+    const preciseQuestionnaireScore = 6.8;
+    const mentalState = createMentalStateFromQuestionnaires('MEDIUM', preciseQuestionnaireScore, otherAnswers, 45.2);
+    const payload = adaptMentalPayload(mentalState);
+    expect(mentalState).toEqual({
+      Stress_level: 'Medium', Happiness: 7, Mood_Score: 'positive', Sleep_Quality: 45.2,
+      'Workload Perception': 'possible', Time_Perception: 'Normal', Food: 'Good', Communication_with_Earth_mins: 1.5
+    });
+    expect(Object.keys(payload)).toEqual(['Stress_Level', 'Happiness', 'Mood_Score', 'Sleep_Quality', 'Workload Perception', 'Time_Perception', 'Food', 'Communication_with_Earth_mins']);
+    expect(payload).toMatchObject({ Stress_Level: 'Medium', Happiness: 7, Communication_with_Earth_mins: 90 });
+    expect(payload).not.toHaveProperty('rawScore');
+    expect(payload).not.toHaveProperty('WellBeingScore');
+    expect(preciseQuestionnaireScore).toBe(6.8);
+  });
+
+  it('arrondit Happiness au plus proche et refuse un score hors plage', () => {
+    const { Stress_level: _stress, Happiness: _happiness, Sleep_Quality: _sleep, ...otherAnswers } = EXAMPLE_MENTAL_STATE;
+    expect(createMentalStateFromQuestionnaires('HIGH', 6.4, otherAnswers, 40).Happiness).toBe(6);
+    expect(createMentalStateFromQuestionnaires('LOW', 6.8, otherAnswers, 40).Happiness).toBe(7);
+    expect(() => createMentalStateFromQuestionnaires('LOW', 10.1, otherAnswers, 40)).toThrow(/0 et 10/);
+  });
+
+  it('chooses the latest complete collection when multiple evaluations share one date', () => {
+    const date = '2026-11-16';
+    const now = Date.parse(`${date}T18:00:00.000Z`);
+    const sleep = { id: 'sleep-current', astronautId: 'AST-TEST', date, hours: 7, bedtime: '22:00', latencyBucket: '<15' as const, awakenings: 1, restfulness: 4 };
+    const quality = computePsychSleepQuality(sleep);
+    const oldState = { ...EXAMPLE_MENTAL_STATE, Sleep_Quality: quality, Happiness: 2 };
+    const newState = { ...EXAMPLE_MENTAL_STATE, Sleep_Quality: quality, Happiness: 8, Stress_level: 'High' as const };
+    const result = buildMentalPrediction([
+      { id: 'old', astronautId: 'AST-TEST', date, completedAt: `${date}T15:00:00.000Z`, answers: [], score: 20, status: 'action', mentalStateData: oldState },
+      { id: 'new', astronautId: 'AST-TEST', date, completedAt: `${date}T17:00:00.000Z`, answers: [], score: 80, status: 'normal', mentalStateData: newState }
+    ], [sleep], 'AST-TEST', now);
+    expect(result.complete).toBe(true);
+    expect(result.assessment?.id).toBe('new');
+    expect(result.payload).toMatchObject({ Stress_Level: 'High', Happiness: 8 });
   });
 });

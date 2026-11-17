@@ -15,9 +15,11 @@ import type {
   Pattern
 } from '../types';
 import type { StressAssessment, WellBeingAssessment } from '../types';
-import { isLegacyFictionalProfile, seedFictionalCrew, shouldAutoSeedFictionalCrew } from '../services/simulator';
+import { DEMO_PROFILE_NAME, isLegacyFictionalProfile, seedFictionalCrew, shouldAutoSeedFictionalCrew } from '../services/simulator';
 import { resizeImageToSquare } from '../services/profile';
 import { validate_mental_state } from '../features/mental/mentalState';
+import { calculateStressAssessment } from '../features/mental/assessments/stress';
+import { calculateWellBeingAssessment } from '../features/mental/assessments/wellbeing';
 import { BODY_MEASURE_FIELD_BY_KEY, validateBodyMeasureValues, type BodyMeasureKey } from '../engine/config/bodyMeasures';
 import { CURRENT_USER_ID } from '../config/currentUser';
 
@@ -61,7 +63,14 @@ export interface AstroState {
   addBodyMeasurements: (values: Partial<Record<BodyMeasureKey, number>>) => Promise<void>;
   addSleepLog: (log: Omit<SleepLog, 'id' | 'astronautId'>) => Promise<void>;
   addPsychAssessment: (mentalStateData: import('../types').MentalStateData) => Promise<void>;
-  addMentalAssessment: (mentalStateData: import('../types').MentalStateData, log: Omit<SleepLog, 'id' | 'astronautId'>) => Promise<void>;
+  addMentalAssessment: (
+    mentalStateData: import('../types').MentalStateData,
+    log: Omit<SleepLog, 'id' | 'astronautId'>,
+    questionnaires: {
+      stress: Omit<StressAssessment, 'id' | 'astronautId' | 'completedAt' | 'psychAssessmentId'>;
+      wellBeing: Omit<WellBeingAssessment, 'id' | 'astronautId' | 'completedAt' | 'psychAssessmentId'>;
+    }
+  ) => Promise<void>;
   addStressAssessment: (assessment: Omit<StressAssessment, 'id' | 'astronautId' | 'completedAt'>) => Promise<void>;
   addWellBeingAssessment: (assessment: Omit<WellBeingAssessment, 'id' | 'astronautId' | 'completedAt'>) => Promise<void>;
   updatePsychMetrics: (metrics: Partial<PsychMetrics>) => Promise<void>;
@@ -71,8 +80,12 @@ export interface AstroState {
   recalculateAll: () => void;
 }
 
+const fallbackMissionStart = new Date(Date.now() - 137 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 const EMPTY_ASTRONAUT: Astronaut = {
-  id: CURRENT_USER_ID, matricule: CURRENT_USER_ID, name: 'Ariane Solenne', age: 36, sex: 'female', weightKg: 64, heightCm: 171, mission: 'station', missionName: 'Aurora-7', missionDay: 60, demo: true
+  id: CURRENT_USER_ID, matricule: CURRENT_USER_ID, name: 'Nélio Vassombre', age: 39, sex: 'male', weightKg: 76, heightCm: 178,
+  mission: 'station', missionName: 'Orbite-Delta 4', missionStartDate: fallbackMissionStart, missionDay: 138,
+  careerRadiationDose: 47.6, baselineBoneDensity: { total_hip: 1.08, lumbar_spine: 1.16, femoral_neck: 1.01 },
+  bloodGlucoseUnit: 'mg/dL', demo: true
 };
 
 function createLocalId(prefix: string): string {
@@ -134,10 +147,22 @@ export const useAstroStore = create<AstroState>((set, get) => ({
     const newestDemoTimestamp = markedRows.reduce<number | undefined>((latest, row) => latest === undefined || row.timestamp > latest ? row.timestamp : latest, undefined);
     const forceSeed = import.meta.env.VITE_DEMO_SEED_FORCE === 'true';
     const seedableProfile = !savedProfile || savedProfile.demo === true || isLegacyFictionalProfile(savedProfile);
-    if (shouldAutoSeedFictionalCrew(demoEnabled && seedableProfile, Boolean(savedProfile?.demo) || isLegacyFictionalProfile(savedProfile), newestDemoTimestamp, Date.now(), forceSeed)) {
+    const outdatedDemoProfile = savedProfile?.demo === true && savedProfile.name !== DEMO_PROFILE_NAME;
+    if (outdatedDemoProfile || shouldAutoSeedFictionalCrew(demoEnabled && seedableProfile, Boolean(savedProfile?.demo) || isLegacyFictionalProfile(savedProfile), newestDemoTimestamp, Date.now(), forceSeed)) {
       await seedFictionalCrew();
     }
-    const astronaut = await db.astronauts.get(CURRENT_USER_ID);
+    let astronaut = await db.astronauts.get(CURRENT_USER_ID);
+    if (astronaut?.demo === true && astronaut.missionStartDate) {
+      const today = new Date();
+      const todayEpoch = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+      const missionStartEpoch = Date.parse(`${astronaut.missionStartDate}T00:00:00Z`);
+      const realMissionDay = Math.max(1, Math.floor((todayEpoch - missionStartEpoch) / (24 * 60 * 60 * 1000)) + 1);
+      if (astronaut.missionDay !== realMissionDay) {
+        astronaut = { ...astronaut, missionDay: realMissionDay };
+        await db.astronauts.put(astronaut);
+        await db.users.put(astronaut);
+      }
+    }
     if (!astronaut) {
       set({ astronaut: EMPTY_ASTRONAUT, measurements: [], sleepLogs: [], boneRecords: [], psychAssessments: [], stressAssessments: [], wellBeingAssessments: [], activityEvents: [], isLoading: false });
       return;
@@ -303,28 +328,46 @@ export const useAstroStore = create<AstroState>((set, get) => ({
     get().recalculateAll();
   },
 
-  addMentalAssessment: async (mentalStateData, logData) => {
-    const { astronaut, sleepLogs, psychAssessments, activityEvents } = get();
+  addMentalAssessment: async (mentalStateData, logData, questionnaires) => {
+    const { astronaut, sleepLogs, psychAssessments, stressAssessments, wellBeingAssessments, activityEvents } = get();
     assertCurrentAstronaut(astronaut);
     validate_mental_state(mentalStateData, { sleepQualityCalculated: true });
-    const now = Date.now();
-    const todayStr = new Date().toISOString().split('T')[0];
+    const expectedStress = calculateStressAssessment(questionnaires.stress.answers);
+    const expectedWellBeing = calculateWellBeingAssessment(questionnaires.wellBeing.answers);
+    const mappedStress = expectedStress.stressLevel === 'LOW' ? 'Low' : expectedStress.stressLevel === 'MEDIUM' ? 'Medium' : 'High';
+    if (questionnaires.stress.totalScore !== expectedStress.totalScore || questionnaires.stress.stressLevel !== expectedStress.stressLevel
+      || questionnaires.wellBeing.rawScore !== expectedWellBeing.rawScore || questionnaires.wellBeing.wellBeingScore !== expectedWellBeing.wellBeingScore
+      || questionnaires.wellBeing.classification !== expectedWellBeing.classification
+      || mentalStateData.Stress_level !== mappedStress || mentalStateData.Happiness !== Math.round(expectedWellBeing.wellBeingScore)) {
+      throw new Error('Les questionnaires et les paramètres transmis doivent provenir de la même évaluation complète.');
+    }
+    const completedAt = new Date().toISOString();
+    const now = Date.parse(completedAt);
+    const todayStr = logData.date;
     const newLog: SleepLog = { id: `sleep-${astronaut.id}-${logData.date}`, astronautId: astronaut.id, ...logData };
     const score = Math.round((mentalStateData.Happiness / 10) * 100);
     const status: Status = score >= 70 ? 'normal' : score >= 50 ? 'watch' : score >= 30 ? 'action' : 'contact_flight_surgeon';
+    const psychAssessmentId = createLocalId('psych');
+    const stressAssessment: StressAssessment = { ...questionnaires.stress, id: createLocalId('stress'), astronautId: astronaut.id, completedAt, psychAssessmentId };
+    const wellBeingAssessment: WellBeingAssessment = { ...questionnaires.wellBeing, id: createLocalId('wellbeing'), astronautId: astronaut.id, completedAt, psychAssessmentId };
     const newAssessment: PsychAssessment = {
-      id: createLocalId('psych'), astronautId: astronaut.id, date: todayStr,
-      answers: [], score, status, mentalStateData
+      id: psychAssessmentId, astronautId: astronaut.id, date: todayStr, completedAt,
+      answers: [], score, status, mentalStateData,
+      stressAssessmentId: stressAssessment.id, wellBeingAssessmentId: wellBeingAssessment.id
     };
     const assessmentEvent: ActivityEvent = { id: `act-assessment-${now}`, astronautId: astronaut.id, date: todayStr, type: 'measurement' };
-    await db.transaction('rw', db.sleepLogs, db.psychAssessments, db.activityEvents, async () => {
+    await db.transaction('rw', db.sleepLogs, db.psychAssessments, db.stressAssessments, db.wellBeingAssessments, db.activityEvents, async () => {
       await db.sleepLogs.put(newLog);
       await db.psychAssessments.put(newAssessment);
+      await db.stressAssessments.put(stressAssessment);
+      await db.wellBeingAssessments.put(wellBeingAssessment);
       await db.activityEvents.put(assessmentEvent);
     });
     set({
       sleepLogs: [...sleepLogs.filter((entry) => entry.date !== logData.date), newLog],
       psychAssessments: [...psychAssessments, newAssessment],
+      stressAssessments: [...stressAssessments, stressAssessment],
+      wellBeingAssessments: [...wellBeingAssessments, wellBeingAssessment],
       activityEvents: [...activityEvents.filter((entry) => entry.date !== todayStr || entry.type !== 'measurement'), assessmentEvent]
     });
     get().recalculateAll();

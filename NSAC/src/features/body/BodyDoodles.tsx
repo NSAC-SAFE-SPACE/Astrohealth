@@ -2,7 +2,7 @@ import React from 'react';
 import type { DecorativeDoodle } from '../../ui/decorative/DecorativeDoodleLayer';
 import './body-doodles.css';
 
-const line = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.35, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const, vectorEffect: 'non-scaling-stroke' as const };
+const line = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.85, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const, vectorEffect: 'non-scaling-stroke' as const };
 
 function EyeDoodle() { return <svg viewBox="0 0 160 120"><g {...line}><ellipse cx="79" cy="60" rx="42" ry="25"/><circle cx="79" cy="60" r="14"/><circle cx="79" cy="60" r="5"/><circle cx="79" cy="60" r="52" strokeOpacity=".55"/><path d="M43 83c11 13 25 20 37 21m37-21c-7 9-15 15-23 18"/></g><circle cx="119" cy="28" r="3" fill="#e8b93c"/></svg>; }
 function HeartEcgDoodle() { return <svg viewBox="0 0 160 120"><g {...line}><path d="M80 101 33 59C4 31 42 8 64 34l16 17 16-17c23-25 59-2 31 25Z"/><path className="ecg-path" d="M28 67h28l9-18 13 38 13-51 14 31h29"/></g><circle cx="128" cy="67" r="3" fill="#e8b93c"/></svg>; }

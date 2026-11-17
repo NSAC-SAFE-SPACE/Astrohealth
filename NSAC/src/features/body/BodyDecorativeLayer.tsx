@@ -5,7 +5,7 @@ import { BODY_DOODLES } from './BodyDoodles';
 import type { BodyZoneId } from '../../engine/config/bodyZones';
 
 export function BodyDecorativeLayer({ selectedZone, selectedIndicator, suspended }: {
-  selectedZone: BodyZoneId;
+  selectedZone: BodyZoneId | null;
   selectedIndicator?: string;
   suspended: boolean;
 }) {
@@ -13,8 +13,9 @@ export function BodyDecorativeLayer({ selectedZone, selectedIndicator, suspended
     items={BODY_DOODLES}
     config={DECORATIVE_DOODLE_CONFIG.body}
     strategy="free"
-    selectedZone={selectedZone}
+    selectedZone={selectedZone ?? undefined}
     selectedIndicator={selectedIndicator}
+    persistentVisibility
     suspended={suspended}
   />;
 }

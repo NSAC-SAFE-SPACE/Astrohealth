@@ -130,6 +130,9 @@ export interface PsychAssessment {
   timePerception?: number;
   communicationWithOthers?: number;
   mentalStateData?: MentalStateData;
+  completedAt?: string;
+  stressAssessmentId?: string;
+  wellBeingAssessmentId?: string;
   demo?: boolean;
 }
 
@@ -141,6 +144,7 @@ export interface StressAssessment {
   totalScore: number;
   stressLevel: import('../features/mental/assessments/stress').StressLevel;
   questionnaireVersion: string;
+  psychAssessmentId?: string;
 }
 
 export interface WellBeingAssessment {
@@ -152,6 +156,7 @@ export interface WellBeingAssessment {
   wellBeingScore: number;
   classification: import('../features/mental/assessments/wellbeing').WellBeingLevel;
   questionnaireVersion: string;
+  psychAssessmentId?: string;
 }
 
 export interface MentalStateData {

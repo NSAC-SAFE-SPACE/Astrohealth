@@ -4,6 +4,8 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { BrainSvg } from '../features/mental/BrainDoodles';
 import { BRAIN_DOODLE_CONFIG, findBrainPlacements, findBrainPlacementsWithDiagnostics, findFreeSpacePlacements } from '../ui/decorative/doodleLayout';
 import { BODY_DOODLES } from '../features/body/BodyDoodles';
+import { BODY_ZONE_CONFIG } from '../engine/config/bodyZones';
+import { BODY_MEASURE_CONFIG } from '../engine/config/bodyMeasures';
 import { DECORATIVE_DOODLE_CONFIG } from '../ui/decorative/decorationConfig';
 
 const rect = (left: number, top: number, right: number, bottom: number) => ({ left, top, right, bottom });
@@ -147,12 +149,22 @@ describe('placement décoratif des cerveaux', () => {
 describe('décorations de Mon corps', () => {
   it('rend les onze dessins comme SVG décoratifs sans texte', () => {
     expect(BODY_DOODLES).toHaveLength(11);
+    expect(DECORATIVE_DOODLE_CONFIG.body.maxDesktop).toBe(2);
+    expect(DECORATIVE_DOODLE_CONFIG.body.maxTablet).toBe(1);
+    expect(DECORATIVE_DOODLE_CONFIG.body.maxMobile).toBe(1);
+    expect(DECORATIVE_DOODLE_CONFIG.body.maxOpacity).toBeGreaterThanOrEqual(0.9);
+    expect(DECORATIVE_DOODLE_CONFIG.body.restingOpacity).toBeGreaterThanOrEqual(0.8);
+    expect(DECORATIVE_DOODLE_CONFIG.body.maxSize).toBeGreaterThanOrEqual(175);
+    const zoneIds = new Set<string>(BODY_ZONE_CONFIG.map((zone) => zone.id));
+    const indicatorIds = new Set<string>(BODY_MEASURE_CONFIG.indicators.map((indicator) => indicator.id));
     for (const doodle of BODY_DOODLES) {
       const markup = renderToStaticMarkup(doodle.render as React.ReactElement);
       expect(markup).toContain('<svg');
       expect(markup).not.toMatch(/<text\b|<image\b/);
       expect(doodle.zones?.length).toBeGreaterThan(0);
       expect(doodle.indicators?.length).toBeGreaterThan(0);
+      for (const zone of doodle.zones ?? []) expect(zoneIds.has(zone)).toBe(true);
+      for (const indicator of doodle.indicators ?? []) expect(indicatorIds.has(indicator)).toBe(true);
     }
   });
 
